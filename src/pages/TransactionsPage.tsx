@@ -25,6 +25,15 @@ export function TransactionsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const getInitialFormData = useCallback(() => ({
+    amount: '',
+    type: 'expense' as 'expense' | 'income',
+    description: '',
+    date: new Date().toISOString().split('T')[0],
+    accountId: accounts.length > 0 ? accounts[0].id : '',
+    categoryId: categories.find((c) => c.type === 'expense')?.id || '',
+  }), [accounts, categories]);
+
   const [formData, setFormData] = useState({
     amount: '',
     type: 'expense' as 'expense' | 'income',
@@ -44,14 +53,6 @@ export function TransactionsPage() {
       setTransactions(txData.transactions);
       setAccounts(accData);
       setCategories(catData);
-
-      if (accData.length > 0) {
-        setFormData((prev) => ({ ...prev, accountId: accData[0].id }));
-      }
-      const defaultCat = catData.find((c) => c.type === 'expense');
-      if (defaultCat) {
-        setFormData((prev) => ({ ...prev, categoryId: defaultCat.id }));
-      }
     } finally {
       setLoading(false);
     }
@@ -72,6 +73,18 @@ export function TransactionsPage() {
     }));
   };
 
+  const handleOpenForm = () => {
+    // Resetear formulario con valores por defecto al abrir
+    setFormData(getInitialFormData());
+    setShowForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    // Resetear formulario al cerrar
+    setFormData(getInitialFormData());
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -83,8 +96,7 @@ export function TransactionsPage() {
         accountId: formData.accountId,
         categoryId: formData.categoryId,
       });
-      setShowForm(false);
-      setFormData((prev) => ({ ...prev, amount: '', description: '' }));
+      handleCloseForm();
       loadData();
     } catch (error) {
       console.error('Error creating transaction:', error);
@@ -120,7 +132,7 @@ export function TransactionsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Transacciones</h1>
           <p className="text-gray-500">Historial de movimientos</p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={handleOpenForm}>
           <Plus className="mr-2 h-4 w-4" /> Nueva Transacción
         </Button>
       </div>
@@ -179,7 +191,7 @@ export function TransactionsPage() {
             <CardContent className="py-12 text-center">
               <ArrowLeftRight className="mx-auto h-12 w-12 text-gray-300" />
               <p className="mt-4 text-gray-500">No tienes transacciones. Añade una para empezar.</p>
-              <Button onClick={() => setShowForm(true)} className="mt-4">
+              <Button onClick={handleOpenForm} className="mt-4">
                 <Plus className="mr-2 h-4 w-4" /> Crear primera transacción
               </Button>
             </CardContent>
@@ -188,7 +200,7 @@ export function TransactionsPage() {
       </div>
 
       {/* Form Dialog */}
-      <Dialog open={showForm} onClose={() => setShowForm(false)}>
+      <Dialog open={showForm} onClose={handleCloseForm}>
         <DialogHeader>
           <DialogTitle>Nueva Transacción</DialogTitle>
         </DialogHeader>
@@ -281,7 +293,7 @@ export function TransactionsPage() {
           </DialogContent>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+            <Button type="button" variant="outline" onClick={handleCloseForm}>
               Cancelar
             </Button>
             <Button type="submit">Crear</Button>
