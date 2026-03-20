@@ -7,14 +7,16 @@ import { CategoryIcon } from '../components/ui/category-icon';
 import { dashboardApi } from '../api/dashboard.api';
 import { fixedExpensesApi } from '../api/fixed-expenses.api';
 import { formatCurrency } from '../lib/utils';
-import type { DashboardSummary, CategorySummary, FixedExpenseSummary, FixedVsVariable } from '../types';
+import type { DashboardSummary, CategorySummary, FixedExpenseSummary, FixedVsVariable, ProjectionData } from '../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import { NextMonthProjection } from '../components/dashboard/NextMonthProjection';
 
 export function DashboardPage() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [byCategory, setByCategory] = useState<CategorySummary[]>([]);
   const [fixedSummary, setFixedSummary] = useState<FixedExpenseSummary | null>(null);
   const [fixedVsVariable, setFixedVsVariable] = useState<FixedVsVariable | null>(null);
+  const [projection, setProjection] = useState<ProjectionData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,12 +25,14 @@ export function DashboardPage() {
       dashboardApi.getByCategory('expense'),
       fixedExpensesApi.getSummary(),
       dashboardApi.getFixedVsVariable(),
+      dashboardApi.getNextMonthProjection(),
     ])
-      .then(([sum, cat, fixed, fvv]) => {
+      .then(([sum, cat, fixed, fvv, proj]) => {
         setSummary(sum);
         setByCategory(cat);
         setFixedSummary(fixed);
         setFixedVsVariable(fvv);
+        setProjection(proj);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -176,6 +180,9 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Next Month Projection */}
+      {projection && <NextMonthProjection projection={projection} />}
 
       {/* Charts Row */}
       <div className="grid gap-4 lg:gap-6 lg:grid-cols-2">

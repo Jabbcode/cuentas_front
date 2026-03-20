@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { DashboardSummary, CategorySummary, MonthlyTrend, FixedVsVariable } from '../types';
+import type { DashboardSummary, CategorySummary, MonthlyTrend, FixedVsVariable, ProjectionData } from '../types';
 
 export const dashboardApi = {
   getSummary: async (): Promise<DashboardSummary> => {
@@ -19,6 +19,11 @@ export const dashboardApi = {
 
   getFixedVsVariable: async (): Promise<FixedVsVariable> => {
     const response = await api.get('/dashboard/fixed-vs-variable');
+    return response.data;
+  },
+
+  getNextMonthProjection: async (): Promise<ProjectionData> => {
+    const response = await api.get('/dashboard/next-month-projection');
     return response.data;
   },
 };
