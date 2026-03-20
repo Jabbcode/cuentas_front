@@ -13,6 +13,10 @@ export interface Account {
   currency: string;
   color?: string;
   createdAt: string;
+  // Credit card specific fields
+  creditLimit?: number;
+  cutoffDay?: number;
+  paymentDueDay?: number;
 }
 
 export interface Category {
@@ -139,4 +143,57 @@ export interface ProjectionData {
     expensesPercentage: number;
     incomePercentage: number;
   };
+}
+
+// Credit Cards
+export interface CreditCardPeriod {
+  startDate: string;
+  endDate: string;
+  balance: number;
+  transactions: Transaction[];
+}
+
+export interface CreditCardStatement {
+  account: Account;
+  currentPeriod: CreditCardPeriod & {
+    daysUntilCutoff: number;
+  };
+  closedPeriod: CreditCardPeriod & {
+    isPaid: boolean;
+    paymentDueDate: string;
+    daysUntilDue: number;
+  };
+  creditLimit: number;
+  available: number;
+  usagePercentage: number;
+  alerts: {
+    type: string;
+    message: string;
+    severity: 'info' | 'warning' | 'error';
+  }[];
+}
+
+export interface CreditCardsSummary {
+  totalToPay: number;
+  upcomingPayments: {
+    accountId: string;
+    accountName: string;
+    amount: number;
+    dueDate: string;
+    daysUntilDue: number;
+  }[];
+  alerts: {
+    type: string;
+    message: string;
+    severity: 'info' | 'warning' | 'error';
+    accountId: string;
+    accountName: string;
+  }[];
+  cards: CreditCardStatement[];
+}
+
+export interface PayCreditCardStatementInput {
+  amount: number;
+  paymentAccountId: string;
+  paymentDate?: string;
 }
