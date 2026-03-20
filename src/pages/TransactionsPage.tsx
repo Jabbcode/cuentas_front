@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Plus, ArrowUpCircle, ArrowDownCircle, Trash2, ArrowLeftRight, CreditCard } from 'lucide-react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { Plus, ArrowUpCircle, ArrowDownCircle, Trash2, ArrowLeftRight, CreditCard, AlertTriangle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../components/ui/dialog';
@@ -88,6 +88,36 @@ export function TransactionsPage() {
       label: `${periodStart.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })} - ${periodEnd.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}`,
     };
   };
+
+  // Check if selected date is in a closed period for credit card
+  const dateWarning = useMemo(() => {
+    if (!formData.accountId || !formData.date || formData.type !== 'expense') return null;
+
+    const account = accounts.find((acc) => acc.id === formData.accountId);
+    if (!account || account.type !== 'credit_card' || !account.cutoffDay) return null;
+
+    const selectedDate = new Date(formData.date);
+    const today = new Date();
+    const cutoffDay = account.cutoffDay;
+
+    // Calculate last cutoff date
+    let lastCutoff: Date;
+    if (today.getDate() >= cutoffDay) {
+      lastCutoff = new Date(today.getFullYear(), today.getMonth(), cutoffDay);
+    } else {
+      lastCutoff = new Date(today.getFullYear(), today.getMonth() - 1, cutoffDay);
+    }
+
+    // If selected date is before last cutoff, it's in a closed period
+    if (selectedDate < lastCutoff) {
+      return {
+        type: 'error' as const,
+        message: `Esta fecha pertenece a un período ya cerrado (antes del ${lastCutoff.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}). Los cargos deberían ir al período actual.`,
+      };
+    }
+
+    return null;
+  }, [formData.accountId, formData.date, formData.type, accounts]);
 
   useEffect(() => {
     loadData();
@@ -321,6 +351,22 @@ export function TransactionsPage() {
                 onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                 required
               />
+              {dateWarning && (
+                <div className={`mt-2 rounded-lg border p-3 flex items-start gap-2 ${
+                  dateWarning.type === 'error'
+                    ? 'border-red-200 bg-red-50'
+                    : 'border-orange-200 bg-orange-50'
+                }`}>
+                  <AlertTriangle className={`h-4 w-4 flex-shrink-0 mt-0.5 ${
+                    dateWarning.type === 'error' ? 'text-red-600' : 'text-orange-600'
+                  }`} />
+                  <p className={`text-xs ${
+                    dateWarning.type === 'error' ? 'text-red-800' : 'text-orange-800'
+                  }`}>
+                    {dateWarning.message}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div>
