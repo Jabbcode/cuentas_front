@@ -38,6 +38,10 @@ export function AccountsPage() {
     balance: '0',
     currency: 'EUR',
     color: '#3B82F6',
+    // Credit card fields
+    creditLimit: '',
+    cutoffDay: '',
+    paymentDueDay: '',
   });
 
   const loadAccounts = useCallback(async () => {
@@ -62,6 +66,9 @@ export function AccountsPage() {
         balance: account.balance.toString(),
         currency: account.currency,
         color: account.color || '#3B82F6',
+        creditLimit: account.creditLimit?.toString() || '',
+        cutoffDay: account.cutoffDay?.toString() || '',
+        paymentDueDay: account.paymentDueDay?.toString() || '',
       });
     } else {
       setEditingAccount(null);
@@ -71,6 +78,9 @@ export function AccountsPage() {
         balance: '0',
         currency: 'EUR',
         color: '#3B82F6',
+        creditLimit: '',
+        cutoffDay: '',
+        paymentDueDay: '',
       });
     }
     setShowForm(true);
@@ -79,13 +89,20 @@ export function AccountsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const data = {
+      const data: any = {
         name: formData.name,
         type: formData.type,
         balance: parseFloat(formData.balance),
         currency: formData.currency,
         color: formData.color,
       };
+
+      // Add credit card fields if type is credit_card
+      if (formData.type === 'credit_card') {
+        if (formData.creditLimit) data.creditLimit = parseFloat(formData.creditLimit);
+        if (formData.cutoffDay) data.cutoffDay = parseInt(formData.cutoffDay);
+        if (formData.paymentDueDay) data.paymentDueDay = parseInt(formData.paymentDueDay);
+      }
 
       if (editingAccount) {
         await accountsApi.update(editingAccount.id, data);
@@ -206,6 +223,24 @@ export function AccountsPage() {
                   >
                     {formatCurrency(Number(account.balance), account.currency)}
                   </p>
+
+                  {/* Credit card info */}
+                  {account.type === 'credit_card' && account.creditLimit && (
+                    <div className="mt-3 space-y-1">
+                      <div className="flex justify-between text-xs text-gray-600">
+                        <span>Límite:</span>
+                        <span className="font-medium">{formatCurrency(account.creditLimit)}</span>
+                      </div>
+                      {account.cutoffDay && account.paymentDueDay && (
+                        <div className="flex justify-between text-xs text-gray-600">
+                          <span>Corte/Pago:</span>
+                          <span className="font-medium">
+                            Día {account.cutoffDay} / {account.paymentDueDay}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -285,6 +320,64 @@ export function AccountsPage() {
                 ))}
               </div>
             </div>
+
+            {/* Credit Card specific fields */}
+            {formData.type === 'credit_card' && (
+              <>
+                <div className="rounded-lg border border-purple-200 bg-purple-50 p-3">
+                  <p className="text-sm font-medium text-purple-900 mb-2">
+                    Configuración de Tarjeta de Crédito
+                  </p>
+                  <p className="text-xs text-purple-700">
+                    Completa estos campos para habilitar el seguimiento de períodos de corte y pagos.
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="creditLimit">Límite de Crédito</Label>
+                  <Input
+                    id="creditLimit"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Ej: 5000.00"
+                    value={formData.creditLimit}
+                    onChange={(e) => setFormData({ ...formData, creditLimit: e.target.value })}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Monto máximo disponible en la tarjeta</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="cutoffDay">Día de Corte</Label>
+                    <Input
+                      id="cutoffDay"
+                      type="number"
+                      min="1"
+                      max="31"
+                      placeholder="Ej: 15"
+                      value={formData.cutoffDay}
+                      onChange={(e) => setFormData({ ...formData, cutoffDay: e.target.value })}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Día que cierra el período (1-31)</p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="paymentDueDay">Día de Pago</Label>
+                    <Input
+                      id="paymentDueDay"
+                      type="number"
+                      min="1"
+                      max="31"
+                      placeholder="Ej: 30"
+                      value={formData.paymentDueDay}
+                      onChange={(e) => setFormData({ ...formData, paymentDueDay: e.target.value })}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Día de vencimiento del pago (1-31)</p>
+                  </div>
+                </div>
+              </>
+            )}
           </DialogContent>
 
           <DialogFooter>

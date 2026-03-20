@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, ArrowUpCircle, ArrowDownCircle, Trash2, ArrowLeftRight } from 'lucide-react';
+import { Plus, ArrowUpCircle, ArrowDownCircle, Trash2, ArrowLeftRight, CreditCard } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../components/ui/dialog';
@@ -46,7 +46,7 @@ export function TransactionsPage() {
   const loadData = useCallback(async () => {
     try {
       const [txData, accData, catData] = await Promise.all([
-        transactionsApi.getAll({ limit: 50 }),
+        transactionsApi.getAll({ limit: 100 }),
         accountsApi.getAll(),
         categoriesApi.getAll(),
       ]);
@@ -57,6 +57,37 @@ export function TransactionsPage() {
       setLoading(false);
     }
   }, []);
+
+  // Helper to get credit card period for a transaction
+  const getCreditCardPeriod = (tx: Transaction) => {
+    const account = accounts.find((acc) => acc.id === tx.accountId);
+    if (!account || account.type !== 'credit_card' || !account.cutoffDay) return null;
+
+    const txDate = new Date(tx.date);
+    const cutoffDay = account.cutoffDay;
+    const txDay = txDate.getDate();
+    const txMonth = txDate.getMonth();
+    const txYear = txDate.getFullYear();
+
+    let periodStart: Date;
+    let periodEnd: Date;
+
+    if (txDay >= cutoffDay) {
+      // Transaction is in current period
+      periodStart = new Date(txYear, txMonth, cutoffDay);
+      periodEnd = new Date(txYear, txMonth + 1, cutoffDay - 1);
+    } else {
+      // Transaction is in previous period
+      periodStart = new Date(txYear, txMonth - 1, cutoffDay);
+      periodEnd = new Date(txYear, txMonth, cutoffDay - 1);
+    }
+
+    return {
+      start: periodStart,
+      end: periodEnd,
+      label: `${periodStart.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })} - ${periodEnd.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}`,
+    };
+  };
 
   useEffect(() => {
     loadData();
@@ -138,30 +169,40 @@ export function TransactionsPage() {
       </div>
 
       <div className="space-y-3">
-        {transactions.map((tx) => (
-          <Card key={tx.id} className="transition-all hover:shadow-md">
-            <CardContent className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-4">
-                <CategoryIconBadge
-                  icon={tx.category?.icon}
-                  color={tx.category?.color}
-                  size="lg"
-                  tooltip={tx.category?.name}
-                />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">
-                      {tx.category?.name}
-                    </span>
-                    {tx.fixedExpenseId && (
-                      <Badge variant="secondary">Fijo</Badge>
-                    )}
+        {transactions.map((tx) => {
+          const creditCardPeriod = getCreditCardPeriod(tx);
+          const isCreditCard = accounts.find((acc) => acc.id === tx.accountId)?.type === 'credit_card';
+
+          return (
+            <Card key={tx.id} className="transition-all hover:shadow-md">
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-4">
+                  <CategoryIconBadge
+                    icon={tx.category?.icon}
+                    color={tx.category?.color}
+                    size="lg"
+                    tooltip={tx.category?.name}
+                  />
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-gray-900">
+                        {tx.category?.name}
+                      </span>
+                      {tx.fixedExpenseId && (
+                        <Badge variant="secondary">Fijo</Badge>
+                      )}
+                      {isCreditCard && tx.type === 'expense' && creditCardPeriod && (
+                        <Badge variant="outline" className="text-xs">
+                          <CreditCard className="mr-1 h-3 w-3" />
+                          {creditCardPeriod.label}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      {tx.description || tx.account?.name} • {formatDate(tx.date)}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-500">
-                    {tx.description || tx.account?.name} • {formatDate(tx.date)}
-                  </p>
                 </div>
-              </div>
 
               <div className="flex items-center gap-4">
                 <span
@@ -181,10 +222,11 @@ export function TransactionsPage() {
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
 
         {transactions.length === 0 && (
           <Card>
