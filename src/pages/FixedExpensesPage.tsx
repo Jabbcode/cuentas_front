@@ -132,6 +132,19 @@ export function FixedExpensesPage() {
     return items.filter((item) => item.category && selectedIncomeCategories.includes(item.category.id));
   }, [summary, selectedIncomeCategories]);
 
+  // Calcular totales filtrados
+  const filteredExpenseTotal = useMemo(() => {
+    return expenseItems
+      .filter((item) => item.isActive) // Solo contar activos
+      .reduce((sum, item) => sum + Number(item.amount), 0);
+  }, [expenseItems]);
+
+  const filteredIncomeTotal = useMemo(() => {
+    return incomeItems
+      .filter((item) => item.isActive) // Solo contar activos
+      .reduce((sum, item) => sum + Number(item.amount), 0);
+  }, [incomeItems]);
+
   const handleReorder = async (newItems: any[]) => {
     if (!summary) return;
 
@@ -256,7 +269,7 @@ export function FixedExpensesPage() {
           title="Gastos Fijos"
           items={expenseItems}
           type="expense"
-          totalAmount={summary?.totalMonthlyExpenses || 0}
+          totalAmount={filteredExpenseTotal}
           icon={
             <div className="rounded-full bg-red-100 p-1.5">
               <TrendingDown className="h-4 w-4 text-red-600" />
@@ -315,7 +328,7 @@ export function FixedExpensesPage() {
           title="Ingresos Fijos"
           items={incomeItems}
           type="income"
-          totalAmount={summary?.totalMonthlyIncome || 0}
+          totalAmount={filteredIncomeTotal}
           icon={
             <div className="rounded-full bg-green-100 p-1.5">
               <TrendingUp className="h-4 w-4 text-green-600" />
