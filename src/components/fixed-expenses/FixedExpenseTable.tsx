@@ -58,7 +58,11 @@ export function FixedExpenseTable({
   const [payAmount, setPayAmount] = useState('');
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Requiere mover 8px antes de activar el drag
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -149,7 +153,8 @@ export function FixedExpenseTable({
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <button
-              className="touch-none cursor-grab active:cursor-grabbing p-1 -ml-1 text-gray-400 hover:text-gray-600"
+              className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-gray-400 hover:text-gray-600"
+              style={{ touchAction: 'none' }}
               {...attributes}
               {...listeners}
             >
@@ -275,7 +280,8 @@ export function FixedExpenseTable({
         <td className="px-3 py-2">
           <div className="flex items-center gap-2">
             <button
-              className="touch-none cursor-grab active:cursor-grabbing p-1 -ml-1 text-gray-400 hover:text-gray-600"
+              className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-gray-400 hover:text-gray-600"
+              style={{ touchAction: 'none' }}
               {...attributes}
               {...listeners}
             >
