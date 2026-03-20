@@ -213,8 +213,8 @@ export function FixedExpensesPage() {
               <p className="text-sm text-orange-600">
                 Total pendiente: {formatCurrency(
                   expenseItems
-                    .filter((item) => !item.isPaidThisMonth)
-                    .reduce((sum, item) => sum + item.amount, 0)
+                    .filter((item) => !item.isPaidThisMonth && item.isActive)
+                    .reduce((sum, item) => sum + Number(item.amount), 0)
                 )}
               </p>
             </div>
