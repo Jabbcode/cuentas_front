@@ -89,7 +89,8 @@ export function CreditCardsPage() {
     return 'bg-green-500';
   };
 
-  const getDaysColor = (days: number) => {
+  const getDaysColor = (days: number, balance: number) => {
+    if (balance === 0) return 'text-gray-600';
     if (days <= 0) return 'text-red-600';
     if (days <= 3) return 'text-orange-600';
     if (days <= 7) return 'text-yellow-600';
@@ -293,23 +294,25 @@ export function CreditCardsPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Monto:</span>
-                      <span className="text-lg font-bold text-red-600">
-                        {formatCurrency(statement.closedPeriod.balance)}
+                      <span className={`text-lg font-bold ${statement.closedPeriod.balance === 0 ? 'text-gray-400' : 'text-red-600'}`}>
+                        {statement.closedPeriod.balance === 0 ? 'Sin saldo' : formatCurrency(statement.closedPeriod.balance)}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Vencimiento:</span>
-                      <span className={`font-medium ${getDaysColor(statement.closedPeriod.daysUntilDue)}`}>
+                      <span className={`font-medium ${getDaysColor(statement.closedPeriod.daysUntilDue, statement.closedPeriod.balance)}`}>
                         {formatDate(statement.closedPeriod.paymentDueDate)}
-                        <span className="text-xs ml-1">
-                          ({statement.closedPeriod.daysUntilDue === 0
-                            ? 'hoy'
-                            : statement.closedPeriod.daysUntilDue === 1
-                            ? 'mañana'
-                            : statement.closedPeriod.daysUntilDue < 0
-                            ? `vencido`
-                            : `${statement.closedPeriod.daysUntilDue}d`})
-                        </span>
+                        {statement.closedPeriod.balance > 0 && (
+                          <span className="text-xs ml-1">
+                            ({statement.closedPeriod.daysUntilDue === 0
+                              ? 'hoy'
+                              : statement.closedPeriod.daysUntilDue === 1
+                              ? 'mañana'
+                              : statement.closedPeriod.daysUntilDue < 0
+                              ? `vencido`
+                              : `${statement.closedPeriod.daysUntilDue}d`})
+                          </span>
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between">
