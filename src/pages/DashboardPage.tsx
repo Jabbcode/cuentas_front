@@ -214,7 +214,7 @@ export function DashboardPage() {
                           className="h-2.5 w-2.5 rounded-full lg:h-3 lg:w-3"
                           style={{ backgroundColor: COLORS[index % COLORS.length] }}
                         />
-                        <CategoryIcon icon={cat.icon} color={cat.color} size="sm" />
+                        <CategoryIcon icon={cat.icon} color={cat.color} size="sm" tooltip={cat.name} />
                         <span className="text-xs text-gray-700 lg:text-sm">{cat.name}</span>
                       </div>
                       <div className="text-right">

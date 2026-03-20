@@ -129,7 +129,7 @@ export function CategoriesPage() {
               className="flex items-center justify-between rounded-lg border border-gray-200 p-3 transition-all hover:shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <CategoryIcon icon={cat.icon} color={cat.color} size="lg" />
+                <CategoryIcon icon={cat.icon} color={cat.color} size="lg" tooltip={cat.name} />
                 <span className="font-medium text-gray-900">{cat.name}</span>
               </div>
               <div className="flex gap-1">

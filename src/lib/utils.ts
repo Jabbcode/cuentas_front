@@ -20,6 +20,28 @@ export function formatDate(date: string | Date): string {
   }).format(new Date(date));
 }
 
+export function formatShortDate(date: string | Date): string {
+  return new Intl.DateTimeFormat('es-ES', {
+    day: '2-digit',
+    month: 'short',
+  }).format(new Date(date));
+}
+
+export function getNextDueDate(dueDay: number): Date {
+  const today = new Date();
+  const currentDay = today.getDate();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+
+  // Si el día de vencimiento ya pasó este mes, tomar el siguiente mes
+  if (dueDay < currentDay) {
+    return new Date(currentYear, currentMonth + 1, dueDay);
+  }
+
+  // Si el día de vencimiento es este mes o futuro
+  return new Date(currentYear, currentMonth, dueDay);
+}
+
 export function getOrdinalDay(day: number): string {
   return `${day}`;
 }

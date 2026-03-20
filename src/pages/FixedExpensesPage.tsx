@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Plus, TrendingDown, TrendingUp } from 'lucide-react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { Plus, TrendingDown, TrendingUp, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
@@ -9,6 +9,14 @@ import type { FixedExpenseSummary } from '../types';
 import { FixedExpenseForm } from '../components/fixed-expenses/FixedExpenseForm';
 import { FixedExpenseTable } from '../components/fixed-expenses/FixedExpenseTable';
 import { MonthlyFixedSummary } from '../components/fixed-expenses/MonthlyFixedSummary';
+import { CategoryIcon } from '../components/ui/category-icon';
+
+type CategoryInfo = {
+  id: string;
+  name: string;
+  icon?: string | null;
+  color?: string | null;
+};
 
 export function FixedExpensesPage() {
   const [summary, setSummary] = useState<FixedExpenseSummary | null>(null);
@@ -17,6 +25,8 @@ export function FixedExpensesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [selectedExpenseCategories, setSelectedExpenseCategories] = useState<string[]>([]);
+  const [selectedIncomeCategories, setSelectedIncomeCategories] = useState<string[]>([]);
 
   const loadData = useCallback(async () => {
     try {
@@ -65,6 +75,95 @@ export function FixedExpensesPage() {
     }
   };
 
+  const toggleExpenseCategory = (categoryId: string) => {
+    setSelectedExpenseCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const toggleIncomeCategory = (categoryId: string) => {
+    setSelectedIncomeCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const clearExpenseFilters = () => setSelectedExpenseCategories([]);
+  const clearIncomeFilters = () => setSelectedIncomeCategories([]);
+
+  // Obtener todas las categorías únicas de cada tipo (ANTES del early return)
+  const expenseCategories = useMemo(() => {
+    const categories = new Map<string, CategoryInfo>();
+    summary?.items
+      .filter((item) => item.type === 'expense' && item.category)
+      .forEach((item) => {
+        if (item.category && !categories.has(item.category.id)) {
+          categories.set(item.category.id, item.category);
+        }
+      });
+    return Array.from(categories.values());
+  }, [summary]);
+
+  const incomeCategories = useMemo(() => {
+    const categories = new Map<string, CategoryInfo>();
+    summary?.items
+      .filter((item) => item.type === 'income' && item.category)
+      .forEach((item) => {
+        if (item.category && !categories.has(item.category.id)) {
+          categories.set(item.category.id, item.category);
+        }
+      });
+    return Array.from(categories.values());
+  }, [summary]);
+
+  // Filtrar items por categorías seleccionadas
+  const expenseItems = useMemo(() => {
+    const items = summary?.items.filter((item) => item.type === 'expense') || [];
+    if (selectedExpenseCategories.length === 0) return items;
+    return items.filter((item) => item.category && selectedExpenseCategories.includes(item.category.id));
+  }, [summary, selectedExpenseCategories]);
+
+  const incomeItems = useMemo(() => {
+    const items = summary?.items.filter((item) => item.type === 'income') || [];
+    if (selectedIncomeCategories.length === 0) return items;
+    return items.filter((item) => item.category && selectedIncomeCategories.includes(item.category.id));
+  }, [summary, selectedIncomeCategories]);
+
+  const handleReorder = async (newItems: any[]) => {
+    if (!summary) return;
+
+    try {
+      // Crear un mapa de items reordenados con su nuevo sortOrder
+      const reorderedMap = new Map(
+        newItems.map((item, index) => [item.id, { ...item, sortOrder: index }])
+      );
+
+      // Actualizar el estado local inmediatamente
+      const updatedItems = summary.items.map(item =>
+        reorderedMap.has(item.id) ? reorderedMap.get(item.id)! : item
+      );
+
+      // Reordenar el array completo por sortOrder
+      updatedItems.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
+      setSummary({ ...summary, items: updatedItems });
+
+      // Persistir en el backend
+      const itemsWithOrder = newItems.map((item, index) => ({
+        id: item.id,
+        sortOrder: index,
+      }));
+      await fixedExpensesApi.reorder(itemsWithOrder);
+    } catch (error) {
+      console.error('Error reordering fixed expenses:', error);
+      // Recargar datos en caso de error para mantener consistencia
+      loadData();
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -72,9 +171,6 @@ export function FixedExpensesPage() {
       </div>
     );
   }
-
-  const expenseItems = summary?.items.filter((item) => item.type === 'expense') || [];
-  const incomeItems = summary?.items.filter((item) => item.type === 'income') || [];
 
   return (
     <div className="space-y-6">
@@ -116,7 +212,47 @@ export function FixedExpensesPage() {
       {/* Fixed Expenses Tables */}
       <div className="grid gap-4 lg:gap-6 lg:grid-cols-2">
         {/* Gastos Table */}
-        <FixedExpenseTable
+        <div className="space-y-3">
+          {/* Filtros de Gastos */}
+          {expenseCategories.length > 0 && (
+            <Card className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Filtrar por categoría</span>
+                {selectedExpenseCategories.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearExpenseFilters}
+                    className="h-7 text-xs"
+                  >
+                    Limpiar
+                  </Button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {expenseCategories.map((category) => {
+                  const isSelected = selectedExpenseCategories.includes(category.id);
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => toggleExpenseCategory(category.id)}
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-all ${
+                        isSelected
+                          ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <CategoryIcon icon={category.icon} color={category.color} size="sm" />
+                      <span>{category.name}</span>
+                      {isSelected && <X className="h-3 w-3" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          <FixedExpenseTable
           title="Gastos Fijos"
           items={expenseItems}
           type="expense"
@@ -130,10 +266,52 @@ export function FixedExpensesPage() {
           onEdit={(id) => setEditingId(id)}
           onDelete={(id) => setDeleteId(id)}
           onToggleActive={handleToggleActive}
+          onReorder={handleReorder}
         />
+        </div>
 
         {/* Ingresos Table */}
-        <FixedExpenseTable
+        <div className="space-y-3">
+          {/* Filtros de Ingresos */}
+          {incomeCategories.length > 0 && (
+            <Card className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Filtrar por categoría</span>
+                {selectedIncomeCategories.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearIncomeFilters}
+                    className="h-7 text-xs"
+                  >
+                    Limpiar
+                  </Button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {incomeCategories.map((category) => {
+                  const isSelected = selectedIncomeCategories.includes(category.id);
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => toggleIncomeCategory(category.id)}
+                      className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-all ${
+                        isSelected
+                          ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <CategoryIcon icon={category.icon} color={category.color} size="sm" />
+                      <span>{category.name}</span>
+                      {isSelected && <X className="h-3 w-3" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          <FixedExpenseTable
           title="Ingresos Fijos"
           items={incomeItems}
           type="income"
@@ -147,7 +325,9 @@ export function FixedExpensesPage() {
           onEdit={(id) => setEditingId(id)}
           onDelete={(id) => setDeleteId(id)}
           onToggleActive={handleToggleActive}
+          onReorder={handleReorder}
         />
+        </div>
       </div>
 
       {/* Form Dialog */}

@@ -45,4 +45,9 @@ export const fixedExpensesApi = {
     const response = await api.get('/fixed-expenses/summary');
     return response.data;
   },
+
+  reorder: async (items: { id: string; sortOrder: number }[]): Promise<{ success: boolean }> => {
+    const response = await api.post('/fixed-expenses/reorder', { items });
+    return response.data;
+  },
 };

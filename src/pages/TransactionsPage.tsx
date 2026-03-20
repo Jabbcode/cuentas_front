@@ -134,6 +134,7 @@ export function TransactionsPage() {
                   icon={tx.category?.icon}
                   color={tx.category?.color}
                   size="lg"
+                  tooltip={tx.category?.name}
                 />
                 <div>
                   <div className="flex items-center gap-2">

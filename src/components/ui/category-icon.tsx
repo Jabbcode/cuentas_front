@@ -6,9 +6,10 @@ interface CategoryIconProps {
   color?: string | null;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  tooltip?: string;
 }
 
-export function CategoryIcon({ icon, color, className, size = 'md' }: CategoryIconProps) {
+export function CategoryIcon({ icon, color, className, size = 'md', tooltip }: CategoryIconProps) {
   // Determinar el nombre del icono
   let iconName = icon || DEFAULT_ICON;
 
@@ -26,15 +27,26 @@ export function CategoryIcon({ icon, color, className, size = 'md' }: CategoryIc
     lg: 'h-6 w-6',
   };
 
-  return (
+  const iconElement = (
     <IconComponent
       className={cn(sizeClasses[size], className)}
       style={color ? { color } : undefined}
     />
   );
+
+  // Si hay tooltip, envolver en span con title
+  if (tooltip) {
+    return (
+      <span title={tooltip} className="inline-flex">
+        {iconElement}
+      </span>
+    );
+  }
+
+  return iconElement;
 }
 
 // Alias para compatibilidad
-export function CategoryIconBadge({ icon, color, size = 'md', className }: CategoryIconProps) {
-  return <CategoryIcon icon={icon} color={color} size={size} className={className} />;
+export function CategoryIconBadge({ icon, color, size = 'md', className, tooltip }: CategoryIconProps) {
+  return <CategoryIcon icon={icon} color={color} size={size} className={className} tooltip={tooltip} />;
 }
