@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus, TrendingDown, TrendingUp, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { fixedExpensesApi } from '../api/fixed-expenses.api';
 import { formatCurrency } from '../lib/utils';
-import type { FixedExpenseSummary } from '../types';
+import { useFixedExpenses } from '../hooks/useFixedExpenses';
 import { FixedExpenseForm } from '../components/fixed-expenses/FixedExpenseForm';
 import { FixedExpenseTable } from '../components/fixed-expenses/FixedExpenseTable';
 import { MonthlyFixedSummary } from '../components/fixed-expenses/MonthlyFixedSummary';
@@ -19,8 +19,8 @@ type CategoryInfo = {
 };
 
 export function FixedExpensesPage() {
-  const [summary, setSummary] = useState<FixedExpenseSummary | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { summary, loading, reload, payExpense, deleteExpense, toggleActive } = useFixedExpenses();
+
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -28,50 +28,16 @@ export function FixedExpensesPage() {
   const [selectedExpenseCategories, setSelectedExpenseCategories] = useState<string[]>([]);
   const [selectedIncomeCategories, setSelectedIncomeCategories] = useState<string[]>([]);
 
-  const loadData = useCallback(async () => {
-    try {
-      const data = await fixedExpensesApi.getSummary();
-      setSummary(data);
-    } catch (error) {
-      console.error('Error loading fixed expenses:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  const handlePay = async (id: string, amount?: number) => {
-    try {
-      await fixedExpensesApi.pay(id, amount ? { amount } : undefined);
-      loadData();
-    } catch (error) {
-      console.error('Error paying fixed expense:', error);
-    }
-  };
-
   const handleDelete = async () => {
     if (!deleteId) return;
     setDeleting(true);
     try {
-      await fixedExpensesApi.delete(deleteId);
+      await deleteExpense(deleteId);
       setDeleteId(null);
-      loadData();
     } catch (error) {
       console.error('Error deleting fixed expense:', error);
     } finally {
       setDeleting(false);
-    }
-  };
-
-  const handleToggleActive = async (id: string, isActive: boolean) => {
-    try {
-      await fixedExpensesApi.update(id, { isActive: !isActive });
-      loadData();
-    } catch (error) {
-      console.error('Error toggling fixed expense:', error);
     }
   };
 
@@ -149,31 +115,17 @@ export function FixedExpensesPage() {
     if (!summary) return;
 
     try {
-      // Crear un mapa de items reordenados con su nuevo sortOrder
-      const reorderedMap = new Map(
-        newItems.map((item, index) => [item.id, { ...item, sortOrder: index }])
-      );
-
-      // Actualizar el estado local inmediatamente
-      const updatedItems = summary.items.map(item =>
-        reorderedMap.has(item.id) ? reorderedMap.get(item.id)! : item
-      );
-
-      // Reordenar el array completo por sortOrder
-      updatedItems.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-
-      setSummary({ ...summary, items: updatedItems });
-
       // Persistir en el backend
       const itemsWithOrder = newItems.map((item, index) => ({
         id: item.id,
         sortOrder: index,
       }));
       await fixedExpensesApi.reorder(itemsWithOrder);
+      reload();
     } catch (error) {
       console.error('Error reordering fixed expenses:', error);
       // Recargar datos en caso de error para mantener consistencia
-      loadData();
+      reload();
     }
   };
 
@@ -275,10 +227,10 @@ export function FixedExpensesPage() {
               <TrendingDown className="h-4 w-4 text-red-600" />
             </div>
           }
-          onPay={handlePay}
+          onPay={payExpense}
           onEdit={(id) => setEditingId(id)}
           onDelete={(id) => setDeleteId(id)}
-          onToggleActive={handleToggleActive}
+          onToggleActive={toggleActive}
           onReorder={handleReorder}
         />
         </div>
@@ -334,10 +286,10 @@ export function FixedExpensesPage() {
               <TrendingUp className="h-4 w-4 text-green-600" />
             </div>
           }
-          onPay={handlePay}
+          onPay={payExpense}
           onEdit={(id) => setEditingId(id)}
           onDelete={(id) => setDeleteId(id)}
-          onToggleActive={handleToggleActive}
+          onToggleActive={toggleActive}
           onReorder={handleReorder}
         />
         </div>
@@ -354,7 +306,7 @@ export function FixedExpensesPage() {
           onSuccess={() => {
             setShowForm(false);
             setEditingId(null);
-            loadData();
+            reload();
           }}
         />
       )}
