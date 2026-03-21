@@ -205,35 +205,23 @@ export function CreditCardsPage() {
         {statements.map((statement) => (
           <Card key={statement.account.id} className="overflow-hidden">
             <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 lg:p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-full bg-purple-100 p-2">
-                    <CreditCard className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{statement.account.name}</CardTitle>
-                    <p className="text-sm text-gray-600">
-                      Límite: {formatCurrency(statement.creditLimit)}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-purple-100 p-2">
+                  <CreditCard className="h-5 w-5 text-purple-600" />
                 </div>
-                {statement.closedPeriod.isPaid ? (
-                  <Badge variant="success">Pagado</Badge>
-                ) : (
-                  <Button
-                    onClick={() => handleOpenPayment(statement)}
-                    disabled={statement.closedPeriod.balance === 0}
-                  >
-                    Pagar
-                  </Button>
-                )}
+                <div>
+                  <CardTitle className="text-lg">{statement.account.name}</CardTitle>
+                  <p className="text-sm text-gray-600">
+                    Límite: {formatCurrency(statement.creditLimit)}
+                  </p>
+                </div>
               </div>
 
               {/* Usage Bar */}
               <div className="mt-4">
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-gray-600">Uso del límite</span>
-                  <span className="font-medium">{statement.usagePercentage}%</span>
+                  <span className="text-gray-600">Crédito disponible</span>
+                  <span className="font-medium text-green-600">{formatCurrency(statement.available)}</span>
                 </div>
                 <div className="h-3 w-full rounded-full bg-gray-200">
                   <div
@@ -243,11 +231,18 @@ export function CreditCardsPage() {
                     style={{ width: `${Math.min(statement.usagePercentage, 100)}%` }}
                   />
                 </div>
-                <div className="flex items-center justify-between text-xs mt-1 text-gray-500">
-                  <span>Disponible: {formatCurrency(statement.available)}</span>
-                  <span>
-                    Usado: {formatCurrency(statement.currentPeriod.balance + (statement.closedPeriod.isPaid ? 0 : statement.closedPeriod.balance))}
-                  </span>
+                <div className="flex items-center justify-between text-xs mt-1">
+                  <span className="text-gray-500">{statement.usagePercentage}% usado</span>
+                  <div className="text-right">
+                    {!statement.closedPeriod.isPaid && statement.closedPeriod.balance > 0 && (
+                      <div className="text-orange-600 font-medium">
+                        Período cerrado: {formatCurrency(statement.closedPeriod.balance)}
+                      </div>
+                    )}
+                    <div className="text-gray-700 font-medium">
+                      Período actual: {formatCurrency(statement.currentPeriod.balance)}
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -320,6 +315,15 @@ export function CreditCardsPage() {
                       <span>{statement.closedPeriod.transactions.length}</span>
                     </div>
                   </div>
+                  {!statement.closedPeriod.isPaid && (
+                    <Button
+                      onClick={() => handleOpenPayment(statement)}
+                      disabled={statement.closedPeriod.balance === 0}
+                      className="w-full mt-3"
+                    >
+                      Pagar {statement.closedPeriod.balance > 0 && formatCurrency(statement.closedPeriod.balance)}
+                    </Button>
+                  )}
                 </div>
 
                 {/* Current Period */}
