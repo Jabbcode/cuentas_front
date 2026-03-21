@@ -1,34 +1,22 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Plus, Wallet, CreditCard, Banknote, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../components/ui/dialog';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Select } from '../components/ui/select';
+import { AccountCard } from '../components/accounts/AccountCard';
+import { AccountEmpty } from '../components/accounts/AccountEmpty';
+import { useAccounts } from '../hooks/useAccounts';
 import { accountsApi } from '../api/accounts.api';
 import { formatCurrency, cn } from '../lib/utils';
 import type { Account } from '../types';
 
-const accountTypeIcons = {
-  cash: Banknote,
-  bank: Wallet,
-  credit_card: CreditCard,
-};
-
-const accountTypeLabels = {
-  cash: 'Efectivo',
-  bank: 'Banco',
-  credit_card: 'Tarjeta de Crédito',
-};
-
 export function AccountsPage() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { accounts, loading, reload, totalBalance } = useAccounts();
   const [showForm, setShowForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
-  const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -38,24 +26,10 @@ export function AccountsPage() {
     balance: '0',
     currency: 'EUR',
     color: '#3B82F6',
-    // Credit card fields
     creditLimit: '',
     cutoffDay: '',
     paymentDueDay: '',
   });
-
-  const loadAccounts = useCallback(async () => {
-    try {
-      const data = await accountsApi.getAll();
-      setAccounts(data);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadAccounts();
-  }, [loadAccounts]);
 
   const openForm = (account?: Account) => {
     if (account) {
@@ -97,7 +71,6 @@ export function AccountsPage() {
         color: formData.color,
       };
 
-      // Add credit card fields if type is credit_card
       if (formData.type === 'credit_card') {
         if (formData.creditLimit) data.creditLimit = parseFloat(formData.creditLimit);
         if (formData.cutoffDay) data.cutoffDay = parseInt(formData.cutoffDay);
@@ -111,7 +84,7 @@ export function AccountsPage() {
       }
 
       setShowForm(false);
-      loadAccounts();
+      reload();
     } catch (error) {
       console.error('Error saving account:', error);
     }
@@ -123,15 +96,13 @@ export function AccountsPage() {
     try {
       await accountsApi.delete(deleteId);
       setDeleteId(null);
-      loadAccounts();
+      reload();
     } catch (error) {
       console.error('Error deleting account:', error);
     } finally {
       setDeleting(false);
     }
   };
-
-  const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
 
   if (loading) {
     return (
@@ -156,107 +127,17 @@ export function AccountsPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {accounts.map((account) => {
-          const Icon = accountTypeIcons[account.type];
-          return (
-            <Card key={account.id} className="transition-all hover:shadow-md">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="flex h-12 w-12 items-center justify-center rounded-xl"
-                      style={{ backgroundColor: account.color || '#3B82F6' }}
-                    >
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{account.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        {accountTypeLabels[account.type]}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="relative">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => setMenuOpen(menuOpen === account.id ? null : account.id)}
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                    {menuOpen === account.id && (
-                      <>
-                        <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(null)} />
-                        <div className="absolute right-0 top-8 z-20 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
-                          <button
-                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => {
-                              setMenuOpen(null);
-                              openForm(account);
-                            }}
-                          >
-                            <Pencil className="h-4 w-4" /> Editar
-                          </button>
-                          <button
-                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                            onClick={() => {
-                              setMenuOpen(null);
-                              setDeleteId(account.id);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" /> Eliminar
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-4 border-t border-gray-100 pt-4">
-                  <p
-                    className={cn(
-                      'text-2xl font-bold',
-                      Number(account.balance) >= 0 ? 'text-gray-900' : 'text-red-600'
-                    )}
-                  >
-                    {formatCurrency(Number(account.balance), account.currency)}
-                  </p>
-
-                  {/* Credit card info */}
-                  {account.type === 'credit_card' && account.creditLimit && (
-                    <div className="mt-3 space-y-1">
-                      <div className="flex justify-between text-xs text-gray-600">
-                        <span>Límite:</span>
-                        <span className="font-medium">{formatCurrency(account.creditLimit)}</span>
-                      </div>
-                      {account.cutoffDay && account.paymentDueDay && (
-                        <div className="flex justify-between text-xs text-gray-600">
-                          <span>Corte/Pago:</span>
-                          <span className="font-medium">
-                            Día {account.cutoffDay} / {account.paymentDueDay}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-
-        {accounts.length === 0 && (
-          <Card className="sm:col-span-2 lg:col-span-3">
-            <CardContent className="py-12 text-center">
-              <Wallet className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-4 text-gray-500">No tienes cuentas. Crea una para empezar.</p>
-              <Button onClick={() => openForm()} className="mt-4">
-                <Plus className="mr-2 h-4 w-4" /> Crear primera cuenta
-              </Button>
-            </CardContent>
-          </Card>
+        {accounts.length === 0 ? (
+          <AccountEmpty onCreateClick={() => openForm()} />
+        ) : (
+          accounts.map((account) => (
+            <AccountCard
+              key={account.id}
+              account={account}
+              onEdit={openForm}
+              onDelete={setDeleteId}
+            />
+          ))
         )}
       </div>
 
