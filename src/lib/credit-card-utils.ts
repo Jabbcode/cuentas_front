@@ -96,3 +96,24 @@ export function getClosedPeriodWarning(
     message: `Esta fecha pertenece a un período ya cerrado (antes del ${lastCutoff.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}). Los cargos deberían ir al período actual.`,
   };
 }
+
+/**
+ * Obtiene el color de la barra de uso según el porcentaje
+ */
+export function getUsageColor(percentage: number): string {
+  if (percentage >= 90) return 'bg-red-500';
+  if (percentage >= 80) return 'bg-orange-500';
+  if (percentage >= 60) return 'bg-yellow-500';
+  return 'bg-green-500';
+}
+
+/**
+ * Obtiene el color del texto de días hasta vencimiento
+ */
+export function getDaysColor(days: number, balance: number): string {
+  if (balance === 0) return 'text-gray-600';
+  if (days <= 0) return 'text-red-600';
+  if (days <= 3) return 'text-orange-600';
+  if (days <= 7) return 'text-yellow-600';
+  return 'text-gray-600';
+}
