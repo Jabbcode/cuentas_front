@@ -450,7 +450,7 @@ export function TransactionsPage() {
                   <div className="flex items-center gap-4">
                     <span
                       className={cn(
-                        'text-lg font-bold',
+                        'text-base font-semibold',
                         tx.type === 'income' ? 'text-green-600' : 'text-red-600'
                       )}
                     >
@@ -505,7 +505,7 @@ export function TransactionsPage() {
                   </div>
                   <span
                     className={cn(
-                      'text-xl font-bold',
+                      'text-lg font-semibold',
                       group.total >= 0 ? 'text-green-600' : 'text-red-600'
                     )}
                   >
@@ -541,7 +541,7 @@ export function TransactionsPage() {
                         <div className="flex items-center gap-2">
                           <span
                             className={cn(
-                              'font-bold',
+                              'text-sm font-semibold',
                               tx.type === 'income' ? 'text-green-600' : 'text-red-600'
                             )}
                           >
