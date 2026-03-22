@@ -197,3 +197,79 @@ export interface PayCreditCardStatementInput {
   paymentAccountId: string;
   paymentDate?: string;
 }
+
+// Debts
+export interface Debt {
+  id: string;
+  userId: string;
+  creditor: string;
+  description: string;
+  totalAmount: number;
+  remainingAmount: number;
+  interestRate?: number;
+  interestType?: 'fixed' | 'percentage';
+  startDate: string;
+  dueDate?: string;
+  status: 'active' | 'paid' | 'overdue';
+  payments?: DebtPayment[];
+  _count?: {
+    payments: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DebtPayment {
+  id: string;
+  debtId: string;
+  userId: string;
+  amount: number;
+  principal: number;
+  interest: number;
+  accountId: string;
+  account?: Pick<Account, 'id' | 'name'>;
+  transactionId?: string;
+  paymentDate: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface DebtsSummary {
+  totalActiveDebts: number;
+  totalOverdueDebts: number;
+  totalDebtAmount: number;
+  totalOverdueAmount: number;
+  debtsDueSoon: number;
+  upcomingDebts: {
+    id: string;
+    creditor: string;
+    description: string;
+    remainingAmount: number;
+    dueDate?: string;
+  }[];
+}
+
+export interface CreateDebtInput {
+  creditor: string;
+  description: string;
+  totalAmount: number;
+  interestRate?: number;
+  interestType?: 'fixed' | 'percentage';
+  startDate?: string;
+  dueDate?: string;
+}
+
+export interface UpdateDebtInput {
+  creditor?: string;
+  description?: string;
+  interestRate?: number;
+  interestType?: 'fixed' | 'percentage';
+  dueDate?: string;
+  status?: 'active' | 'paid' | 'overdue';
+}
+
+export interface PayDebtInput {
+  amount: number;
+  accountId: string;
+  notes?: string;
+}

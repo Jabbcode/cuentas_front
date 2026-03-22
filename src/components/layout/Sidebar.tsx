@@ -5,6 +5,7 @@ import {
   ArrowLeftRight,
   CalendarClock,
   CreditCard,
+  Receipt,
   Tags,
   LogOut,
   X,
@@ -18,6 +19,7 @@ const navItems = [
   { to: '/transactions', icon: ArrowLeftRight, label: 'Transacciones' },
   { to: '/fixed-expenses', icon: CalendarClock, label: 'Gastos Fijos' },
   { to: '/credit-cards', icon: CreditCard, label: 'Tarjetas de Crédito' },
+  { to: '/debts', icon: Receipt, label: 'Deudas' },
   { to: '/categories', icon: Tags, label: 'Categorías' },
 ];
 
