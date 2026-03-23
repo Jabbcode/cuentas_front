@@ -76,7 +76,7 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
             <div>
               <p className="text-sm text-gray-600">Total Adeudado</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
-                {formatCurrency(summary.totalDebtAmount)}
+                {formatCurrency(Number(summary.totalDebtAmount))}
               </p>
             </div>
             <div className="rounded-full bg-orange-100 p-3">
@@ -96,7 +96,7 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
                   {summary.totalOverdueDebts} deuda{summary.totalOverdueDebts !== 1 ? 's' : ''} vencida{summary.totalOverdueDebts !== 1 ? 's' : ''}
                 </p>
                 <p className="text-xs text-red-700 mt-0.5">
-                  Monto vencido: {formatCurrency(summary.totalOverdueAmount)}
+                  Monto vencido: {formatCurrency(Number(summary.totalOverdueAmount))}
                 </p>
               </div>
             </div>

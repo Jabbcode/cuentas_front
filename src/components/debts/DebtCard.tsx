@@ -10,9 +10,10 @@ interface DebtCardProps {
   onEdit: (debt: Debt) => void;
   onDelete: (id: string) => void;
   onPay: (debt: Debt) => void;
+  onViewHistory: (debt: Debt) => void;
 }
 
-export function DebtCard({ debt, onEdit, onDelete, onPay }: DebtCardProps) {
+export function DebtCard({ debt, onEdit, onDelete, onPay, onViewHistory }: DebtCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const totalAmount = Number(debt.totalAmount);
@@ -162,9 +163,12 @@ export function DebtCard({ debt, onEdit, onDelete, onPay }: DebtCardProps) {
 
         {/* Payment Count */}
         {debt._count && debt._count.payments > 0 && (
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            {debt._count.payments} pago{debt._count.payments !== 1 ? 's' : ''} realizado{debt._count.payments !== 1 ? 's' : ''}
-          </p>
+          <button
+            onClick={() => onViewHistory(debt)}
+            className="text-xs text-blue-600 hover:text-blue-700 mt-2 text-center w-full underline"
+          >
+            Ver {debt._count.payments} pago{debt._count.payments !== 1 ? 's' : ''} realizado{debt._count.payments !== 1 ? 's' : ''}
+          </button>
         )}
       </CardContent>
     </Card>

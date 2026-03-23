@@ -1,20 +1,29 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Settings } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { DebtCard } from '../components/debts/DebtCard';
 import { DebtForm } from '../components/debts/DebtForm';
 import { DebtPaymentModal } from '../components/debts/DebtPaymentModal';
+import { RecurringPaymentModal } from '../components/debts/RecurringPaymentModal';
+import { RecurringPaymentsList } from '../components/debts/RecurringPaymentsList';
+import { PaymentHistoryModal } from '../components/debts/PaymentHistoryModal';
 import { useDebts } from '../hooks/useDebts';
+import { useRecurringDebtPayments } from '../hooks/useRecurringDebtPayments';
 import { formatCurrency } from '../lib/utils';
-import type { Debt } from '../types';
+import type { Debt, RecurringDebtPayment } from '../types';
 
 export function DebtsPage() {
   const { debts, loading, reload, deleteDebt, payDebt } = useDebts();
+  const { recurringPayments, reload: reloadRecurring, deleteRecurringPayment, toggleActive } = useRecurringDebtPayments();
   const [showForm, setShowForm] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | undefined>();
   const [payingDebt, setPayingDebt] = useState<Debt | undefined>();
+  const [viewingHistory, setViewingHistory] = useState<Debt | undefined>();
+  const [configuringRecurring, setConfiguringRecurring] = useState<Debt | undefined>();
+  const [editingRecurring, setEditingRecurring] = useState<RecurringDebtPayment | undefined>();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteRecurringId, setDeleteRecurringId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -35,12 +44,29 @@ export function DebtsPage() {
     await payDebt(payingDebt.id, amount, accountId, notes);
   };
 
+  const handleDeleteRecurring = async () => {
+    if (!deleteRecurringId) return;
+    setDeleting(true);
+    try {
+      await deleteRecurringPayment(deleteRecurringId);
+      setDeleteRecurringId(null);
+    } catch (error) {
+      console.error('Error deleting recurring payment:', error);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const getDebtRecurringPayments = (debtId: string) => {
+    return recurringPayments.filter((rp) => rp.debtId === debtId);
+  };
+
   const activeDebts = debts.filter(d => d.status === 'active');
   const overdueDebts = debts.filter(d => d.status === 'overdue');
   const paidDebts = debts.filter(d => d.status === 'paid');
 
-  const totalActiveDebt = activeDebts.reduce((sum, d) => sum + d.remainingAmount, 0);
-  const totalOverdueDebt = overdueDebts.reduce((sum, d) => sum + d.remainingAmount, 0);
+  const totalActiveDebt = activeDebts.reduce((sum, d) => sum + Number(d.remainingAmount), 0);
+  const totalOverdueDebt = overdueDebts.reduce((sum, d) => sum + Number(d.remainingAmount), 0);
 
   if (loading) {
     return (
@@ -102,13 +128,30 @@ export function DebtsPage() {
               <h2 className="text-lg font-semibold text-red-600 mb-3">⚠️ Deudas Vencidas</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {overdueDebts.map((debt) => (
-                  <DebtCard
-                    key={debt.id}
-                    debt={debt}
-                    onEdit={(d) => { setEditingDebt(d); setShowForm(true); }}
-                    onDelete={setDeleteId}
-                    onPay={setPayingDebt}
-                  />
+                  <div key={debt.id} className="space-y-3">
+                    <DebtCard
+                      debt={debt}
+                      onEdit={(d) => { setEditingDebt(d); setShowForm(true); }}
+                      onDelete={setDeleteId}
+                      onPay={setPayingDebt}
+                      onViewHistory={setViewingHistory}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setConfiguringRecurring(debt)}
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Configurar Pago Automático
+                    </Button>
+                    <RecurringPaymentsList
+                      recurringPayments={getDebtRecurringPayments(debt.id)}
+                      onEdit={(rp) => { setEditingRecurring(rp); setConfiguringRecurring(debt); }}
+                      onDelete={setDeleteRecurringId}
+                      onToggleActive={toggleActive}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -120,13 +163,30 @@ export function DebtsPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-3">Deudas Activas</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {activeDebts.map((debt) => (
-                  <DebtCard
-                    key={debt.id}
-                    debt={debt}
-                    onEdit={(d) => { setEditingDebt(d); setShowForm(true); }}
-                    onDelete={setDeleteId}
-                    onPay={setPayingDebt}
-                  />
+                  <div key={debt.id} className="space-y-3">
+                    <DebtCard
+                      debt={debt}
+                      onEdit={(d) => { setEditingDebt(d); setShowForm(true); }}
+                      onDelete={setDeleteId}
+                      onPay={setPayingDebt}
+                      onViewHistory={setViewingHistory}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setConfiguringRecurring(debt)}
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Configurar Pago Automático
+                    </Button>
+                    <RecurringPaymentsList
+                      recurringPayments={getDebtRecurringPayments(debt.id)}
+                      onEdit={(rp) => { setEditingRecurring(rp); setConfiguringRecurring(debt); }}
+                      onDelete={setDeleteRecurringId}
+                      onToggleActive={toggleActive}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -138,13 +198,15 @@ export function DebtsPage() {
               <h2 className="text-lg font-semibold text-green-600 mb-3">✓ Deudas Pagadas</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {paidDebts.map((debt) => (
-                  <DebtCard
-                    key={debt.id}
-                    debt={debt}
-                    onEdit={(d) => { setEditingDebt(d); setShowForm(true); }}
-                    onDelete={setDeleteId}
-                    onPay={setPayingDebt}
-                  />
+                  <div key={debt.id} className="space-y-3">
+                    <DebtCard
+                      debt={debt}
+                      onEdit={(d) => { setEditingDebt(d); setShowForm(true); }}
+                      onDelete={setDeleteId}
+                      onPay={setPayingDebt}
+                      onViewHistory={setViewingHistory}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -177,13 +239,49 @@ export function DebtsPage() {
         />
       )}
 
-      {/* Delete Confirmation */}
+      {/* Payment History Modal */}
+      {viewingHistory && (
+        <PaymentHistoryModal
+          debt={viewingHistory}
+          onClose={() => setViewingHistory(undefined)}
+        />
+      )}
+
+      {/* Recurring Payment Modal */}
+      {configuringRecurring && (
+        <RecurringPaymentModal
+          debt={configuringRecurring}
+          recurringPayment={editingRecurring}
+          onClose={() => {
+            setConfiguringRecurring(undefined);
+            setEditingRecurring(undefined);
+          }}
+          onSuccess={() => {
+            setConfiguringRecurring(undefined);
+            setEditingRecurring(undefined);
+            reloadRecurring();
+          }}
+        />
+      )}
+
+      {/* Delete Debt Confirmation */}
       <ConfirmDialog
         open={!!deleteId}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
         title="Eliminar deuda"
-        description="¿Estás seguro de eliminar esta deuda? Esta acción no se puede deshacer y eliminará también el historial de pagos."
+        description="¿Estás seguro de eliminar esta deuda? Esta acción no se puede deshacer y eliminará también el historial de pagos y pagos automáticos configurados."
+        confirmText="Eliminar"
+        loading={deleting}
+      />
+
+      {/* Delete Recurring Payment Confirmation */}
+      <ConfirmDialog
+        open={!!deleteRecurringId}
+        onClose={() => setDeleteRecurringId(null)}
+        onConfirm={handleDeleteRecurring}
+        title="Eliminar pago automático"
+        description="¿Estás seguro de eliminar este pago automático? Los pagos programados dejarán de procesarse."
         confirmText="Eliminar"
         loading={deleting}
       />

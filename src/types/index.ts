@@ -273,3 +273,54 @@ export interface PayDebtInput {
   accountId: string;
   notes?: string;
 }
+
+// Recurring Debt Payments
+export interface RecurringDebtPayment {
+  id: string;
+  debtId: string;
+  userId: string;
+  amount: number;
+  accountId: string;
+  account?: Pick<Account, 'id' | 'name' | 'balance'>;
+  debt?: {
+    id: string;
+    creditor: string;
+    description: string;
+    remainingAmount: number;
+    status: string;
+  };
+  frequency: 'monthly' | 'biweekly' | 'weekly';
+  dayOfMonth?: number;
+  dayOfWeek?: number;
+  isActive: boolean;
+  startDate: string;
+  endDate?: string;
+  lastProcessed?: string;
+  nextDueDate: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateRecurringDebtPaymentInput {
+  debtId: string;
+  amount: number;
+  accountId: string;
+  frequency: 'monthly' | 'biweekly' | 'weekly';
+  dayOfMonth?: number;
+  dayOfWeek?: number;
+  startDate?: string;
+  endDate?: string;
+  notes?: string;
+}
+
+export interface UpdateRecurringDebtPaymentInput {
+  amount?: number;
+  accountId?: string;
+  frequency?: 'monthly' | 'biweekly' | 'weekly';
+  dayOfMonth?: number;
+  dayOfWeek?: number;
+  endDate?: string;
+  isActive?: boolean;
+  notes?: string;
+}
