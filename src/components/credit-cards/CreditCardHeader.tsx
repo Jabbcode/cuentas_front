@@ -17,7 +17,6 @@ export function CreditCardHeader({ statement, isCollapsed = false, onToggleColla
 
   // Period balances are for display only (show expenses per period)
   const closedBalance = statement.closedPeriod.isPaid ? 0 : statement.closedPeriod.balance;
-  const currentBalance = statement.currentPeriod.balance;
 
   return (
     <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 lg:p-6">
