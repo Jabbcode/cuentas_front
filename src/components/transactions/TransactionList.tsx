@@ -6,6 +6,7 @@ interface TransactionListProps {
   transactions: Transaction[];
   accounts: Account[];
   onDelete: (id: string) => void;
+  onEdit: (transaction: Transaction) => void;
   onCreateClick: () => void;
 }
 
@@ -13,6 +14,7 @@ export function TransactionList({
   transactions,
   accounts,
   onDelete,
+  onEdit,
   onCreateClick,
 }: TransactionListProps) {
   if (transactions.length === 0) {
@@ -27,6 +29,7 @@ export function TransactionList({
           transaction={tx}
           accounts={accounts}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </div>

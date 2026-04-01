@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { dashboardApi } from '../api/dashboard.api';
 import { fixedExpensesApi } from '../api/fixed-expenses.api';
 import { creditCardsApi } from '../api/credit-cards.api';
@@ -23,27 +23,63 @@ export function useDashboard() {
   const [debtsSummary, setDebtsSummary] = useState<DebtsSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    Promise.all([
-      dashboardApi.getSummary(),
-      dashboardApi.getByCategory('expense'),
-      fixedExpensesApi.getSummary(),
-      dashboardApi.getFixedVsVariable(),
-      dashboardApi.getNextMonthProjection(),
-      creditCardsApi.getSummary().catch(() => ({ totalToPay: 0, upcomingPayments: [], alerts: [], cards: [] })),
-      debtsApi.getSummary().catch(() => ({ totalActiveDebts: 0, totalOverdueDebts: 0, totalDebtAmount: 0, totalOverdueAmount: 0, debtsDueSoon: 0, upcomingDebts: [] })),
-    ])
-      .then(([sum, cat, fixed, fvv, proj, ccSummary, debtsSummary]) => {
-        setSummary(sum);
-        setByCategory(cat);
-        setFixedSummary(fixed);
-        setFixedVsVariable(fvv);
-        setProjection(proj);
-        setCreditCardsSummary(ccSummary);
-        setDebtsSummary(debtsSummary);
-      })
-      .finally(() => setLoading(false));
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [sum, cat, fixed, fvv, proj, ccSummary, debtSum] = await Promise.all([
+        dashboardApi.getSummary(),
+        dashboardApi.getByCategory('expense'),
+        fixedExpensesApi.getSummary(),
+        dashboardApi.getFixedVsVariable(),
+        dashboardApi.getNextMonthProjection(),
+        creditCardsApi.getSummary().catch(() => ({
+          totalToPay: 0,
+          upcomingPayments: [],
+          alerts: [],
+          cards: []
+        })),
+        debtsApi.getSummary().catch(() => ({
+          totalActiveDebts: 0,
+          totalOverdueDebts: 0,
+          totalDebtAmount: 0,
+          totalOverdueAmount: 0,
+          debtsDueSoon: 0,
+          upcomingDebts: []
+        })),
+      ]);
+
+      setSummary(sum);
+      setByCategory(cat);
+      setFixedSummary(fixed);
+      setFixedVsVariable(fvv);
+      setProjection(proj);
+      setCreditCardsSummary(ccSummary);
+      setDebtsSummary(debtSum);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+
+    // Reload when tab becomes visible (user returns to the page)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [loadData]);
+
+  const reload = useCallback(() => {
+    loadData();
+  }, [loadData]);
 
   return {
     summary,
@@ -54,5 +90,6 @@ export function useDashboard() {
     creditCardsSummary,
     debtsSummary,
     loading,
+    reload,
   };
 }

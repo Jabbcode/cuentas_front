@@ -4,12 +4,13 @@ import { TransactionRow } from './TransactionRow';
 import { TransactionEmpty } from './TransactionEmpty';
 import { formatCurrency, cn } from '../../lib/utils';
 import type { GroupedTransaction } from '../../lib/transaction-utils';
-import type { Account } from '../../types';
+import type { Account, Transaction } from '../../types';
 
 interface TransactionGroupedViewProps {
   groupedTransactions: GroupedTransaction[];
   accounts: Account[];
   onDelete: (id: string) => void;
+  onEdit: (transaction: Transaction) => void;
   onCreateClick: () => void;
 }
 
@@ -17,6 +18,7 @@ export function TransactionGroupedView({
   groupedTransactions,
   accounts,
   onDelete,
+  onEdit,
   onCreateClick,
 }: TransactionGroupedViewProps) {
   if (groupedTransactions.length === 0) {
@@ -62,6 +64,7 @@ export function TransactionGroupedView({
                   transaction={tx}
                   accounts={accounts}
                   onDelete={onDelete}
+                  onEdit={onEdit}
                 />
               ))}
             </div>

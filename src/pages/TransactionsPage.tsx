@@ -10,17 +10,20 @@ import { TransactionFilters } from '../components/transactions/TransactionFilter
 import { TransactionList } from '../components/transactions/TransactionList';
 import { TransactionGroupedView } from '../components/transactions/TransactionGroupedView';
 import { TransactionPagination } from '../components/transactions/TransactionPagination';
+import { EditTransactionModal } from '../components/transactions/EditTransactionModal';
 import { useTransactions } from '../hooks/useTransactions';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
 import { usePagination } from '../hooks/usePagination';
 import { groupTransactionsByCategory } from '../lib/transaction-utils';
 import { getClosedPeriodWarning } from '../lib/credit-card-utils';
 import { transactionsApi } from '../api/transactions.api';
+import type { Transaction } from '../types';
 
 export function TransactionsPage() {
   const [showForm, setShowForm] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
   // Paginación
   const pagination = usePagination(20);
@@ -130,6 +133,26 @@ export function TransactionsPage() {
     }
   };
 
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+  };
+
+  const handleSaveEdit = async (id: string, data: any) => {
+    try {
+      await transactionsApi.update(id, {
+        description: data.description || undefined,
+        categoryId: data.categoryId,
+        date: new Date(data.date).toISOString(),
+        amount: parseFloat(data.amount),
+      });
+      setEditingTransaction(null);
+      reload();
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      throw error;
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -176,6 +199,7 @@ export function TransactionsPage() {
           transactions={transactions}
           accounts={accounts}
           onDelete={setDeleteId}
+          onEdit={handleEdit}
           onCreateClick={handleOpenForm}
         />
       ) : (
@@ -184,6 +208,7 @@ export function TransactionsPage() {
             groupedTransactions={groupedTransactions}
             accounts={accounts}
             onDelete={setDeleteId}
+            onEdit={handleEdit}
             onCreateClick={handleOpenForm}
           />
         )
@@ -338,6 +363,16 @@ export function TransactionsPage() {
         description="¿Estás seguro de eliminar esta transacción? Esta acción no se puede deshacer."
         confirmText="Eliminar"
         loading={deleting}
+      />
+
+      {/* Edit Transaction Modal */}
+      <EditTransactionModal
+        open={!!editingTransaction}
+        transaction={editingTransaction}
+        categories={categories}
+        account={editingTransaction ? accounts.find(a => a.id === editingTransaction.accountId) || null : null}
+        onClose={() => setEditingTransaction(null)}
+        onSave={handleSaveEdit}
       />
     </div>
   );

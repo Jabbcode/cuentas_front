@@ -1,4 +1,4 @@
-import { Trash2, CreditCard } from 'lucide-react';
+import { Trash2, CreditCard, Pencil } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -11,12 +11,14 @@ interface TransactionCardProps {
   transaction: Transaction;
   accounts: Account[];
   onDelete: (id: string) => void;
+  onEdit: (transaction: Transaction) => void;
 }
 
 export function TransactionCard({
   transaction: tx,
   accounts,
   onDelete,
+  onEdit,
 }: TransactionCardProps) {
   const creditCardPeriod = getCreditCardPeriod(
     tx,
@@ -67,8 +69,18 @@ export function TransactionCard({
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => onEdit(tx)}
+            className="h-8 w-8 text-gray-400 hover:text-blue-600"
+            title="Editar transacción"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => onDelete(tx.id)}
             className="h-8 w-8 text-gray-400 hover:text-red-600"
+            title="Eliminar transacción"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

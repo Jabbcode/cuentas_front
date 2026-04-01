@@ -1,18 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CreditCardEmpty } from '../components/credit-cards/CreditCardEmpty';
 import { CreditCardSummary } from '../components/credit-cards/CreditCardSummary';
 import { CreditCardItem } from '../components/credit-cards/CreditCardItem';
 import { CreditCardPaymentModal } from '../components/credit-cards/CreditCardPaymentModal';
+import { CreditCardTransactionsModal } from '../components/credit-cards/CreditCardTransactionsModal';
 import { useCreditCards } from '../hooks/useCreditCards';
 import { usePaymentModal } from '../hooks/usePaymentModal';
 import { creditCardsApi } from '../api/credit-cards.api';
+import type { CreditCardStatement } from '../types';
 
 export function CreditCardsPage() {
   const { statements, accounts, loading, reload } = useCreditCards();
   const [paying, setPaying] = useState(false);
+  const [transactionsModal, setTransactionsModal] = useState<{
+    open: boolean;
+    statement: CreditCardStatement | null;
+  }>({ open: false, statement: null });
+  const [collapsedCards, setCollapsedCards] = useState<Set<string>>(new Set());
 
   const defaultAccountId = accounts.length > 0 ? accounts[0].id : '';
   const paymentModal = usePaymentModal(defaultAccountId);
+
+  // Initialize all cards as collapsed by default
+  useEffect(() => {
+    if (statements.length > 0 && collapsedCards.size === 0) {
+      const allCardIds = statements.map(s => s.account.id);
+      setCollapsedCards(new Set(allCardIds));
+    }
+  }, [statements]);
+
+  const toggleCardCollapse = (accountId: string) => {
+    setCollapsedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(accountId)) {
+        newSet.delete(accountId);
+      } else {
+        newSet.add(accountId);
+      }
+      return newSet;
+    });
+  };
 
   const handleOpenPayment = (statement: any) => {
     paymentModal.openModal(statement, defaultAccountId);
@@ -20,6 +47,14 @@ export function CreditCardsPage() {
 
   const handleClosePayment = () => {
     paymentModal.closeModal(defaultAccountId);
+  };
+
+  const handleOpenTransactions = (statement: CreditCardStatement) => {
+    setTransactionsModal({ open: true, statement });
+  };
+
+  const handleCloseTransactions = () => {
+    setTransactionsModal({ open: false, statement: null });
   };
 
   const handlePay = async (e: React.FormEvent) => {
@@ -76,7 +111,10 @@ export function CreditCardsPage() {
           <CreditCardItem
             key={statement.account.id}
             statement={statement}
+            isCollapsed={collapsedCards.has(statement.account.id)}
+            onToggleCollapse={() => toggleCardCollapse(statement.account.id)}
             onPayClick={handleOpenPayment}
+            onViewTransactions={handleOpenTransactions}
           />
         ))}
       </div>
@@ -90,6 +128,12 @@ export function CreditCardsPage() {
         onClose={handleClosePayment}
         onSubmit={handlePay}
         onFormChange={paymentModal.updateFormData}
+      />
+
+      <CreditCardTransactionsModal
+        open={transactionsModal.open}
+        statement={transactionsModal.statement}
+        onClose={handleCloseTransactions}
       />
     </div>
   );
