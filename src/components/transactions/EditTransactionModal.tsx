@@ -133,8 +133,10 @@ export function EditTransactionModal({
               categories={filteredCategories}
               value={watch('categoryId')}
               onChange={(categoryId) => setValue('categoryId', categoryId)}
-              error={errors.categoryId?.message}
             />
+            {errors.categoryId && (
+              <p className="mt-1 text-sm text-red-600">{errors.categoryId.message}</p>
+            )}
           </div>
 
           {/* Date */}

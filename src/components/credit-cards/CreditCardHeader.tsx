@@ -19,13 +19,6 @@ export function CreditCardHeader({ statement, isCollapsed = false, onToggleColla
   const closedBalance = statement.closedPeriod.isPaid ? 0 : statement.closedPeriod.balance;
   const currentBalance = statement.currentPeriod.balance;
 
-  const closedPercentage = statement.creditLimit > 0
-    ? Math.round((closedBalance / statement.creditLimit) * 100)
-    : 0;
-  const currentPercentage = statement.creditLimit > 0
-    ? Math.round((currentBalance / statement.creditLimit) * 100)
-    : 0;
-
   return (
     <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 lg:p-6">
       <div className="flex items-center justify-between gap-3">
