@@ -87,33 +87,69 @@ export function AccountCard({ account, onEdit, onDelete }: AccountCardProps) {
         </div>
 
         <div className="mt-4 border-t border-gray-100 pt-4">
-          <p
-            className={cn(
-              'text-2xl font-bold',
-              Number(account.balance) >= 0 ? 'text-gray-900' : 'text-red-600'
-            )}
-          >
-            {formatCurrency(Number(account.balance), account.currency)}
-          </p>
-
-          {/* Credit card info */}
-          {account.type === 'credit_card' && account.creditLimit && (
-            <div className="mt-3 space-y-1">
-              <div className="flex justify-between text-xs text-gray-600">
-                <span>Límite:</span>
-                <span className="font-medium">
-                  {formatCurrency(account.creditLimit)}
+          {/* Credit card detailed view */}
+          {account.type === 'credit_card' && account.creditLimit ? (
+            <div className="space-y-3">
+              {/* Available credit - highlighted */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Disponible</span>
+                <span className="text-xl font-bold text-gray-900">
+                  {formatCurrency(
+                    account.creditLimit - Math.abs(Number(account.balance)),
+                    account.currency
+                  )}
                 </span>
               </div>
-              {account.cutoffDay && account.paymentDueDay && (
-                <div className="flex justify-between text-xs text-gray-600">
-                  <span>Corte/Pago:</span>
-                  <span className="font-medium">
-                    Día {account.cutoffDay} / {account.paymentDueDay}
+
+              {/* Usage bar */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-gray-600">
+                  <span>Usado</span>
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(Math.abs(Number(account.balance)), account.currency)} /{' '}
+                    {formatCurrency(account.creditLimit, account.currency)}
                   </span>
                 </div>
-              )}
+
+                <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                  <div
+                    className="h-full bg-gray-600 transition-all"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        account.creditLimit > 0
+                          ? (Math.abs(Number(account.balance)) / account.creditLimit) * 100
+                          : 0
+                      )}%`,
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-gray-600">
+                  <span>
+                    {account.creditLimit > 0
+                      ? Math.round((Math.abs(Number(account.balance)) / account.creditLimit) * 100)
+                      : 0}
+                    % usado
+                  </span>
+                  {account.cutoffDay && account.paymentDueDay && (
+                    <span>
+                      Corte/Pago: {account.cutoffDay}/{account.paymentDueDay}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
+          ) : (
+            /* Regular account view */
+            <p
+              className={cn(
+                'text-2xl font-bold',
+                Number(account.balance) >= 0 ? 'text-gray-900' : 'text-red-600'
+              )}
+            >
+              {formatCurrency(Number(account.balance), account.currency)}
+            </p>
           )}
         </div>
       </CardContent>

@@ -24,7 +24,16 @@ export function useAccounts() {
     loadAccounts();
   }, [loadAccounts]);
 
-  const totalBalance = accounts.reduce((sum, acc) => sum + Number(acc.balance), 0);
+  const totalBalance = accounts.reduce((sum, acc) => {
+    // For credit cards, add available credit (limit - used)
+    if (acc.type === 'credit_card' && acc.creditLimit) {
+      const used = Math.abs(Number(acc.balance));
+      const available = acc.creditLimit - used;
+      return sum + available;
+    }
+    // For other accounts, add balance normally
+    return sum + Number(acc.balance);
+  }, 0);
 
   return {
     accounts,
