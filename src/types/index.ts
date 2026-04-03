@@ -36,6 +36,7 @@ export interface Transaction {
   accountId: string;
   categoryId: string;
   fixedExpenseId?: string;
+  imageHash?: string; // For receipt duplicate detection
   account?: Pick<Account, 'id' | 'name' | 'color'>;
   category?: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;
   createdAt: string;

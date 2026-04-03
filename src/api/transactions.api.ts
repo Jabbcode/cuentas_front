@@ -30,6 +30,7 @@ export const transactionsApi = {
     accountId: string;
     categoryId: string;
     fixedExpenseId?: string;
+    imageHash?: string;
   }): Promise<Transaction> => {
     const response = await api.post('/transactions', data);
     return response.data;

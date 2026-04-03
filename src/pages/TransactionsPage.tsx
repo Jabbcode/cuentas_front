@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Plus, ArrowUpCircle, ArrowDownCircle, AlertTriangle } from 'lucide-react';
+import { Plus, ArrowUpCircle, ArrowDownCircle, AlertTriangle, Camera } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../components/ui/dialog';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
@@ -11,6 +11,7 @@ import { TransactionList } from '../components/transactions/TransactionList';
 import { TransactionGroupedView } from '../components/transactions/TransactionGroupedView';
 import { TransactionPagination } from '../components/transactions/TransactionPagination';
 import { EditTransactionModal } from '../components/transactions/EditTransactionModal';
+import { ReceiptScanner } from '../components/transactions/ReceiptScanner';
 import { useTransactions } from '../hooks/useTransactions';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
 import { usePagination } from '../hooks/usePagination';
@@ -18,9 +19,11 @@ import { groupTransactionsByCategory } from '../lib/transaction-utils';
 import { getClosedPeriodWarning } from '../lib/credit-card-utils';
 import { transactionsApi } from '../api/transactions.api';
 import type { Transaction } from '../types';
+import type { ScanReceiptData } from '../api/receipts.api';
 
 export function TransactionsPage() {
   const [showForm, setShowForm] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -50,6 +53,7 @@ export function TransactionsPage() {
       date: new Date().toISOString().split('T')[0],
       accountId: accounts.length > 0 ? accounts[0].id : '',
       categoryId: categories.find((c) => c.type === 'expense')?.id || '',
+      imageHash: undefined as string | undefined,
     }),
     [accounts, categories]
   );
@@ -61,6 +65,7 @@ export function TransactionsPage() {
     date: new Date().toISOString().split('T')[0],
     accountId: '',
     categoryId: '',
+    imageHash: '' as string | undefined,
   });
 
   const filteredCategories = categories.filter((c) => c.type === formData.type);
@@ -101,6 +106,33 @@ export function TransactionsPage() {
     setFormData(getInitialFormData());
   };
 
+  const handleScannedReceipt = (scannedData: ScanReceiptData) => {
+    // Find category by name if suggested
+    let categoryId = formData.categoryId;
+    if (scannedData.suggestedCategory) {
+      const matchedCategory = categories.find(
+        (c) => c.type === 'expense' && c.name.toLowerCase() === scannedData.suggestedCategory?.toLowerCase()
+      );
+      if (matchedCategory) {
+        categoryId = matchedCategory.id;
+      }
+    }
+
+    // Pre-fill form with scanned data
+    setFormData({
+      amount: scannedData.amount.toString(),
+      type: 'expense',
+      description: scannedData.description,
+      date: scannedData.date,
+      accountId: accounts.length > 0 ? accounts[0].id : '',
+      categoryId,
+      imageHash: scannedData.imageHash,
+    });
+
+    // Open form
+    setShowForm(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -111,6 +143,7 @@ export function TransactionsPage() {
         date: new Date(formData.date).toISOString(),
         accountId: formData.accountId,
         categoryId: formData.categoryId,
+        imageHash: formData.imageHash || undefined,
       });
       handleCloseForm();
       reload();
@@ -171,9 +204,14 @@ export function TransactionsPage() {
             {total} {total === 1 ? 'transacción' : 'transacciones'}
           </p>
         </div>
-        <Button onClick={handleOpenForm}>
-          <Plus className="mr-2 h-4 w-4" /> Nueva Transacción
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowScanner(true)}>
+            <Camera className="mr-2 h-4 w-4" /> Escanear Factura
+          </Button>
+          <Button onClick={handleOpenForm}>
+            <Plus className="mr-2 h-4 w-4" /> Nueva Transacción
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -373,6 +411,13 @@ export function TransactionsPage() {
         account={editingTransaction ? accounts.find(a => a.id === editingTransaction.accountId) || null : null}
         onClose={() => setEditingTransaction(null)}
         onSave={handleSaveEdit}
+      />
+
+      {/* Receipt Scanner */}
+      <ReceiptScanner
+        open={showScanner}
+        onClose={() => setShowScanner(false)}
+        onScanned={handleScannedReceipt}
       />
     </div>
   );
