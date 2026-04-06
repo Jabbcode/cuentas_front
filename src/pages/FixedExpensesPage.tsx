@@ -3,7 +3,6 @@ import { Plus, TrendingDown, TrendingUp, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
-import { fixedExpensesApi } from '../api/fixed-expenses.api';
 import { formatCurrency } from '../lib/utils';
 import { useFixedExpenses } from '../hooks/useFixedExpenses';
 import { FixedExpenseForm } from '../components/fixed-expenses/FixedExpenseForm';
@@ -84,17 +83,25 @@ export function FixedExpensesPage() {
     return Array.from(categories.values());
   }, [summary]);
 
-  // Filtrar items por categorías seleccionadas
+  // Filtrar items por categorías seleccionadas y ordenar por fecha de pago
   const expenseItems = useMemo(() => {
     const items = summary?.items.filter((item) => item.type === 'expense') || [];
-    if (selectedExpenseCategories.length === 0) return items;
-    return items.filter((item) => item.category && selectedExpenseCategories.includes(item.category.id));
+    const filtered = selectedExpenseCategories.length === 0
+      ? items
+      : items.filter((item) => item.category && selectedExpenseCategories.includes(item.category.id));
+
+    // Ordenar por fecha de pago (dueDay)
+    return filtered.sort((a, b) => a.dueDay - b.dueDay);
   }, [summary, selectedExpenseCategories]);
 
   const incomeItems = useMemo(() => {
     const items = summary?.items.filter((item) => item.type === 'income') || [];
-    if (selectedIncomeCategories.length === 0) return items;
-    return items.filter((item) => item.category && selectedIncomeCategories.includes(item.category.id));
+    const filtered = selectedIncomeCategories.length === 0
+      ? items
+      : items.filter((item) => item.category && selectedIncomeCategories.includes(item.category.id));
+
+    // Ordenar por fecha de pago (dueDay)
+    return filtered.sort((a, b) => a.dueDay - b.dueDay);
   }, [summary, selectedIncomeCategories]);
 
   // Calcular totales filtrados
@@ -109,23 +116,6 @@ export function FixedExpensesPage() {
       .filter((item) => item.isActive) // Solo contar activos
       .reduce((sum, item) => sum + Number(item.amount), 0);
   }, [incomeItems]);
-
-  const handleReorder = async (newItems: any[]) => {
-    if (!summary) return;
-
-    try {
-      // Persistir en el backend
-      const itemsWithOrder = newItems.map((item, index) => ({
-        id: item.id,
-        sortOrder: index,
-      }));
-      await fixedExpensesApi.reorder(itemsWithOrder);
-      reload();
-    } catch (error) {
-      // Recargar datos en caso de error para mantener consistencia
-      reload();
-    }
-  };
 
   if (loading) {
     return (
@@ -229,7 +219,6 @@ export function FixedExpensesPage() {
           onEdit={(id) => setEditingId(id)}
           onDelete={(id) => setDeleteId(id)}
           onToggleActive={toggleActive}
-          onReorder={handleReorder}
         />
         </div>
 
@@ -288,7 +277,6 @@ export function FixedExpensesPage() {
           onEdit={(id) => setEditingId(id)}
           onDelete={(id) => setDeleteId(id)}
           onToggleActive={toggleActive}
-          onReorder={handleReorder}
         />
         </div>
       </div>
