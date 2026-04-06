@@ -10,6 +10,7 @@ import { FixedExpensesPage } from './pages/FixedExpensesPage';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { CreditCardsPage } from './pages/CreditCardsPage';
 import { DebtsPage } from './pages/DebtsPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="/credit-cards" element={<CreditCardsPage />} />
             <Route path="/debts" element={<DebtsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

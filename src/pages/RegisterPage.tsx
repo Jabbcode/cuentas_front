@@ -34,9 +34,11 @@ export function RegisterPage() {
 
     try {
       await register(email, password, name);
-    } catch {
-      setError('Error al registrar. El email puede estar en uso.');
-    } finally {
+      // If successful, navigation will happen automatically
+    } catch (err: any) {
+      console.error('Register error:', err);
+      const errorMessage = err?.response?.data?.error || 'Error al registrar. El email puede estar en uso.';
+      setError(errorMessage);
       setLoading(false);
     }
   };

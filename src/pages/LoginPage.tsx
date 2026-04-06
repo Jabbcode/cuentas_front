@@ -33,8 +33,10 @@ export function LoginPage() {
 
     try {
       await login(email, password);
-    } catch {
-      setError('Email o contraseña incorrectos');
+      // If successful, navigation will happen automatically
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.error || 'Email o contraseña incorrectos';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
