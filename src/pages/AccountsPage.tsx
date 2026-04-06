@@ -86,7 +86,6 @@ export function AccountsPage() {
       setShowForm(false);
       reload();
     } catch (error) {
-      console.error('Error saving account:', error);
     }
   };
 
@@ -98,7 +97,6 @@ export function AccountsPage() {
       setDeleteId(null);
       reload();
     } catch (error) {
-      console.error('Error deleting account:', error);
     } finally {
       setDeleting(false);
     }

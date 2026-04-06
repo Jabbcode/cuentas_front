@@ -60,7 +60,6 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
       await onPay(parseFloat(amount), accountId, notes || undefined);
       onClose();
     } catch (error) {
-      console.error('Error processing payment:', error);
     } finally {
       setLoading(false);
     }

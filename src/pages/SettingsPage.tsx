@@ -9,7 +9,7 @@ import { Label } from '../components/ui/label';
 import { User, Lock, Trash2, TrendingUp, Calendar } from 'lucide-react';
 
 export function SettingsPage() {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [statistics, setStatistics] = useState<AccountStatistics | null>(null);

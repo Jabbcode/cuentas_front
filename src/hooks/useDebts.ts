@@ -12,7 +12,6 @@ export function useDebts(status?: string) {
       const data = await debtsApi.getAll(status);
       setDebts(data);
     } catch (error) {
-      console.error('Error loading debts:', error);
     } finally {
       setLoading(false);
     }
@@ -31,7 +30,6 @@ export function useDebts(status?: string) {
       await debtsApi.delete(id);
       reload();
     } catch (error) {
-      console.error('Error deleting debt:', error);
       throw error;
     }
   }, [reload]);
@@ -41,7 +39,6 @@ export function useDebts(status?: string) {
       await debtsApi.pay(id, { amount, accountId, notes });
       reload();
     } catch (error) {
-      console.error('Error paying debt:', error);
       throw error;
     }
   }, [reload]);

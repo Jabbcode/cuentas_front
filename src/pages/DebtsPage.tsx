@@ -33,7 +33,6 @@ export function DebtsPage() {
       await deleteDebt(deleteId);
       setDeleteId(null);
     } catch (error) {
-      console.error('Error deleting debt:', error);
     } finally {
       setDeleting(false);
     }
@@ -51,7 +50,6 @@ export function DebtsPage() {
       await deleteRecurringPayment(deleteRecurringId);
       setDeleteRecurringId(null);
     } catch (error) {
-      console.error('Error deleting recurring payment:', error);
     } finally {
       setDeleting(false);
     }

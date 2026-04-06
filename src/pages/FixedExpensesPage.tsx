@@ -35,7 +35,6 @@ export function FixedExpensesPage() {
       await deleteExpense(deleteId);
       setDeleteId(null);
     } catch (error) {
-      console.error('Error deleting fixed expense:', error);
     } finally {
       setDeleting(false);
     }
@@ -123,7 +122,6 @@ export function FixedExpensesPage() {
       await fixedExpensesApi.reorder(itemsWithOrder);
       reload();
     } catch (error) {
-      console.error('Error reordering fixed expenses:', error);
       // Recargar datos en caso de error para mantener consistencia
       reload();
     }

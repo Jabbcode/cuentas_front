@@ -71,7 +71,6 @@ export function CreditCardsPage() {
       handleClosePayment();
       reload();
     } catch (error) {
-      console.error('Error paying statement:', error);
     } finally {
       setPaying(false);
     }

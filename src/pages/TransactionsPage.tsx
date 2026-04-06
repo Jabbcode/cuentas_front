@@ -148,7 +148,6 @@ export function TransactionsPage() {
       handleCloseForm();
       reload();
     } catch (error) {
-      console.error('Error creating transaction:', error);
     }
   };
 
@@ -160,7 +159,6 @@ export function TransactionsPage() {
       setDeleteId(null);
       reload();
     } catch (error) {
-      console.error('Error deleting transaction:', error);
     } finally {
       setDeleting(false);
     }
@@ -181,7 +179,6 @@ export function TransactionsPage() {
       setEditingTransaction(null);
       reload();
     } catch (error) {
-      console.error('Error updating transaction:', error);
       throw error;
     }
   };

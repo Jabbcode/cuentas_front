@@ -65,7 +65,6 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
           }
         }
       } catch (error) {
-        console.error('Error loading form data:', error);
       } finally {
         setLoadingData(false);
       }
@@ -107,7 +106,6 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
 
       onSuccess();
     } catch (error) {
-      console.error('Error saving fixed expense:', error);
     } finally {
       setLoading(false);
     }

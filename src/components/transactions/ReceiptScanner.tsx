@@ -56,7 +56,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
       const result = await receiptsApi.scan(file);
       setScanResult(result);
     } catch (error) {
-      console.error('Error scanning receipt:', error);
       alert('Error al escanear la factura. Por favor intenta de nuevo.');
       setImagePreview(null);
     } finally {

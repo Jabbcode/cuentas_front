@@ -86,7 +86,6 @@ export function EditTransactionModal({
       await onSave(transaction.id, data);
       onClose();
     } catch (error) {
-      console.error('Error saving transaction:', error);
     } finally {
       setSaving(false);
     }

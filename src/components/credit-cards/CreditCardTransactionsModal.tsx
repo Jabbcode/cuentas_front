@@ -48,7 +48,6 @@ export function CreditCardTransactionsModal({
 
       setAllTransactions(response.transactions);
     } catch (error) {
-      console.error('Error loading transactions:', error);
     } finally {
       setLoading(false);
     }

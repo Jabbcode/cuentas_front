@@ -12,7 +12,6 @@ export function useRecurringDebtPayments(debtId?: string) {
       const data = await recurringDebtPaymentsApi.getAll(debtId);
       setRecurringPayments(data);
     } catch (error) {
-      console.error('Error loading recurring payments:', error);
     } finally {
       setLoading(false);
     }
@@ -31,7 +30,6 @@ export function useRecurringDebtPayments(debtId?: string) {
       await recurringDebtPaymentsApi.delete(id);
       reload();
     } catch (error) {
-      console.error('Error deleting recurring payment:', error);
       throw error;
     }
   }, [reload]);
@@ -41,7 +39,6 @@ export function useRecurringDebtPayments(debtId?: string) {
       await recurringDebtPaymentsApi.update(id, { isActive });
       reload();
     } catch (error) {
-      console.error('Error toggling recurring payment:', error);
       throw error;
     }
   }, [reload]);

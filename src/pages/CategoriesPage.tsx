@@ -84,7 +84,6 @@ export function CategoriesPage() {
       setShowForm(false);
       loadCategories();
     } catch (error) {
-      console.error('Error saving category:', error);
     }
   };
 

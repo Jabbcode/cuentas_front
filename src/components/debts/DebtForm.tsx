@@ -59,7 +59,6 @@ export function DebtForm({ debt, onClose, onSuccess }: DebtFormProps) {
 
       onSuccess();
     } catch (error) {
-      console.error('Error saving debt:', error);
     } finally {
       setLoading(false);
     }

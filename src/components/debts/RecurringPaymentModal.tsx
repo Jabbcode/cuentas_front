@@ -97,7 +97,6 @@ export function RecurringPaymentModal({
 
       onSuccess();
     } catch (error) {
-      console.error('Error saving recurring payment:', error);
     } finally {
       setLoading(false);
     }

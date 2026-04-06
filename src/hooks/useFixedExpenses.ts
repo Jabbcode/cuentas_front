@@ -12,7 +12,6 @@ export function useFixedExpenses() {
       const data = await fixedExpensesApi.getSummary();
       setSummary(data);
     } catch (error) {
-      console.error('Error loading fixed expenses:', error);
     } finally {
       setLoading(false);
     }
@@ -31,7 +30,6 @@ export function useFixedExpenses() {
       await fixedExpensesApi.pay(id, amount ? { amount } : undefined);
       reload();
     } catch (error) {
-      console.error('Error paying fixed expense:', error);
     }
   }, [reload]);
 
@@ -40,7 +38,6 @@ export function useFixedExpenses() {
       await fixedExpensesApi.delete(id);
       reload();
     } catch (error) {
-      console.error('Error deleting fixed expense:', error);
       throw error;
     }
   }, [reload]);
@@ -50,7 +47,6 @@ export function useFixedExpenses() {
       await fixedExpensesApi.update(id, { isActive: !isActive });
       reload();
     } catch (error) {
-      console.error('Error toggling fixed expense:', error);
     }
   }, [reload]);
 
