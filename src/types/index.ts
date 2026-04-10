@@ -55,6 +55,7 @@ export interface FixedExpense {
   accountId: string;
   categoryId: string;
   creditCardAccountId?: string | null;
+  recurringDebtPaymentId?: string | null;
   account?: Pick<Account, 'id' | 'name' | 'color'>;
   category?: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;
   isPaidThisMonth?: boolean;

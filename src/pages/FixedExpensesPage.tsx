@@ -85,7 +85,11 @@ export function FixedExpensesPage() {
 
   // Filtrar items por categorías seleccionadas y ordenar por fecha de pago
   const expenseItems = useMemo(() => {
-    const items = summary?.items.filter((item) => item.type === 'expense' && !item.creditCardAccountId) || [];
+    const items = summary?.items.filter((item) =>
+      item.type === 'expense' &&
+      !item.creditCardAccountId &&
+      !item.recurringDebtPaymentId
+    ) || [];
     const filtered = selectedExpenseCategories.length === 0
       ? items
       : items.filter((item) => item.category && selectedExpenseCategories.includes(item.category.id));
@@ -107,6 +111,12 @@ export function FixedExpensesPage() {
   // Credit Card items (separate from regular expenses)
   const creditCardItems = useMemo(() => {
     const items = summary?.items.filter((item) => item.creditCardAccountId) || [];
+    return items.sort((a, b) => a.dueDay - b.dueDay);
+  }, [summary]);
+
+  // Recurring Debt Payment items (separate from regular expenses)
+  const debtPaymentItems = useMemo(() => {
+    const items = summary?.items.filter((item) => item.recurringDebtPaymentId) || [];
     return items.sort((a, b) => a.dueDay - b.dueDay);
   }, [summary]);
 
@@ -201,6 +211,43 @@ export function FixedExpensesPage() {
                   <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
                   <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
                 </svg>
+              </div>
+            }
+            onPay={payExpense}
+            onEdit={(id) => setEditingId(id)}
+            onDelete={(id) => setDeleteId(id)}
+            onToggleActive={toggleActive}
+          />
+        </div>
+      )}
+
+      {/* Recurring Debt Payments Section */}
+      {debtPaymentItems.length > 0 && (
+        <div className="space-y-3">
+          <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
+            <div className="flex items-center gap-2">
+              <div className="rounded-full bg-orange-100 p-1.5">
+                <span className="text-lg">💰</span>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-orange-900">Pagos de Deudas</h3>
+                <p className="text-xs text-orange-700">
+                  Pagos recurrentes mensuales de tus deudas
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <FixedExpenseTable
+            title="Pagos de Deudas"
+            items={debtPaymentItems}
+            type="expense"
+            totalAmount={debtPaymentItems
+              .filter((item) => item.isActive)
+              .reduce((sum, item) => sum + Number(item.amount), 0)}
+            icon={
+              <div className="rounded-full bg-orange-100 p-1.5">
+                <span className="text-base">💰</span>
               </div>
             }
             onPay={payExpense}

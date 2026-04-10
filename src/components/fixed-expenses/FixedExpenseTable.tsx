@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Check, MoreVertical, Pencil, Trash2, Power, Calendar } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
@@ -35,8 +35,10 @@ export function FixedExpenseTable({
   onToggleActive,
 }: FixedExpenseTableProps) {
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; right: number } | null>(null);
   const [payingItem, setPayingItem] = useState<FixedExpenseWithStatus | null>(null);
   const [payAmount, setPayAmount] = useState('');
+  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   const handlePayClick = (item: FixedExpenseWithStatus) => {
     setPayAmount(item.amount.toString());
@@ -52,6 +54,20 @@ export function FixedExpenseTable({
       onPay(payingItem.id);
     }
     setPayingItem(null);
+  };
+
+  const handleMenuToggle = (itemId: string, buttonElement: HTMLButtonElement) => {
+    if (menuOpen === itemId) {
+      setMenuOpen(null);
+      setMenuPosition(null);
+    } else {
+      const rect = buttonElement.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+      });
+      setMenuOpen(itemId);
+    }
   };
 
   const getStatusBadge = (item: FixedExpenseWithStatus) => {
@@ -118,48 +134,20 @@ export function FixedExpenseTable({
           </div>
           <div className="flex items-center gap-1">
             {getStatusBadge(item)}
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(menuOpen === item.id ? null : item.id);
-                }}
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-              {menuOpen === item.id && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setMenuOpen(null)}
-                  />
-                  <div className="absolute right-0 top-8 z-50 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
-                    <button
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-                      onClick={() => { setMenuOpen(null); onEdit(item.id); }}
-                    >
-                      <Pencil className="h-3 w-3" /> Editar
-                    </button>
-                    <button
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-                      onClick={() => { setMenuOpen(null); onToggleActive(item.id, item.isActive); }}
-                    >
-                      <Power className="h-3 w-3" />
-                      {item.isActive ? 'Pausar' : 'Activar'}
-                    </button>
-                    <button
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-red-600 hover:bg-red-50"
-                      onClick={() => { setMenuOpen(null); onDelete(item.id); }}
-                    >
-                      <Trash2 className="h-3 w-3" /> Eliminar
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+            <Button
+              ref={(el) => { buttonRefs.current[item.id] = el; }}
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (e.currentTarget instanceof HTMLButtonElement) {
+                  handleMenuToggle(item.id, e.currentTarget);
+                }
+              }}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
@@ -245,53 +233,27 @@ export function FixedExpenseTable({
                 <Check className="h-3 w-3" />
               </Button>
             )}
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(menuOpen === item.id ? null : item.id);
-                }}
-              >
-                <MoreVertical className="h-3 w-3" />
-              </Button>
-              {menuOpen === item.id && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setMenuOpen(null)}
-                  />
-                  <div className="absolute right-0 top-7 z-50 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
-                    <button
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-                      onClick={() => { setMenuOpen(null); onEdit(item.id); }}
-                    >
-                      <Pencil className="h-3 w-3" /> Editar
-                    </button>
-                    <button
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-                      onClick={() => { setMenuOpen(null); onToggleActive(item.id, item.isActive); }}
-                    >
-                      <Power className="h-3 w-3" />
-                      {item.isActive ? 'Pausar' : 'Activar'}
-                    </button>
-                    <button
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-red-600 hover:bg-red-50"
-                      onClick={() => { setMenuOpen(null); onDelete(item.id); }}
-                    >
-                      <Trash2 className="h-3 w-3" /> Eliminar
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+            <Button
+              ref={(el) => { buttonRefs.current[item.id] = el; }}
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (e.currentTarget instanceof HTMLButtonElement) {
+                  handleMenuToggle(item.id, e.currentTarget);
+                }
+              }}
+            >
+              <MoreVertical className="h-3 w-3" />
+            </Button>
           </div>
         </td>
       </tr>
     );
   };
+
+  const currentItem = items.find(item => item.id === menuOpen);
 
   return (
     <>
@@ -347,6 +309,58 @@ export function FixedExpenseTable({
           )}
         </CardContent>
       </Card>
+
+      {/* Floating Menu */}
+      {menuOpen && menuPosition && currentItem && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => {
+              setMenuOpen(null);
+              setMenuPosition(null);
+            }}
+          />
+          <div
+            className="fixed z-50 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
+            style={{
+              top: `${menuPosition.top}px`,
+              right: `${menuPosition.right}px`,
+            }}
+          >
+            <button
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+              onClick={() => {
+                setMenuOpen(null);
+                setMenuPosition(null);
+                onEdit(currentItem.id);
+              }}
+            >
+              <Pencil className="h-3 w-3" /> Editar
+            </button>
+            <button
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+              onClick={() => {
+                setMenuOpen(null);
+                setMenuPosition(null);
+                onToggleActive(currentItem.id, currentItem.isActive);
+              }}
+            >
+              <Power className="h-3 w-3" />
+              {currentItem.isActive ? 'Pausar' : 'Activar'}
+            </button>
+            <button
+              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-red-600 hover:bg-red-50"
+              onClick={() => {
+                setMenuOpen(null);
+                setMenuPosition(null);
+                onDelete(currentItem.id);
+              }}
+            >
+              <Trash2 className="h-3 w-3" /> Eliminar
+            </button>
+          </div>
+        </>
+      )}
 
       {/* Pay Dialog */}
       {payingItem && (
