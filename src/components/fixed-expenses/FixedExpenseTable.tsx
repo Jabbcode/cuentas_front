@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Check, MoreVertical, Pencil, Trash2, Power, Calendar } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
@@ -37,24 +37,6 @@ export function FixedExpenseTable({
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [payingItem, setPayingItem] = useState<FixedExpenseWithStatus | null>(null);
   const [payAmount, setPayAmount] = useState('');
-  const menuRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    if (!menuOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const menuElement = menuRefs.current[menuOpen];
-      if (menuElement && !menuElement.contains(event.target as Node)) {
-        setMenuOpen(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [menuOpen]);
 
   const handlePayClick = (item: FixedExpenseWithStatus) => {
     setPayAmount(item.amount.toString());
@@ -136,40 +118,46 @@ export function FixedExpenseTable({
           </div>
           <div className="flex items-center gap-1">
             {getStatusBadge(item)}
-            <div
-              className="relative"
-              ref={(el) => { if (menuOpen === item.id) menuRefs.current[item.id] = el; }}
-            >
+            <div className="relative">
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7"
-                onClick={() => setMenuOpen(menuOpen === item.id ? null : item.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(menuOpen === item.id ? null : item.id);
+                }}
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>
               {menuOpen === item.id && (
-                <div className="absolute right-0 top-8 z-50 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
-                  <button
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-                    onClick={() => { setMenuOpen(null); onEdit(item.id); }}
-                  >
-                    <Pencil className="h-3 w-3" /> Editar
-                  </button>
-                  <button
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-                    onClick={() => { setMenuOpen(null); onToggleActive(item.id, item.isActive); }}
-                  >
-                    <Power className="h-3 w-3" />
-                    {item.isActive ? 'Pausar' : 'Activar'}
-                  </button>
-                  <button
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-red-600 hover:bg-red-50"
-                    onClick={() => { setMenuOpen(null); onDelete(item.id); }}
-                  >
-                    <Trash2 className="h-3 w-3" /> Eliminar
-                  </button>
-                </div>
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setMenuOpen(null)}
+                  />
+                  <div className="absolute right-0 top-8 z-50 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+                    <button
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+                      onClick={() => { setMenuOpen(null); onEdit(item.id); }}
+                    >
+                      <Pencil className="h-3 w-3" /> Editar
+                    </button>
+                    <button
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+                      onClick={() => { setMenuOpen(null); onToggleActive(item.id, item.isActive); }}
+                    >
+                      <Power className="h-3 w-3" />
+                      {item.isActive ? 'Pausar' : 'Activar'}
+                    </button>
+                    <button
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-red-600 hover:bg-red-50"
+                      onClick={() => { setMenuOpen(null); onDelete(item.id); }}
+                    >
+                      <Trash2 className="h-3 w-3" /> Eliminar
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -257,40 +245,46 @@ export function FixedExpenseTable({
                 <Check className="h-3 w-3" />
               </Button>
             )}
-            <div
-              className="relative"
-              ref={(el) => { if (menuOpen === item.id) menuRefs.current[item.id] = el; }}
-            >
+            <div className="relative">
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6"
-                onClick={() => setMenuOpen(menuOpen === item.id ? null : item.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(menuOpen === item.id ? null : item.id);
+                }}
               >
                 <MoreVertical className="h-3 w-3" />
               </Button>
               {menuOpen === item.id && (
-                <div className="absolute right-0 top-7 z-50 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
-                  <button
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-                    onClick={() => { setMenuOpen(null); onEdit(item.id); }}
-                  >
-                    <Pencil className="h-3 w-3" /> Editar
-                  </button>
-                  <button
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
-                    onClick={() => { setMenuOpen(null); onToggleActive(item.id, item.isActive); }}
-                  >
-                    <Power className="h-3 w-3" />
-                    {item.isActive ? 'Pausar' : 'Activar'}
-                  </button>
-                  <button
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-red-600 hover:bg-red-50"
-                    onClick={() => { setMenuOpen(null); onDelete(item.id); }}
-                  >
-                    <Trash2 className="h-3 w-3" /> Eliminar
-                  </button>
-                </div>
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setMenuOpen(null)}
+                  />
+                  <div className="absolute right-0 top-7 z-50 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+                    <button
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+                      onClick={() => { setMenuOpen(null); onEdit(item.id); }}
+                    >
+                      <Pencil className="h-3 w-3" /> Editar
+                    </button>
+                    <button
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
+                      onClick={() => { setMenuOpen(null); onToggleActive(item.id, item.isActive); }}
+                    >
+                      <Power className="h-3 w-3" />
+                      {item.isActive ? 'Pausar' : 'Activar'}
+                    </button>
+                    <button
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-red-600 hover:bg-red-50"
+                      onClick={() => { setMenuOpen(null); onDelete(item.id); }}
+                    >
+                      <Trash2 className="h-3 w-3" /> Eliminar
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           </div>
