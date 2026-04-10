@@ -85,7 +85,7 @@ export function FixedExpensesPage() {
 
   // Filtrar items por categorías seleccionadas y ordenar por fecha de pago
   const expenseItems = useMemo(() => {
-    const items = summary?.items.filter((item) => item.type === 'expense') || [];
+    const items = summary?.items.filter((item) => item.type === 'expense' && !item.creditCardAccountId) || [];
     const filtered = selectedExpenseCategories.length === 0
       ? items
       : items.filter((item) => item.category && selectedExpenseCategories.includes(item.category.id));
@@ -103,6 +103,12 @@ export function FixedExpensesPage() {
     // Ordenar por fecha de pago (dueDay)
     return filtered.sort((a, b) => a.dueDay - b.dueDay);
   }, [summary, selectedIncomeCategories]);
+
+  // Credit Card items (separate from regular expenses)
+  const creditCardItems = useMemo(() => {
+    const items = summary?.items.filter((item) => item.creditCardAccountId) || [];
+    return items.sort((a, b) => a.dueDay - b.dueDay);
+  }, [summary]);
 
   // Calcular totales filtrados
   const filteredExpenseTotal = useMemo(() => {
@@ -160,6 +166,49 @@ export function FixedExpensesPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Credit Card Fixed Expenses Section */}
+      {creditCardItems.length > 0 && (
+        <div className="space-y-3">
+          <div className="rounded-lg border border-purple-200 bg-purple-50 p-3">
+            <div className="flex items-center gap-2">
+              <div className="rounded-full bg-purple-100 p-1.5">
+                <svg className="h-4 w-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                  <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-purple-900">Tarjetas de Crédito</h3>
+                <p className="text-xs text-purple-700">
+                  Pagos programados de tus tarjetas (se actualizan automáticamente)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <FixedExpenseTable
+            title="Pagos de Tarjetas"
+            items={creditCardItems}
+            type="expense"
+            totalAmount={creditCardItems
+              .filter((item) => item.isActive)
+              .reduce((sum, item) => sum + Number(item.amount), 0)}
+            icon={
+              <div className="rounded-full bg-purple-100 p-1.5">
+                <svg className="h-4 w-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                  <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
+                </svg>
+              </div>
+            }
+            onPay={payExpense}
+            onEdit={(id) => setEditingId(id)}
+            onDelete={(id) => setDeleteId(id)}
+            onToggleActive={toggleActive}
+          />
+        </div>
       )}
 
       {/* Fixed Expenses Tables */}

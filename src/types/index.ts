@@ -17,6 +17,7 @@ export interface Account {
   creditLimit?: number;
   cutoffDay?: number;
   paymentDueDay?: number;
+  paymentAccountId?: string | null;
 }
 
 export interface Category {
@@ -53,6 +54,7 @@ export interface FixedExpense {
   description?: string;
   accountId: string;
   categoryId: string;
+  creditCardAccountId?: string | null;
   account?: Pick<Account, 'id' | 'name' | 'color'>;
   category?: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;
   isPaidThisMonth?: boolean;

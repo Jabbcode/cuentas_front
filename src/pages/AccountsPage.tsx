@@ -29,6 +29,7 @@ export function AccountsPage() {
     creditLimit: '',
     cutoffDay: '',
     paymentDueDay: '',
+    paymentAccountId: '',
   });
 
   const openForm = (account?: Account) => {
@@ -43,6 +44,7 @@ export function AccountsPage() {
         creditLimit: account.creditLimit?.toString() || '',
         cutoffDay: account.cutoffDay?.toString() || '',
         paymentDueDay: account.paymentDueDay?.toString() || '',
+        paymentAccountId: account.paymentAccountId || '',
       });
     } else {
       setEditingAccount(null);
@@ -55,6 +57,7 @@ export function AccountsPage() {
         creditLimit: '',
         cutoffDay: '',
         paymentDueDay: '',
+        paymentAccountId: '',
       });
     }
     setShowForm(true);
@@ -75,6 +78,7 @@ export function AccountsPage() {
         if (formData.creditLimit) data.creditLimit = parseFloat(formData.creditLimit);
         if (formData.cutoffDay) data.cutoffDay = parseInt(formData.cutoffDay);
         if (formData.paymentDueDay) data.paymentDueDay = parseInt(formData.paymentDueDay);
+        if (formData.paymentAccountId) data.paymentAccountId = formData.paymentAccountId;
       }
 
       if (editingAccount) {
@@ -254,6 +258,27 @@ export function AccountsPage() {
                     />
                     <p className="text-xs text-gray-500 mt-1">Día de vencimiento del pago (1-31)</p>
                   </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="paymentAccountId">Cuenta de Débito para Pago</Label>
+                  <Select
+                    id="paymentAccountId"
+                    value={formData.paymentAccountId}
+                    onChange={(e) => setFormData({ ...formData, paymentAccountId: e.target.value })}
+                  >
+                    <option value="">Seleccionar cuenta...</option>
+                    {accounts
+                      .filter((acc) => acc.type !== 'credit_card' && acc.id !== editingAccount?.id)
+                      .map((acc) => (
+                        <option key={acc.id} value={acc.id}>
+                          {acc.name} ({acc.type === 'bank' ? 'Banco' : 'Efectivo'})
+                        </option>
+                      ))}
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Cuenta desde la cual se descontará el pago de la tarjeta
+                  </p>
                 </div>
               </>
             )}
