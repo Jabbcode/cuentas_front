@@ -20,9 +20,9 @@ export function AccountsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<Account['type'], boolean>>({
-    bank: false,
-    credit_card: false,
-    cash: false,
+    bank: true,
+    credit_card: true,
+    cash: true,
   });
 
   // Account type labels and order for grouping
