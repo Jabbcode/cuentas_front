@@ -34,13 +34,13 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div
         className={cn(
-          'relative z-50 my-8 w-full max-w-lg rounded-lg border border-gray-200 bg-white p-6 shadow-xl dark:border-gray-700 dark:bg-gray-800',
+          'relative z-50 my-8 w-full max-w-lg rounded-lg border border-gray-200 bg-white p-6 shadow-xl dark:border-[hsl(215_20%_25%)] dark:bg-[#0F172A]',
           className
         )}
       >
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-sm p-1 text-gray-400 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-500 dark:focus:ring-blue-400"
+          className="absolute right-4 top-4 rounded-sm p-1 text-gray-400 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-[#64748B] dark:focus:ring-blue-400"
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
@@ -61,7 +61,7 @@ export function DialogHeader({ children, className }: { children: ReactNode; cla
 
 export function DialogTitle({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <h2 className={cn('text-lg font-semibold leading-none tracking-tight text-gray-900 dark:text-gray-50', className)}>
+    <h2 className={cn('text-lg font-semibold leading-none tracking-tight text-gray-900 dark:text-[#F8FAFC]', className)}>
       {children}
     </h2>
   );

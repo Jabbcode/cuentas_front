@@ -1,8 +1,10 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* Light Mode - Professional Finance UI */
   --color-background: hsl(0 0% 100%);
   --color-foreground: hsl(222.2 84% 4.9%);
   --color-card: hsl(0 0% 100%);
@@ -22,6 +24,25 @@
   --color-border: hsl(214.3 31.8% 91.4%);
   --color-input: hsl(214.3 31.8% 91.4%);
   --color-ring: hsl(221.2 83.2% 53.3%);
+
+  /* Dark Mode - OLED Financial Dashboard */
+  --color-dark-background: hsl(222 47% 2%);      /* #020617 - Deep OLED Black */
+  --color-dark-surface: hsl(222 47% 8%);         /* #0F172A - Primary Dark Surface */
+  --color-dark-surface-elevated: hsl(215 25% 15%); /* #1E293B - Elevated Cards */
+  --color-dark-border: hsl(215 20% 25%);         /* Subtle borders */
+  --color-dark-foreground: hsl(210 40% 98%);     /* #F8FAFC - High contrast text */
+  --color-dark-muted: hsl(215 16% 47%);          /* #64748B - Muted text */
+
+  /* Semantic Colors - Optimized for Dark */
+  --color-success: hsl(142 71% 45%);             /* #22C55E - Green for positive */
+  --color-success-muted: hsl(142 71% 20%);       /* Dark green bg */
+  --color-warning: hsl(38 92% 50%);              /* #F59E0B - Gold for warnings */
+  --color-warning-muted: hsl(38 92% 20%);        /* Dark gold bg */
+  --color-error: hsl(0 72% 51%);                 /* #DC2626 - Red for errors */
+  --color-error-muted: hsl(0 72% 20%);           /* Dark red bg */
+  --color-info: hsl(217 91% 60%);                /* #3B82F6 - Blue for info */
+  --color-info-muted: hsl(217 91% 20%);          /* Dark blue bg */
+
   --radius: 0.5rem;
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -35,5 +56,12 @@
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1; /* Better typography */
+}
+
+/* Dark Mode Global Styles */
+.dark body {
+  background-color: var(--color-dark-background);
+  color: var(--color-dark-foreground);
 }

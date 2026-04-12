@@ -78,8 +78,8 @@ export function DebtsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Deudas</h1>
-          <p className="text-gray-500 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-[#F8FAFC]">Deudas</h1>
+          <p className="text-gray-500 dark:text-[#64748B]">
             Gestiona tus deudas y realiza pagos
           </p>
         </div>
@@ -112,8 +112,8 @@ export function DebtsPage() {
 
       {/* Debts List */}
       {debts.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400">No tienes deudas registradas</p>
+        <div className="rounded-lg border border-gray-200 dark:border-[hsl(215_20%_25%)] bg-gray-50 dark:bg-[#1E293B] p-12 text-center">
+          <p className="text-gray-500 dark:text-[#64748B]">No tienes deudas registradas</p>
           <Button onClick={() => setShowForm(true)} className="mt-4">
             <Plus className="mr-2 h-4 w-4" /> Crear primera deuda
           </Button>
@@ -158,7 +158,7 @@ export function DebtsPage() {
           {/* Active Debts */}
           {activeDebts.length > 0 && (
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-3">Deudas Activas</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-[#F8FAFC] mb-3">Deudas Activas</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {activeDebts.map((debt) => (
                   <div key={debt.id} className="space-y-3">

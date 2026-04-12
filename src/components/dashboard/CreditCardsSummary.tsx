@@ -29,11 +29,11 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
   const getSeverityColor = (severity: 'info' | 'warning' | 'error') => {
     switch (severity) {
       case 'error':
-        return 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-300';
+        return 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-500/10 text-red-800 dark:text-red-400';
       case 'warning':
         return 'border-orange-200 bg-orange-50 text-orange-800';
       case 'info':
-        return 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300';
+        return 'border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-500/10 text-blue-800 dark:text-blue-400';
     }
   };
 
@@ -41,12 +41,12 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
     <Card className="border-l-4 border-l-purple-500">
       <CardHeader className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between lg:p-6">
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-purple-100 dark:bg-purple-900/30 p-2">
+          <div className="rounded-full bg-purple-100 dark:bg-purple-500/10 p-2">
             <CreditCard className="h-4 w-4 text-purple-600 dark:text-purple-400 lg:h-5 lg:w-5" />
           </div>
           <div>
             <CardTitle className="text-base lg:text-lg">Tarjetas de Crédito</CardTitle>
-            <p className="text-xs text-gray-500 dark:text-gray-400 lg:text-sm">
+            <p className="text-xs text-gray-500 dark:text-[#64748B] lg:text-sm">
               {summary.cards.length} tarjeta{summary.cards.length !== 1 ? 's' : ''}
             </p>
           </div>
@@ -61,8 +61,8 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
       <CardContent className="p-4 pt-0 lg:p-6 lg:pt-0 space-y-4">
         {/* Total to pay */}
         {summary.totalToPay > 0 && (
-          <div className="rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 p-4">
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Total a pagar este mes</p>
+          <div className="rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-500/10 dark:to-pink-500/10 p-4">
+            <p className="text-sm font-medium text-gray-600 dark:text-[#CBD5E1]">Total a pagar este mes</p>
             <p className="mt-1 text-2xl font-bold text-purple-600 dark:text-purple-400 lg:text-3xl">
               {formatCurrency(summary.totalToPay)}
             </p>
@@ -72,22 +72,22 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
         {/* Upcoming payments */}
         {summary.upcomingPayments.length > 0 && (
           <div>
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Próximos vencimientos</h4>
+            <h4 className="text-sm font-medium text-gray-700 dark:text-[#CBD5E1] mb-2">Próximos vencimientos</h4>
             <div className="space-y-2">
               {summary.upcomingPayments.slice(0, 3).map((payment) => (
                 <div
                   key={payment.accountId}
                   className={`flex items-center justify-between rounded-lg border p-3 ${
                     payment.daysUntilDue <= 3
-                      ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30'
+                      ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-500/10'
                       : payment.daysUntilDue <= 7
-                      ? 'border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/30'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
+                      ? 'border-orange-200 dark:border-yellow-800 bg-orange-50 dark:bg-yellow-500/10'
+                      : 'border-gray-200 dark:border-[hsl(215_20%_25%)] bg-white dark:bg-[#1E293B]'
                   }`}
                 >
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-50">{payment.accountName}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-[#F8FAFC]">{payment.accountName}</p>
+                    <p className="text-sm text-gray-600 dark:text-[#CBD5E1]">
                       {payment.daysUntilDue === 0
                         ? 'Vence hoy'
                         : payment.daysUntilDue === 1
@@ -98,7 +98,7 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-gray-900 dark:text-gray-50">
+                    <p className="text-lg font-bold text-gray-900 dark:text-[#F8FAFC]">
                       {formatCurrency(payment.amount)}
                     </p>
                     {payment.daysUntilDue <= 3 && (
@@ -116,7 +116,7 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
         {/* Alerts */}
         {summary.alerts.length > 0 && (
           <div>
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Alertas</h4>
+            <h4 className="text-sm font-medium text-gray-700 dark:text-[#CBD5E1] mb-2">Alertas</h4>
             <div className="space-y-2">
               {summary.alerts.slice(0, 3).map((alert, index) => (
                 <div
@@ -136,8 +136,8 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
 
         {/* Empty state */}
         {summary.totalToPay === 0 && summary.upcomingPayments.length === 0 && (
-          <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/30 p-4 text-center">
-            <p className="text-sm font-medium text-green-800 dark:text-green-300">
+          <div className="rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-500/10 p-4 text-center">
+            <p className="text-sm font-medium text-green-800 dark:text-green-400">
               ✓ No tienes pagos pendientes
             </p>
           </div>

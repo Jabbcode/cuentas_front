@@ -17,7 +17,7 @@ export function RegisterPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-[#020617]">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-400" />
       </div>
     );
@@ -43,10 +43,10 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4 dark:from-[#020617] dark:to-[#0F172A]">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-500/10">
             <Wallet className="h-6 w-6 text-blue-600 dark:text-blue-400" />
           </div>
           <CardTitle className="text-2xl font-bold">Crear cuenta</CardTitle>
@@ -55,7 +55,7 @@ export function RegisterPage() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
                 {error}
               </div>
             )}
@@ -98,7 +98,7 @@ export function RegisterPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </Button>
-            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-center text-sm text-gray-500 dark:text-[#64748B]">
               ¿Ya tienes cuenta?{' '}
               <Link to="/login" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
                 Inicia sesión

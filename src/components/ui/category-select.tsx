@@ -57,7 +57,7 @@ export function CategorySelect({
         className={cn(
           'flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors',
           'hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200',
-          'dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500 dark:focus:border-blue-400 dark:focus:ring-blue-900/30',
+          'dark:border-[hsl(215_20%_25%)] dark:bg-[#1E293B] dark:hover:border-[hsl(215_20%_35%)] dark:focus:border-blue-400 dark:focus:ring-blue-900/30',
           isOpen && 'border-blue-500 ring-2 ring-blue-200 dark:border-blue-400 dark:ring-blue-900/30'
         )}
       >
@@ -68,20 +68,20 @@ export function CategorySelect({
               color={selectedCategory.color}
               size="md"
             />
-            <span className="text-gray-900 dark:text-gray-50">{selectedCategory.name}</span>
+            <span className="text-gray-900 dark:text-[#F8FAFC]">{selectedCategory.name}</span>
           </div>
         ) : (
-          <span className="text-gray-500 dark:text-gray-400">{placeholder}</span>
+          <span className="text-gray-500 dark:text-[#64748B]">{placeholder}</span>
         )}
-        <ChevronDown className={cn('h-4 w-4 text-gray-400 transition-transform dark:text-gray-500', isOpen && 'rotate-180')} />
+        <ChevronDown className={cn('h-4 w-4 text-gray-400 transition-transform dark:text-[#64748B]', isOpen && 'rotate-180')} />
       </button>
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-[hsl(215_20%_25%)] dark:bg-[#0F172A]">
           <div className="max-h-60 overflow-y-auto">
             {categories.length === 0 ? (
-              <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">No hay categorías</div>
+              <div className="px-3 py-2 text-sm text-gray-500 dark:text-[#64748B]">No hay categorías</div>
             ) : (
               categories.map((category) => (
                 <button
@@ -92,8 +92,8 @@ export function CategorySelect({
                     setIsOpen(false);
                   }}
                   className={cn(
-                    'flex w-full items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-700',
-                    value === category.id && 'bg-blue-50 dark:bg-blue-900/30'
+                    'flex w-full items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-gray-100 dark:hover:bg-[#1E293B]',
+                    value === category.id && 'bg-blue-50 dark:bg-blue-500/10'
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export function CategorySelect({
                       color={category.color}
                       size="md"
                     />
-                    <span className="text-gray-900 dark:text-gray-50">{category.name}</span>
+                    <span className="text-gray-900 dark:text-[#F8FAFC]">{category.name}</span>
                   </div>
                   {value === category.id && (
                     <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />

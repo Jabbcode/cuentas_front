@@ -145,8 +145,8 @@ export function FixedExpensesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Gastos Fijos</h1>
-          <p className="text-gray-500 dark:text-gray-400">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-[#F8FAFC]">Gastos Fijos</h1>
+          <p className="text-gray-500 dark:text-[#64748B]">
             Gestiona tus gastos e ingresos recurrentes mensuales
           </p>
         </div>
@@ -266,7 +266,7 @@ export function FixedExpensesPage() {
           {expenseCategories.length > 0 && (
             <Card className="p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Filtrar por categoría</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-[#CBD5E1]">Filtrar por categoría</span>
                 {selectedExpenseCategories.length > 0 && (
                   <Button
                     variant="ghost"
@@ -287,8 +287,8 @@ export function FixedExpensesPage() {
                       onClick={() => toggleExpenseCategory(category.id)}
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-all ${
                         isSelected
-                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 ring-2 ring-blue-500 dark:ring-blue-400'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          ? 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 ring-2 ring-blue-500 dark:ring-blue-400'
+                          : 'bg-gray-100 dark:bg-[#1E293B] text-gray-700 dark:text-[#CBD5E1] hover:bg-gray-200 dark:hover:bg-[hsl(215_25%_18%)]'
                       }`}
                     >
                       <CategoryIcon icon={category.icon} color={category.color} size="sm" />
@@ -307,7 +307,7 @@ export function FixedExpensesPage() {
           type="expense"
           totalAmount={filteredExpenseTotal}
           icon={
-            <div className="rounded-full bg-red-100 dark:bg-red-900/30 p-1.5">
+            <div className="rounded-full bg-red-100 dark:bg-red-500/10 p-1.5">
               <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
             </div>
           }
@@ -324,7 +324,7 @@ export function FixedExpensesPage() {
           {incomeCategories.length > 0 && (
             <Card className="p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Filtrar por categoría</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-[#CBD5E1]">Filtrar por categoría</span>
                 {selectedIncomeCategories.length > 0 && (
                   <Button
                     variant="ghost"
@@ -345,8 +345,8 @@ export function FixedExpensesPage() {
                       onClick={() => toggleIncomeCategory(category.id)}
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-all ${
                         isSelected
-                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 ring-2 ring-blue-500 dark:ring-blue-400'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          ? 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 ring-2 ring-blue-500 dark:ring-blue-400'
+                          : 'bg-gray-100 dark:bg-[#1E293B] text-gray-700 dark:text-[#CBD5E1] hover:bg-gray-200 dark:hover:bg-[hsl(215_25%_18%)]'
                       }`}
                     >
                       <CategoryIcon icon={category.icon} color={category.color} size="sm" />

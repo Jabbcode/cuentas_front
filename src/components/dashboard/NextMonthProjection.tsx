@@ -31,7 +31,7 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
   const getPercentageColor = (percentage: number) => {
     if (percentage > 0) return 'text-red-600 dark:text-red-400';
     if (percentage < 0) return 'text-green-600 dark:text-green-400';
-    return 'text-gray-600 dark:text-gray-300';
+    return 'text-gray-600 dark:text-[#CBD5E1]';
   };
 
   const getPercentageIcon = (percentage: number) => {
@@ -44,12 +44,12 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
     <Card className="border-l-4 border-l-purple-500">
       <CardHeader className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between lg:p-6">
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-purple-100 dark:bg-purple-900/30 p-2">
+          <div className="rounded-full bg-purple-100 dark:bg-purple-500/10 p-2">
             <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400 lg:h-5 lg:w-5" />
           </div>
           <div>
             <CardTitle className="text-base lg:text-lg">Proyección {monthName}</CardTitle>
-            <p className="text-xs text-gray-500 dark:text-gray-400 lg:text-sm">Basado en gastos e ingresos fijos activos</p>
+            <p className="text-xs text-gray-500 dark:text-[#64748B] lg:text-sm">Basado en gastos e ingresos fijos activos</p>
           </div>
         </div>
       </CardHeader>
@@ -57,7 +57,7 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
       <CardContent className="p-4 pt-0 lg:p-6 lg:pt-0 space-y-4 lg:space-y-6">
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-2 lg:gap-4">
-          <div className="rounded-lg bg-green-50 dark:bg-green-900/30 p-2 lg:p-4">
+          <div className="rounded-lg bg-green-50 dark:bg-green-500/10 p-2 lg:p-4">
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 lg:text-sm">Ingresos</p>
             <p className="mt-1 text-sm font-bold text-green-600 dark:text-green-400 lg:text-xl">
               {formatCurrency(projection.totalIncome)}
@@ -68,7 +68,7 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
             </div>
           </div>
 
-          <div className="rounded-lg bg-red-50 dark:bg-red-900/30 p-2 lg:p-4">
+          <div className="rounded-lg bg-red-50 dark:bg-red-500/10 p-2 lg:p-4">
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 lg:text-sm">Gastos</p>
             <p className="mt-1 text-sm font-bold text-red-600 dark:text-red-400 lg:text-xl">
               {formatCurrency(projection.totalExpenses)}
@@ -79,9 +79,9 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
             </div>
           </div>
 
-          <div className={`rounded-lg p-2 lg:p-4 ${projection.netBalance >= 0 ? 'bg-blue-50 dark:bg-blue-900/30' : 'bg-orange-50 dark:bg-orange-900/30'}`}>
+          <div className={`rounded-lg p-2 lg:p-4 ${projection.netBalance >= 0 ? 'bg-blue-50 dark:bg-blue-500/10' : 'bg-orange-50 dark:bg-yellow-500/10'}`}>
             <p className="text-xs font-medium text-gray-500 dark:text-gray-400 lg:text-sm">Balance</p>
-            <p className={`mt-1 text-sm font-bold lg:text-xl ${projection.netBalance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'}`}>
+            <p className={`mt-1 text-sm font-bold lg:text-xl ${projection.netBalance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-yellow-400'}`}>
               {formatCurrency(projection.netBalance)}
             </p>
             <div className={`flex items-center gap-1 mt-1 text-[10px] lg:text-xs ${getPercentageColor(projection.comparison.netDiff > 0 ? -1 : 1)}`}>
@@ -100,7 +100,7 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
           {/* Expense Categories */}
           {expenseData.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Gastos por Categoría</h4>
+              <h4 className="text-sm font-medium text-gray-700 dark:text-[#CBD5E1] mb-3">Gastos por Categoría</h4>
               <div className="flex flex-col items-center gap-3 lg:gap-4">
                 <ResponsiveContainer width={120} height={120} className="lg:!w-[140px] lg:!h-[140px]">
                   <PieChart>
@@ -130,9 +130,9 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
                           style={{ backgroundColor: COLORS[index % COLORS.length] }}
                         />
                         <CategoryIcon icon={cat.icon} color={cat.color} size="sm" />
-                        <span className="text-gray-700 dark:text-gray-300">{cat.name}</span>
+                        <span className="text-gray-700 dark:text-[#CBD5E1]">{cat.name}</span>
                       </div>
-                      <span className="font-medium text-gray-900 dark:text-gray-50">{formatCurrency(cat.value)}</span>
+                      <span className="font-medium text-gray-900 dark:text-[#F8FAFC]">{formatCurrency(cat.value)}</span>
                     </div>
                   ))}
                 </div>
@@ -143,7 +143,7 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
           {/* Income Categories */}
           {incomeData.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Ingresos por Categoría</h4>
+              <h4 className="text-sm font-medium text-gray-700 dark:text-[#CBD5E1] mb-3">Ingresos por Categoría</h4>
               <div className="flex flex-col items-center gap-3 lg:gap-4">
                 <ResponsiveContainer width={120} height={120} className="lg:!w-[140px] lg:!h-[140px]">
                   <PieChart>
@@ -173,9 +173,9 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
                           style={{ backgroundColor: COLORS[index % COLORS.length] }}
                         />
                         <CategoryIcon icon={cat.icon} color={cat.color} size="sm" />
-                        <span className="text-gray-700 dark:text-gray-300">{cat.name}</span>
+                        <span className="text-gray-700 dark:text-[#CBD5E1]">{cat.name}</span>
                       </div>
-                      <span className="font-medium text-gray-900 dark:text-gray-50">{formatCurrency(cat.value)}</span>
+                      <span className="font-medium text-gray-900 dark:text-[#F8FAFC]">{formatCurrency(cat.value)}</span>
                     </div>
                   ))}
                 </div>
@@ -192,17 +192,17 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Desglose de Gastos</h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {projection.expensesByCategory.map((category) => (
-                  <div key={category.categoryId} className="border border-gray-200 dark:border-gray-700 rounded-lg p-2">
+                  <div key={category.categoryId} className="border border-gray-200 dark:border-[hsl(215_20%_25%)] rounded-lg p-2">
                     <div className="flex items-center gap-2 mb-2">
                       <CategoryIcon icon={category.categoryIcon} color={category.categoryColor} size="sm" />
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{category.categoryName}</span>
-                      <span className="ml-auto text-xs font-bold text-gray-900 dark:text-gray-50">
+                      <span className="text-xs font-medium text-gray-700 dark:text-[#CBD5E1]">{category.categoryName}</span>
+                      <span className="ml-auto text-xs font-bold text-gray-900 dark:text-[#F8FAFC]">
                         {formatCurrency(category.total)}
                       </span>
                     </div>
                     <div className="space-y-1 pl-6">
                       {category.items.map((item) => (
-                        <div key={item.id} className="flex justify-between text-[10px] lg:text-xs text-gray-600 dark:text-gray-300">
+                        <div key={item.id} className="flex justify-between text-[10px] lg:text-xs text-gray-600 dark:text-[#CBD5E1]">
                           <span>{item.name} (día {item.dueDay})</span>
                           <span>{formatCurrency(item.amount)}</span>
                         </div>
@@ -220,17 +220,17 @@ export function NextMonthProjection({ projection }: NextMonthProjectionProps) {
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Desglose de Ingresos</h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {projection.incomesByCategory.map((category) => (
-                  <div key={category.categoryId} className="border border-gray-200 dark:border-gray-700 rounded-lg p-2">
+                  <div key={category.categoryId} className="border border-gray-200 dark:border-[hsl(215_20%_25%)] rounded-lg p-2">
                     <div className="flex items-center gap-2 mb-2">
                       <CategoryIcon icon={category.categoryIcon} color={category.categoryColor} size="sm" />
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{category.categoryName}</span>
-                      <span className="ml-auto text-xs font-bold text-gray-900 dark:text-gray-50">
+                      <span className="text-xs font-medium text-gray-700 dark:text-[#CBD5E1]">{category.categoryName}</span>
+                      <span className="ml-auto text-xs font-bold text-gray-900 dark:text-[#F8FAFC]">
                         {formatCurrency(category.total)}
                       </span>
                     </div>
                     <div className="space-y-1 pl-6">
                       {category.items.map((item) => (
-                        <div key={item.id} className="flex justify-between text-[10px] lg:text-xs text-gray-600 dark:text-gray-300">
+                        <div key={item.id} className="flex justify-between text-[10px] lg:text-xs text-gray-600 dark:text-[#CBD5E1]">
                           <span>{item.name} (día {item.dueDay})</span>
                           <span>{formatCurrency(item.amount)}</span>
                         </div>
