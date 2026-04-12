@@ -18,7 +18,7 @@ export function ExpensesByCategoryChart({ categories }: ExpensesByCategoryChartP
           <CardTitle className="text-base lg:text-lg">Gastos por Categoría</CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0 lg:p-6 lg:pt-0">
-          <div className="flex h-32 items-center justify-center text-sm text-gray-500 lg:h-48">
+          <div className="flex h-32 items-center justify-center text-sm text-gray-500 dark:text-gray-400 lg:h-48">
             Sin gastos este mes
           </div>
         </CardContent>
@@ -61,11 +61,11 @@ export function ExpensesByCategoryChart({ categories }: ExpensesByCategoryChartP
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
                   />
                   <CategoryIcon icon={cat.icon} color={cat.color} size="sm" tooltip={cat.name} />
-                  <span className="text-xs text-gray-700 lg:text-sm">{cat.name}</span>
+                  <span className="text-xs text-gray-700 dark:text-gray-300 lg:text-sm">{cat.name}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs font-medium text-gray-900 lg:text-sm">{formatCurrency(cat.total)}</span>
-                  <span className="ml-1 text-[10px] text-gray-500 lg:ml-2 lg:text-xs">({cat.percentage}%)</span>
+                  <span className="text-xs font-medium text-gray-900 dark:text-gray-50 lg:text-sm">{formatCurrency(cat.total)}</span>
+                  <span className="ml-1 text-[10px] text-gray-500 dark:text-gray-400 lg:ml-2 lg:text-xs">({cat.percentage}%)</span>
                 </div>
               </div>
             ))}

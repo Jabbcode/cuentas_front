@@ -130,7 +130,7 @@ export function SettingsPage() {
   if (!profile || !statistics) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-400 border-t-transparent" />
       </div>
     );
   }
@@ -138,16 +138,16 @@ export function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Configuración</h1>
-        <p className="text-gray-500">Gestiona tu cuenta y preferencias</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Configuración</h1>
+        <p className="text-gray-500 dark:text-gray-400">Gestiona tu cuenta y preferencias</p>
       </div>
 
       {message && (
         <div
           className={`rounded-lg p-4 ${
             message.type === 'success'
-              ? 'bg-green-50 text-green-800 border border-green-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
+              ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700'
+              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700'
           }`}
         >
           {message.text}
@@ -158,11 +158,11 @@ export function SettingsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-blue-100 p-3">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
+            <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-3">
+              <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Transacciones</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Transacciones</p>
               <p className="text-2xl font-bold">{statistics.transactions}</p>
             </div>
           </div>
@@ -170,11 +170,11 @@ export function SettingsPage() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-green-100 p-3">
-              <User className="h-5 w-5 text-green-600" />
+            <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-3">
+              <User className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Cuentas</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Cuentas</p>
               <p className="text-2xl font-bold">{statistics.accounts}</p>
             </div>
           </div>
@@ -182,11 +182,11 @@ export function SettingsPage() {
 
         <Card className="p-4">
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-purple-100 p-3">
-              <Calendar className="h-5 w-5 text-purple-600" />
+            <div className="rounded-full bg-purple-100 dark:bg-purple-900/30 p-3">
+              <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Miembro desde</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Miembro desde</p>
               <p className="text-lg font-bold">
                 {new Date(profile.createdAt).toLocaleDateString()}
               </p>
@@ -200,8 +200,8 @@ export function SettingsPage() {
         <button
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'profile'
-              ? 'border-b-2 border-blue-600 text-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
           onClick={() => setActiveTab('profile')}
         >
@@ -211,8 +211,8 @@ export function SettingsPage() {
         <button
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'password'
-              ? 'border-b-2 border-blue-600 text-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
           onClick={() => setActiveTab('password')}
         >
@@ -222,8 +222,8 @@ export function SettingsPage() {
         <button
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'account'
-              ? 'border-b-2 border-red-600 text-red-600'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'border-b-2 border-red-600 dark:border-red-400 text-red-600 dark:text-red-400'
+              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
           onClick={() => setActiveTab('account')}
         >
@@ -235,7 +235,7 @@ export function SettingsPage() {
       {/* Profile Tab */}
       {activeTab === 'profile' && (
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Información del Perfil</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50 mb-4">Información del Perfil</h2>
           <form onSubmit={handleUpdateProfile} className="space-y-4">
             <div>
               <Label htmlFor="name">Nombre</Label>
@@ -268,7 +268,7 @@ export function SettingsPage() {
       {/* Password Tab */}
       {activeTab === 'password' && (
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Cambiar Contraseña</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-50 mb-4">Cambiar Contraseña</h2>
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div>
               <Label htmlFor="currentPassword">Contraseña Actual</Label>
@@ -290,7 +290,7 @@ export function SettingsPage() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="••••••••"
               />
-              <p className="text-sm text-gray-500 mt-1">Mínimo 6 caracteres</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Mínimo 6 caracteres</p>
             </div>
 
             <div>
@@ -313,9 +313,9 @@ export function SettingsPage() {
 
       {/* Delete Account Tab */}
       {activeTab === 'account' && (
-        <Card className="p-6 border-red-200">
-          <h2 className="text-xl font-semibold mb-2 text-red-600">Zona Peligrosa</h2>
-          <p className="text-gray-600 mb-6">
+        <Card className="p-6 border-red-200 dark:border-red-700">
+          <h2 className="text-xl font-semibold mb-2 text-red-600 dark:text-red-400">Zona Peligrosa</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             Eliminar tu cuenta es permanente y no se puede deshacer. Todos tus datos serán borrados.
           </p>
 

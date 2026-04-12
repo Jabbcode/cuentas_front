@@ -14,12 +14,12 @@ export function FixedExpensesSummaryCard({ summary }: FixedExpensesSummaryCardPr
     <Card className="border-l-4 border-l-blue-500">
       <CardHeader className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between lg:p-6">
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-blue-100 p-2">
-            <CalendarClock className="h-4 w-4 text-blue-600 lg:h-5 lg:w-5" />
+          <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-2">
+            <CalendarClock className="h-4 w-4 text-blue-600 dark:text-blue-400 lg:h-5 lg:w-5" />
           </div>
           <div>
             <CardTitle className="text-base lg:text-lg">Gastos Fijos</CardTitle>
-            <p className="text-xs text-gray-500 lg:text-sm">Pagos recurrentes</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 lg:text-sm">Pagos recurrentes</p>
           </div>
         </div>
         <Link to="/fixed-expenses">
@@ -30,20 +30,20 @@ export function FixedExpensesSummaryCard({ summary }: FixedExpensesSummaryCardPr
       </CardHeader>
       <CardContent className="p-4 pt-0 lg:p-6 lg:pt-0">
         <div className="grid grid-cols-3 gap-2 lg:gap-4">
-          <div className="rounded-lg bg-gray-50 p-2 text-center lg:p-4">
-            <p className="text-xs font-medium text-gray-500 lg:text-sm">Total</p>
-            <p className="mt-1 text-base font-bold text-gray-900 lg:text-2xl">
+          <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-2 text-center lg:p-4">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 lg:text-sm">Total</p>
+            <p className="mt-1 text-base font-bold text-gray-900 dark:text-gray-50 lg:text-2xl">
               {formatCurrency(summary.totalMonthlyExpenses)}
             </p>
           </div>
-          <div className="rounded-lg bg-green-50 p-2 text-center lg:p-4">
-            <p className="text-xs font-medium text-gray-500 lg:text-sm">Pagados</p>
-            <p className="mt-1 text-base font-bold text-green-600 lg:text-2xl">
+          <div className="rounded-lg bg-green-50 dark:bg-green-900/30 p-2 text-center lg:p-4">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 lg:text-sm">Pagados</p>
+            <p className="mt-1 text-base font-bold text-green-600 dark:text-green-400 lg:text-2xl">
               {summary.paidCount}/{summary.totalCount}
             </p>
           </div>
-          <div className="rounded-lg bg-orange-50 p-2 text-center lg:p-4">
-            <p className="text-xs font-medium text-gray-500 lg:text-sm">Pendientes</p>
+          <div className="rounded-lg bg-orange-50 dark:bg-orange-900/30 p-2 text-center lg:p-4">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 lg:text-sm">Pendientes</p>
             <p className="mt-1 text-base font-bold text-orange-600 lg:text-2xl">
               {summary.pendingCount}
             </p>
@@ -51,8 +51,8 @@ export function FixedExpensesSummaryCard({ summary }: FixedExpensesSummaryCardPr
         </div>
 
         {summary.pendingCount > 0 && (
-          <div className="mt-3 rounded-lg border border-orange-200 bg-orange-50 p-2 lg:mt-4 lg:p-3">
-            <p className="text-xs font-medium text-orange-800 lg:text-sm">
+          <div className="mt-3 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/30 p-2 lg:mt-4 lg:p-3">
+            <p className="text-xs font-medium text-orange-800 dark:text-orange-300 lg:text-sm">
               {summary.pendingCount} gasto(s) pendiente(s) este mes
             </p>
           </div>

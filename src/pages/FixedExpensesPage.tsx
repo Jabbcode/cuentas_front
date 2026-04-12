@@ -136,7 +136,7 @@ export function FixedExpensesPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-400 border-t-transparent" />
       </div>
     );
   }
@@ -145,8 +145,8 @@ export function FixedExpensesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gastos Fijos</h1>
-          <p className="text-gray-500">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Gastos Fijos</h1>
+          <p className="text-gray-500 dark:text-gray-400">
             Gestiona tus gastos e ingresos recurrentes mensuales
           </p>
         </div>
@@ -160,13 +160,13 @@ export function FixedExpensesPage() {
 
       {/* Pending Payments Alert */}
       {summary && summary.pendingCount > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-orange-200 dark:border-orange-700 bg-orange-50 dark:bg-orange-900/20">
           <CardContent className="flex items-center justify-between py-4">
             <div>
-              <p className="font-medium text-orange-800">
+              <p className="font-medium text-orange-800 dark:text-orange-200">
                 Tienes {summary.pendingCount} pago(s) pendiente(s) este mes
               </p>
-              <p className="text-sm text-orange-600">
+              <p className="text-sm text-orange-600 dark:text-orange-400">
                 Total pendiente: {formatCurrency(
                   expenseItems
                     .filter((item) => !item.isPaidThisMonth && item.isActive)
@@ -181,17 +181,17 @@ export function FixedExpensesPage() {
       {/* Credit Card Fixed Expenses Section */}
       {creditCardItems.length > 0 && (
         <div className="space-y-3">
-          <div className="rounded-lg border border-purple-200 bg-purple-50 p-3">
+          <div className="rounded-lg border border-purple-200 dark:border-purple-700 bg-purple-50 dark:bg-purple-900/20 p-3">
             <div className="flex items-center gap-2">
-              <div className="rounded-full bg-purple-100 p-1.5">
-                <svg className="h-4 w-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+              <div className="rounded-full bg-purple-100 dark:bg-purple-900/30 p-1.5">
+                <svg className="h-4 w-4 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
                   <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
                 </svg>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-purple-900">Tarjetas de Crédito</h3>
-                <p className="text-xs text-purple-700">
+                <h3 className="text-sm font-semibold text-purple-900 dark:text-purple-100">Tarjetas de Crédito</h3>
+                <p className="text-xs text-purple-700 dark:text-purple-300">
                   Pagos programados de tus tarjetas (se actualizan automáticamente)
                 </p>
               </div>
@@ -206,8 +206,8 @@ export function FixedExpensesPage() {
               .filter((item) => item.isActive)
               .reduce((sum, item) => sum + Number(item.amount), 0)}
             icon={
-              <div className="rounded-full bg-purple-100 p-1.5">
-                <svg className="h-4 w-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+              <div className="rounded-full bg-purple-100 dark:bg-purple-900/30 p-1.5">
+                <svg className="h-4 w-4 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
                   <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
                 </svg>
@@ -224,14 +224,14 @@ export function FixedExpensesPage() {
       {/* Recurring Debt Payments Section */}
       {debtPaymentItems.length > 0 && (
         <div className="space-y-3">
-          <div className="rounded-lg border border-orange-200 bg-orange-50 p-3">
+          <div className="rounded-lg border border-orange-200 dark:border-orange-700 bg-orange-50 dark:bg-orange-900/20 p-3">
             <div className="flex items-center gap-2">
-              <div className="rounded-full bg-orange-100 p-1.5">
+              <div className="rounded-full bg-orange-100 dark:bg-orange-900/30 p-1.5">
                 <span className="text-lg">💰</span>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-orange-900">Pagos de Deudas</h3>
-                <p className="text-xs text-orange-700">
+                <h3 className="text-sm font-semibold text-orange-900 dark:text-orange-100">Pagos de Deudas</h3>
+                <p className="text-xs text-orange-700 dark:text-orange-300">
                   Pagos recurrentes mensuales de tus deudas
                 </p>
               </div>
@@ -246,7 +246,7 @@ export function FixedExpensesPage() {
               .filter((item) => item.isActive)
               .reduce((sum, item) => sum + Number(item.amount), 0)}
             icon={
-              <div className="rounded-full bg-orange-100 p-1.5">
+              <div className="rounded-full bg-orange-100 dark:bg-orange-900/30 p-1.5">
                 <span className="text-base">💰</span>
               </div>
             }
@@ -266,7 +266,7 @@ export function FixedExpensesPage() {
           {expenseCategories.length > 0 && (
             <Card className="p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Filtrar por categoría</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Filtrar por categoría</span>
                 {selectedExpenseCategories.length > 0 && (
                   <Button
                     variant="ghost"
@@ -287,8 +287,8 @@ export function FixedExpensesPage() {
                       onClick={() => toggleExpenseCategory(category.id)}
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-all ${
                         isSelected
-                          ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 ring-2 ring-blue-500 dark:ring-blue-400'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
                       <CategoryIcon icon={category.icon} color={category.color} size="sm" />
@@ -307,8 +307,8 @@ export function FixedExpensesPage() {
           type="expense"
           totalAmount={filteredExpenseTotal}
           icon={
-            <div className="rounded-full bg-red-100 p-1.5">
-              <TrendingDown className="h-4 w-4 text-red-600" />
+            <div className="rounded-full bg-red-100 dark:bg-red-900/30 p-1.5">
+              <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
             </div>
           }
           onPay={payExpense}
@@ -324,7 +324,7 @@ export function FixedExpensesPage() {
           {incomeCategories.length > 0 && (
             <Card className="p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Filtrar por categoría</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Filtrar por categoría</span>
                 {selectedIncomeCategories.length > 0 && (
                   <Button
                     variant="ghost"
@@ -345,8 +345,8 @@ export function FixedExpensesPage() {
                       onClick={() => toggleIncomeCategory(category.id)}
                       className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-all ${
                         isSelected
-                          ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 ring-2 ring-blue-500 dark:ring-blue-400'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
                       <CategoryIcon icon={category.icon} color={category.color} size="sm" />
@@ -365,8 +365,8 @@ export function FixedExpensesPage() {
           type="income"
           totalAmount={filteredIncomeTotal}
           icon={
-            <div className="rounded-full bg-green-100 p-1.5">
-              <TrendingUp className="h-4 w-4 text-green-600" />
+            <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-1.5">
+              <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
             </div>
           }
           onPay={payExpense}

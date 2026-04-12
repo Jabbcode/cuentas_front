@@ -69,7 +69,7 @@ export function DebtsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-400 border-t-transparent" />
       </div>
     );
   }
@@ -78,8 +78,8 @@ export function DebtsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Deudas</h1>
-          <p className="text-gray-500">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Deudas</h1>
+          <p className="text-gray-500 dark:text-gray-400">
             Gestiona tus deudas y realiza pagos
           </p>
         </div>
@@ -90,30 +90,30 @@ export function DebtsPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-          <p className="text-sm font-medium text-blue-600">Deudas Activas</p>
-          <p className="text-2xl font-bold text-blue-900">{activeDebts.length}</p>
-          <p className="text-sm text-blue-700">{formatCurrency(totalActiveDebt)}</p>
+        <div className="rounded-lg border border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 p-4">
+          <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Deudas Activas</p>
+          <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{activeDebts.length}</p>
+          <p className="text-sm text-blue-700 dark:text-blue-300">{formatCurrency(totalActiveDebt)}</p>
         </div>
 
         {overdueDebts.length > 0 && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-            <p className="text-sm font-medium text-red-600">Deudas Vencidas</p>
-            <p className="text-2xl font-bold text-red-900">{overdueDebts.length}</p>
-            <p className="text-sm text-red-700">{formatCurrency(totalOverdueDebt)}</p>
+          <div className="rounded-lg border border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4">
+            <p className="text-sm font-medium text-red-600 dark:text-red-400">Deudas Vencidas</p>
+            <p className="text-2xl font-bold text-red-900 dark:text-red-100">{overdueDebts.length}</p>
+            <p className="text-sm text-red-700 dark:text-red-300">{formatCurrency(totalOverdueDebt)}</p>
           </div>
         )}
 
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-          <p className="text-sm font-medium text-green-600">Deudas Pagadas</p>
-          <p className="text-2xl font-bold text-green-900">{paidDebts.length}</p>
+        <div className="rounded-lg border border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-4">
+          <p className="text-sm font-medium text-green-600 dark:text-green-400">Deudas Pagadas</p>
+          <p className="text-2xl font-bold text-green-900 dark:text-green-100">{paidDebts.length}</p>
         </div>
       </div>
 
       {/* Debts List */}
       {debts.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-12 text-center">
-          <p className="text-gray-500">No tienes deudas registradas</p>
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">No tienes deudas registradas</p>
           <Button onClick={() => setShowForm(true)} className="mt-4">
             <Plus className="mr-2 h-4 w-4" /> Crear primera deuda
           </Button>
@@ -123,7 +123,7 @@ export function DebtsPage() {
           {/* Overdue Debts */}
           {overdueDebts.length > 0 && (
             <div>
-              <h2 className="text-lg font-semibold text-red-600 mb-3">⚠️ Deudas Vencidas</h2>
+              <h2 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-3">⚠️ Deudas Vencidas</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {overdueDebts.map((debt) => (
                   <div key={debt.id} className="space-y-3">
@@ -158,7 +158,7 @@ export function DebtsPage() {
           {/* Active Debts */}
           {activeDebts.length > 0 && (
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">Deudas Activas</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-3">Deudas Activas</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {activeDebts.map((debt) => (
                   <div key={debt.id} className="space-y-3">
@@ -193,7 +193,7 @@ export function DebtsPage() {
           {/* Paid Debts */}
           {paidDebts.length > 0 && (
             <div>
-              <h2 className="text-lg font-semibold text-green-600 mb-3">✓ Deudas Pagadas</h2>
+              <h2 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-3">✓ Deudas Pagadas</h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {paidDebts.map((debt) => (
                   <div key={debt.id} className="space-y-3">

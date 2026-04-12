@@ -146,7 +146,7 @@ export function AccountsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-400 border-t-transparent" />
       </div>
     );
   }
@@ -155,9 +155,9 @@ export function AccountsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Cuentas</h1>
-          <p className="text-gray-500">
-            Balance total: <span className="font-semibold text-gray-900">{formatCurrency(totalBalance)}</span>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Cuentas</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Balance total: <span className="font-semibold text-gray-900 dark:text-gray-50">{formatCurrency(totalBalance)}</span>
           </p>
         </div>
         <Button onClick={() => openForm()}>
@@ -183,14 +183,14 @@ export function AccountsPage() {
                     className="flex w-full items-center gap-2 text-left transition-colors hover:opacity-70"
                   >
                     {isExpanded ? (
-                      <ChevronDown className="h-5 w-5 text-gray-600" />
+                      <ChevronDown className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                     ) : (
-                      <ChevronRight className="h-5 w-5 text-gray-600" />
+                      <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                     )}
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
                       {accountTypeLabels[type]}
                     </h2>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       ({accountsOfType.length})
                     </span>
                   </button>
@@ -277,11 +277,11 @@ export function AccountsPage() {
             {/* Credit Card specific fields */}
             {formData.type === 'credit_card' && (
               <>
-                <div className="rounded-lg border border-purple-200 bg-purple-50 p-3">
-                  <p className="text-sm font-medium text-purple-900 mb-2">
+                <div className="rounded-lg border border-purple-200 dark:border-purple-700 bg-purple-50 dark:bg-purple-900/20 p-3">
+                  <p className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-2">
                     Configuración de Tarjeta de Crédito
                   </p>
-                  <p className="text-xs text-purple-700">
+                  <p className="text-xs text-purple-700 dark:text-purple-300">
                     Completa estos campos para habilitar el seguimiento de períodos de corte y pagos.
                   </p>
                 </div>
@@ -297,7 +297,7 @@ export function AccountsPage() {
                     value={formData.creditLimit}
                     onChange={(e) => setFormData({ ...formData, creditLimit: e.target.value })}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Monto máximo disponible en la tarjeta</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Monto máximo disponible en la tarjeta</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -312,7 +312,7 @@ export function AccountsPage() {
                       value={formData.cutoffDay}
                       onChange={(e) => setFormData({ ...formData, cutoffDay: e.target.value })}
                     />
-                    <p className="text-xs text-gray-500 mt-1">Día que cierra el período (1-31)</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Día que cierra el período (1-31)</p>
                   </div>
 
                   <div>
@@ -326,7 +326,7 @@ export function AccountsPage() {
                       value={formData.paymentDueDay}
                       onChange={(e) => setFormData({ ...formData, paymentDueDay: e.target.value })}
                     />
-                    <p className="text-xs text-gray-500 mt-1">Día de vencimiento del pago (1-31)</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Día de vencimiento del pago (1-31)</p>
                   </div>
                 </div>
 
@@ -346,7 +346,7 @@ export function AccountsPage() {
                         </option>
                       ))}
                   </Select>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     Cuenta desde la cual se descontará el pago de la tarjeta
                   </p>
                 </div>
