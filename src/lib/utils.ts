@@ -62,6 +62,9 @@ export function isDueSoon(dueDay: number, days = 3): boolean {
 }
 
 export function isOverdue(dueDay: number): boolean {
-  const today = new Date().getDate();
-  return dueDay < today;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const nextDue = getNextDueDate(dueDay);
+  nextDue.setHours(0, 0, 0, 0);
+  return nextDue < today;
 }
