@@ -186,6 +186,18 @@ Cuando trabajes en una tarea de Notion:
   - ✅ Lista qué cambió
   - ✅ Pide confirmación nuevamente
 
+### 5. **🚫 NUNCA PUSHEAR A MAIN DIRECTAMENTE - RESTRICCIÓN CRÍTICA DE GITHUB**
+- ❌ **PROHIBIDO ABSOLUTO** pushear código directamente a main
+- ❌ **PROHIBIDO ABSOLUTO** mergear sin una PR en GitHub
+- ❌ **PROHIBIDO ABSOLUTO** hacer cambios en main sin aprobación EXPLÍCITA del usuario
+- ✅ **SIEMPRE OBLIGATORIO** crear rama feature en GitHub
+- ✅ **SIEMPRE OBLIGATORIO** crear Pull Request en GitHub
+- ✅ **SIEMPRE OBLIGATORIO** esperar confirmación EXPLÍCITA del usuario
+- ✅ **SOLO Y ÚNICAMENTE** si usuario dice "pushea a main" O "mergea a main" (EXPLÍCITO), entonces mergear a main
+- ✅ El usuario DEBE ser EXPLÍCITO: "pushea a main" o "mergea a main" (no acepta "OK", "está bien", "adelante")
+- ✅ NUNCA asumir que el usuario quiere que se pushee a main
+- ✅ Si hay duda, SIEMPRE preguntar antes de hacer merge
+
 ### 6. **🚫 VERIFICACIÓN OBLIGATORIA DE TYPESCRIPT - CRÍTICO ANTES DE PR**
 - ❌ **PROHIBIDO** reportar "✅ IMPLEMENTADO" si hay errores TypeScript
 - ❌ **PROHIBIDO** crear PR si `npm run build` falla
