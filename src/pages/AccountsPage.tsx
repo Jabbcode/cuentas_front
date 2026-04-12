@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../components/ui/dialog';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
@@ -19,6 +19,11 @@ export function AccountsPage() {
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<Account['type'], boolean>>({
+    bank: false,
+    credit_card: false,
+    cash: false,
+  });
 
   // Account type labels and order for grouping
   const accountTypeLabels: Record<Account['type'], string> = {
@@ -40,6 +45,14 @@ export function AccountsPage() {
     }, {} as Record<Account['type'], Account[]>);
 
     return grouped;
+  };
+
+  // Toggle section expansion
+  const toggleSection = (type: Account['type']) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [type]: !prev[type],
+    }));
   };
 
   const [formData, setFormData] = useState({
@@ -161,26 +174,38 @@ export function AccountsPage() {
               const accountsOfType = groupedAccounts[type];
               if (!accountsOfType || accountsOfType.length === 0) return null;
 
+              const isExpanded = expandedSections[type];
+
               return (
                 <div key={type} className="space-y-4">
-                  <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => toggleSection(type)}
+                    className="flex w-full items-center gap-2 text-left transition-colors hover:opacity-70"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown className="h-5 w-5 text-gray-600" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-gray-600" />
+                    )}
                     <h2 className="text-lg font-semibold text-gray-900">
                       {accountTypeLabels[type]}
                     </h2>
                     <span className="text-sm text-gray-500">
                       ({accountsOfType.length})
                     </span>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {accountsOfType.map((account) => (
-                      <AccountCard
-                        key={account.id}
-                        account={account}
-                        onEdit={openForm}
-                        onDelete={setDeleteId}
-                      />
-                    ))}
-                  </div>
+                  </button>
+                  {isExpanded && (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {accountsOfType.map((account) => (
+                        <AccountCard
+                          key={account.id}
+                          account={account}
+                          onEdit={openForm}
+                          onDelete={setDeleteId}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             })}
