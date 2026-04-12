@@ -16,14 +16,14 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
 
   if (!hasDebts) {
     return (
-      <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-500/10">
+      <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-600/10">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-full bg-green-100 dark:bg-green-500/10 p-2">
-                <Receipt className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <div className="rounded-full bg-green-100 dark:bg-green-600/10 p-2">
+                <Receipt className="h-5 w-5 text-green-600 dark:text-green-600" />
               </div>
-              <CardTitle className="text-lg font-semibold text-green-900 dark:text-[#F8FAFC]">
+              <CardTitle className="text-lg font-semibold text-green-900 dark:text-gray-900">
                 Sin Deudas Activas
               </CardTitle>
             </div>
@@ -39,24 +39,24 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
   }
 
   return (
-    <Card className={cn('transition-all', hasOverdue && 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-500/10')}>
+    <Card className={cn('transition-all', hasOverdue && 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-600/10')}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={cn(
               'rounded-full p-2',
-              hasOverdue ? 'bg-red-100 dark:bg-red-500/10' : 'bg-orange-100 dark:bg-yellow-500/10'
+              hasOverdue ? 'bg-red-100 dark:bg-red-600/10' : 'bg-orange-100 dark:bg-yellow-600/10'
             )}>
               <Receipt className={cn(
                 'h-5 w-5',
-                hasOverdue ? 'text-red-600 dark:text-red-400' : 'text-orange-600 dark:text-yellow-400'
+                hasOverdue ? 'text-red-600 dark:text-red-600' : 'text-orange-600 dark:text-yellow-600'
               )} />
             </div>
             <div>
-              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-[#F8FAFC]">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-900">
                 Resumen de Deudas
               </CardTitle>
-              <p className="text-sm text-gray-600 dark:text-[#CBD5E1] mt-0.5">
+              <p className="text-sm text-gray-600 dark:text-gray-500 mt-0.5">
                 {summary.totalActiveDebts + summary.totalOverdueDebts} deuda{(summary.totalActiveDebts + summary.totalOverdueDebts) !== 1 ? 's' : ''} pendiente{(summary.totalActiveDebts + summary.totalOverdueDebts) !== 1 ? 's' : ''}
               </p>
             </div>
@@ -71,16 +71,16 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
 
       <CardContent className="space-y-4">
         {/* Total Debt Amount */}
-        <div className="rounded-lg bg-white dark:bg-[#1E293B] border border-gray-200 dark:border-[hsl(215_20%_25%)] p-4">
+        <div className="rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-[#CBD5E1]">Total Adeudado</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-[#F8FAFC] mt-1">
+              <p className="text-sm text-gray-600 dark:text-gray-500">Total Adeudado</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-900 mt-1">
                 {formatCurrency(Number(summary.totalDebtAmount))}
               </p>
             </div>
-            <div className="rounded-full bg-orange-100 dark:bg-yellow-500/10 p-3">
-              <TrendingDown className="h-6 w-6 text-orange-600 dark:text-yellow-400" />
+            <div className="rounded-full bg-orange-100 dark:bg-yellow-600/10 p-3">
+              <TrendingDown className="h-6 w-6 text-orange-600 dark:text-yellow-600" />
             </div>
           </div>
         </div>
@@ -89,8 +89,8 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
         <div className="space-y-2">
           {/* Overdue Alert */}
           {hasOverdue && (
-            <div className="flex items-start gap-2 rounded-lg bg-red-100 dark:bg-red-500/10 border border-red-200 dark:border-red-800 p-3">
-              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 rounded-lg bg-red-100 dark:bg-red-600/10 border border-red-200 dark:border-red-800 p-3">
+              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-red-900 dark:text-red-100">
                   {summary.totalOverdueDebts} deuda{summary.totalOverdueDebts !== 1 ? 's' : ''} vencida{summary.totalOverdueDebts !== 1 ? 's' : ''}
@@ -119,8 +119,8 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
 
           {/* Active Debts (only if no alerts) */}
           {!hasOverdue && !hasDueSoon && summary.totalActiveDebts > 0 && (
-            <div className="flex items-start gap-2 rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-800 p-3">
-              <Receipt className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 rounded-lg bg-blue-50 dark:bg-blue-600/10 border border-blue-200 dark:border-blue-800 p-3">
+              <Receipt className="h-5 w-5 text-blue-600 dark:text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
                   {summary.totalActiveDebts} deuda{summary.totalActiveDebts !== 1 ? 's' : ''} activa{summary.totalActiveDebts !== 1 ? 's' : ''}
@@ -136,26 +136,26 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
         {/* Upcoming Debts List */}
         {summary.upcomingDebts.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700 dark:text-[#CBD5E1]">Próximas a vencer:</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-500">Próximas a vencer:</p>
             {summary.upcomingDebts.slice(0, 3).map((debt) => (
               <div
                 key={debt.id}
-                className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-[hsl(215_20%_25%)] bg-white dark:bg-[#1E293B] p-2.5"
+                className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-2.5"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-[#F8FAFC] truncate">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-900 truncate">
                     {debt.creditor}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-[#CBD5E1] truncate">
+                  <p className="text-xs text-gray-600 dark:text-gray-500 truncate">
                     {debt.description}
                   </p>
                 </div>
                 <div className="text-right ml-3">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-[#F8FAFC]">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-900">
                     {formatCurrency(debt.remainingAmount)}
                   </p>
                   {debt.dueDate && (
-                    <p className="text-xs text-gray-500 dark:text-[#64748B]">
+                    <p className="text-xs text-gray-500 dark:text-gray-500">
                       {new Date(debt.dueDate).toLocaleDateString('es-ES', {
                         day: 'numeric',
                         month: 'short',

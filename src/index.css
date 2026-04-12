@@ -25,28 +25,69 @@
   --color-input: hsl(214.3 31.8% 91.4%);
   --color-ring: hsl(221.2 83.2% 53.3%);
 
-  /* Dark Mode - OLED Financial Dashboard */
-  --color-dark-background: hsl(222 47% 2%);      /* #020617 - Deep OLED Black */
-  --color-dark-surface: hsl(222 47% 8%);         /* #0F172A - Primary Dark Surface */
-  --color-dark-surface-elevated: hsl(215 25% 15%); /* #1E293B - Elevated Cards */
-  --color-dark-border: hsl(215 20% 25%);         /* Subtle borders */
-  --color-dark-foreground: hsl(210 40% 98%);     /* #F8FAFC - High contrast text */
-  --color-dark-muted: hsl(215 16% 47%);          /* #64748B - Muted text */
+  /* Dark Mode - Professional Slate & Cobalt */
+  --color-dark-background: hsl(222 47% 4%);
+  /* #020617 - Fondo base profundo */
+  --color-dark-surface: hsl(222 47% 7%);
+  /* #090e1a - Superficie base */
+  --color-dark-surface-elevated: hsl(222 47% 11%);
+  /* #111827 - Cards y elementos flotantes */
+  --color-dark-border: hsl(217 33% 18%);
+  /* Bordes definidos pero suaves */
+  --color-dark-foreground: hsl(210 40% 98%);
+  /* Texto principal (casi blanco) */
+  --color-dark-muted: hsl(215 20% 65%);
+  /* Texto secundario con mejor legibilidad */
 
-  /* Semantic Colors - Optimized for Dark */
-  --color-success: hsl(142 71% 45%);             /* #22C55E - Green for positive */
-  --color-success-muted: hsl(142 71% 20%);       /* Dark green bg */
-  --color-warning: hsl(38 92% 50%);              /* #F59E0B - Gold for warnings */
-  --color-warning-muted: hsl(38 92% 20%);        /* Dark gold bg */
-  --color-error: hsl(0 72% 51%);                 /* #DC2626 - Red for errors */
-  --color-error-muted: hsl(0 72% 20%);           /* Dark red bg */
-  --color-info: hsl(217 91% 60%);                /* #3B82F6 - Blue for info */
-  --color-info-muted: hsl(217 91% 20%);          /* Dark blue bg */
+  /* Primary & Accent - Vibrantes pero balanceados */
+  --color-dark-primary: hsl(217 91% 60%);
+  /* Azul refinado */
+  --color-dark-primary-foreground: hsl(222 47% 4%);
+  --color-dark-accent: hsl(210 40% 96.1% / 0.1);
+  /* Efectos de hover */
+
+  /* Semantic Colors - Accesibilidad WCAG en fondos oscuros */
+  --color-success: hsl(142 76% 45%);
+  /* Verde esmeralda */
+  --color-success-muted: hsl(142 76% 12%);
+  /* Fondo de badges */
+  --color-warning: hsl(48 96% 53%);
+  /* Ambar vibrante */
+  --color-warning-muted: hsl(48 96% 12%);
+  --color-error: hsl(0 84% 65%);
+  /* Rojo suave (evita el sangrado visual) */
+  --color-error-muted: hsl(0 84% 12%);
+  --color-info: hsl(199 89% 54%);
+  /* Cyan/Azul cielo */
+  --color-info-muted: hsl(199 89% 12%);
 
   --radius: 0.5rem;
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* Custom Color Aliases - Use these in components */
+  /* Light Mode */
+  --color-gray-50: hsl(0 0% 100%);
+  --color-gray-900: hsl(222.2 84% 4.9%);
+  --color-gray-800: hsl(215 25% 27%);
+  --color-gray-700: hsl(215 20% 40%);
+  --color-gray-600: hsl(215.4 16.3% 46.9%);
+  --color-gray-500: hsl(215 16% 47%);
+  --color-gray-400: hsl(215 20% 65%);
+  --color-gray-300: hsl(214.3 31.8% 91.4%);
+  --color-gray-200: hsl(214.3 31.8% 91.4%);
+  --color-gray-100: hsl(210 40% 96.1%);
+
+  /* Semantic */
+  --color-blue-600: hsl(221.2 83.2% 53.3%);
+  --color-blue-400: hsl(217 91% 60%);
+  --color-green-600: hsl(142 71% 45%);
+  --color-green-400: hsl(142 76% 45%);
+  --color-red-600: hsl(0 84.2% 60.2%);
+  --color-red-400: hsl(0 84% 65%);
+  --color-yellow-600: hsl(48 96% 53%);
+  --color-yellow-400: hsl(48 96% 53%);
 }
 
 * {
@@ -57,10 +98,35 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-feature-settings: 'liga' 1, 'calt' 1; /* Better typography */
+  font-feature-settings: 'liga' 1, 'calt' 1;
+  /* Better typography */
 }
 
 /* Dark Mode Global Styles */
+.dark {
+  /* Override colors for dark mode */
+  --color-gray-50: var(--color-dark-background);        /* Fondo profundo */
+  --color-gray-900: var(--color-dark-foreground);       /* Texto principal */
+  --color-gray-800: var(--color-dark-surface);          /* Superficie base */
+  --color-gray-700: var(--color-dark-surface-elevated); /* Cards elevados */
+  --color-gray-600: var(--color-dark-border);           /* Bordes */
+  --color-gray-500: var(--color-dark-muted);            /* Texto muted */
+  --color-gray-400: var(--color-dark-muted);
+  --color-gray-300: hsl(217 33% 28%);                   /* Hover borders */
+  --color-gray-200: var(--color-dark-border);
+  --color-gray-100: var(--color-dark-surface-elevated);
+
+  /* Semantic colors adjusted for dark */
+  --color-blue-600: var(--color-dark-primary);
+  --color-blue-400: hsl(199 89% 54%);                   /* Info cyan */
+  --color-green-600: var(--color-success);
+  --color-green-400: var(--color-success);
+  --color-red-600: var(--color-error);
+  --color-red-400: var(--color-error);
+  --color-yellow-600: var(--color-warning);
+  --color-yellow-400: var(--color-warning);
+}
+
 .dark body {
   background-color: var(--color-dark-background);
   color: var(--color-dark-foreground);

@@ -4,16 +4,16 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-offset-[#020617]',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-offset-gray-50',
   {
     variants: {
       variant: {
         default: 'bg-blue-600 text-white shadow hover:bg-blue-700 focus-visible:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600',
         destructive: 'bg-red-600 text-white shadow-sm hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-700 dark:hover:bg-red-600',
-        outline: 'border border-gray-300 bg-white shadow-sm hover:bg-gray-50 hover:text-gray-900 dark:border-[hsl(215_20%_25%)] dark:bg-[#0F172A] dark:hover:bg-[#1E293B] dark:hover:text-[#F8FAFC]',
-        secondary: 'bg-gray-100 text-gray-900 shadow-sm hover:bg-gray-200 dark:bg-[#1E293B] dark:text-[#F8FAFC] dark:hover:bg-[hsl(215_25%_18%)]',
-        ghost: 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-[#1E293B] dark:hover:text-[#F8FAFC]',
-        link: 'text-blue-600 underline-offset-4 hover:underline dark:text-blue-400',
+        outline: 'border border-gray-300 bg-white shadow-sm hover:bg-gray-50 hover:text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-gray-900',
+        secondary: 'bg-gray-100 text-gray-900 shadow-sm hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-900 dark:hover:bg-gray-700',
+        ghost: 'hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-900',
+        link: 'text-blue-600 underline-offset-4 hover:underline dark:text-blue-600',
         success: 'bg-green-600 text-white shadow hover:bg-green-700 focus-visible:ring-green-500 dark:bg-green-700 dark:hover:bg-green-600',
       },
       size: {

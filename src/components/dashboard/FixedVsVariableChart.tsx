@@ -52,7 +52,7 @@ export function FixedVsVariableChart({ data }: FixedVsVariableChartProps) {
               <div className="h-2.5 w-2.5 rounded-full bg-blue-500 lg:h-3 lg:w-3" />
               <span className="text-xs text-gray-600 dark:text-gray-300 lg:text-sm">Fijos</span>
             </div>
-            <p className="mt-1 text-base font-bold text-blue-600 dark:text-blue-400 lg:text-lg">
+            <p className="mt-1 text-base font-bold text-blue-600 dark:text-blue-600 lg:text-lg">
               {data.fixedPercentage}%
             </p>
           </div>
@@ -61,7 +61,7 @@ export function FixedVsVariableChart({ data }: FixedVsVariableChartProps) {
               <div className="h-2.5 w-2.5 rounded-full bg-green-500 lg:h-3 lg:w-3" />
               <span className="text-xs text-gray-600 dark:text-gray-300 lg:text-sm">Variables</span>
             </div>
-            <p className="mt-1 text-base font-bold text-green-600 dark:text-green-400 lg:text-lg">
+            <p className="mt-1 text-base font-bold text-green-600 dark:text-green-600 lg:text-lg">
               {data.variablePercentage}%
             </p>
           </div>

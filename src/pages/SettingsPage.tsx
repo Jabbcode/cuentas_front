@@ -130,7 +130,7 @@ export function SettingsPage() {
   if (!profile || !statistics) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-400 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-600 border-t-transparent" />
       </div>
     );
   }
@@ -159,7 +159,7 @@ export function SettingsPage() {
         <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-3">
-              <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-600" />
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Transacciones</p>
@@ -171,7 +171,7 @@ export function SettingsPage() {
         <Card className="p-4">
           <div className="flex items-center gap-3">
             <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-3">
-              <User className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <User className="h-5 w-5 text-green-600 dark:text-green-600" />
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Cuentas</p>
@@ -200,7 +200,7 @@ export function SettingsPage() {
         <button
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'profile'
-              ? 'border-b-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400'
+              ? 'border-b-2 border-blue-600 dark:border-blue-600 text-blue-600 dark:text-blue-600'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
           onClick={() => setActiveTab('profile')}
@@ -211,7 +211,7 @@ export function SettingsPage() {
         <button
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'password'
-              ? 'border-b-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400'
+              ? 'border-b-2 border-blue-600 dark:border-blue-600 text-blue-600 dark:text-blue-600'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
           onClick={() => setActiveTab('password')}
@@ -222,7 +222,7 @@ export function SettingsPage() {
         <button
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'account'
-              ? 'border-b-2 border-red-600 dark:border-red-400 text-red-600 dark:text-red-400'
+              ? 'border-b-2 border-red-600 dark:border-red-400 text-red-600 dark:text-red-600'
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
           }`}
           onClick={() => setActiveTab('account')}
@@ -314,7 +314,7 @@ export function SettingsPage() {
       {/* Delete Account Tab */}
       {activeTab === 'account' && (
         <Card className="p-6 border-red-200 dark:border-red-700">
-          <h2 className="text-xl font-semibold mb-2 text-red-600 dark:text-red-400">Zona Peligrosa</h2>
+          <h2 className="text-xl font-semibold mb-2 text-red-600 dark:text-red-600">Zona Peligrosa</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             Eliminar tu cuenta es permanente y no se puede deshacer. Todos tus datos serán borrados.
           </p>

@@ -6,7 +6,7 @@ const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('rounded-lg border border-gray-200 bg-white text-gray-950 shadow-sm dark:border-[hsl(215_20%_25%)] dark:bg-[#0F172A] dark:text-[#F8FAFC]', className)}
+      className={cn('rounded-lg border border-gray-200 bg-white text-gray-950 shadow-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-900', className)}
       {...props}
     />
   )
@@ -33,7 +33,7 @@ CardTitle.displayName = 'CardTitle';
 
 const CardDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => (
-    <p ref={ref} className={cn('text-sm text-gray-500 dark:text-[#64748B]', className)} {...props} />
+    <p ref={ref} className={cn('text-sm text-gray-500 dark:text-gray-500', className)} {...props} />
   )
 );
 CardDescription.displayName = 'CardDescription';

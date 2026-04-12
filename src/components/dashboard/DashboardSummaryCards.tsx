@@ -17,12 +17,12 @@ export function DashboardSummaryCards({ summary }: DashboardSummaryCardsProps) {
           <CardTitle className="text-xs font-medium text-gray-500 lg:text-sm">
             Balance Total
           </CardTitle>
-          <div className="rounded-full bg-blue-100 p-1.5 lg:p-2 dark:bg-blue-500/10">
-            <Wallet className="h-3 w-3 text-blue-600 lg:h-4 lg:w-4 dark:text-blue-400" />
+          <div className="rounded-full bg-blue-100 p-1.5 lg:p-2 dark:bg-blue-600/10">
+            <Wallet className="h-3 w-3 text-blue-600 lg:h-4 lg:w-4" />
           </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 lg:p-6 lg:pt-0">
-          <div className="text-lg font-bold text-gray-900 lg:text-2xl dark:text-[#F8FAFC]">
+          <div className="text-lg font-bold text-gray-900 lg:text-2xl dark:text-gray-900">
             {formatCurrency(summary?.totalBalance || 0)}
           </div>
         </CardContent>
@@ -33,12 +33,12 @@ export function DashboardSummaryCards({ summary }: DashboardSummaryCardsProps) {
           <CardTitle className="text-xs font-medium text-gray-500 lg:text-sm">
             Ingresos
           </CardTitle>
-          <div className="rounded-full bg-green-100 p-1.5 lg:p-2 dark:bg-green-500/10">
-            <TrendingUp className="h-3 w-3 text-green-600 lg:h-4 lg:w-4 dark:text-green-400" />
+          <div className="rounded-full bg-green-100 p-1.5 lg:p-2 dark:bg-green-600/10">
+            <TrendingUp className="h-3 w-3 text-green-600 lg:h-4 lg:w-4" />
           </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 lg:p-6 lg:pt-0">
-          <div className="text-lg font-bold text-green-600 lg:text-2xl dark:text-green-400">
+          <div className="text-lg font-bold text-green-600 lg:text-2xl">
             +{formatCurrency(summary?.monthlyIncome || 0)}
           </div>
         </CardContent>
@@ -49,12 +49,12 @@ export function DashboardSummaryCards({ summary }: DashboardSummaryCardsProps) {
           <CardTitle className="text-xs font-medium text-gray-500 lg:text-sm">
             Gastos
           </CardTitle>
-          <div className="rounded-full bg-red-100 p-1.5 lg:p-2 dark:bg-red-500/10">
-            <TrendingDown className="h-3 w-3 text-red-600 lg:h-4 lg:w-4 dark:text-red-400" />
+          <div className="rounded-full bg-red-100 p-1.5 lg:p-2 dark:bg-red-600/10">
+            <TrendingDown className="h-3 w-3 text-red-600 lg:h-4 lg:w-4" />
           </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 lg:p-6 lg:pt-0">
-          <div className="text-lg font-bold text-red-600 lg:text-2xl dark:text-red-400">
+          <div className="text-lg font-bold text-red-600 lg:text-2xl">
             -{formatCurrency(summary?.monthlyExpenses || 0)}
           </div>
         </CardContent>
@@ -65,18 +65,18 @@ export function DashboardSummaryCards({ summary }: DashboardSummaryCardsProps) {
           <CardTitle className="text-xs font-medium text-gray-500 lg:text-sm">
             Balance Neto
           </CardTitle>
-          <div className={`rounded-full p-1.5 lg:p-2 ${monthlyNet >= 0 ? 'bg-green-100 dark:bg-green-500/10' : 'bg-red-100 dark:bg-red-500/10'}`}>
+          <div className={`rounded-full p-1.5 lg:p-2 ${monthlyNet >= 0 ? 'bg-green-100 dark:bg-green-600/10' : 'bg-red-100 dark:bg-red-600/10'}`}>
             {monthlyNet >= 0 ? (
-              <TrendingUp className="h-3 w-3 text-green-600 lg:h-4 lg:w-4 dark:text-green-400" />
+              <TrendingUp className="h-3 w-3 text-green-600 lg:h-4 lg:w-4" />
             ) : (
-              <TrendingDown className="h-3 w-3 text-red-600 lg:h-4 lg:w-4 dark:text-red-400" />
+              <TrendingDown className="h-3 w-3 text-red-600 lg:h-4 lg:w-4" />
             )}
           </div>
         </CardHeader>
         <CardContent className="p-3 pt-0 lg:p-6 lg:pt-0">
           <div
             className={`text-lg font-bold lg:text-2xl ${
-              monthlyNet >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+              monthlyNet >= 0 ? 'text-green-600' : 'text-red-600'
             }`}
           >
             {formatCurrency(monthlyNet)}

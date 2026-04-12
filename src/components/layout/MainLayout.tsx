@@ -11,7 +11,7 @@ export function MainLayout() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-[#020617]">
+      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-50">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
@@ -22,21 +22,21 @@ export function MainLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-[#020617]">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-50">
       {/* Sidebar único - maneja desktop y móvil */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Contenido principal */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header móvil */}
-        <header className="flex h-14 items-center gap-4 border-b border-gray-200 bg-white px-4 dark:border-[hsl(215_20%_25%)] dark:bg-[#0F172A] lg:hidden">
+        <header className="flex h-14 items-center gap-4 border-b border-gray-200 bg-white px-4 dark:border-gray-600 dark:bg-gray-800 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="rounded-lg p-1.5 text-gray-600 hover:bg-gray-100 dark:text-[#CBD5E1] dark:hover:bg-[#1E293B]"
+            className="rounded-lg p-1.5 text-gray-600 hover:bg-gray-100 dark:text-gray-500 dark:hover:bg-gray-700"
           >
             <Menu className="h-6 w-6" />
           </button>
-          <h1 className="flex-1 text-lg font-bold text-blue-600 dark:text-blue-400">MisCuentas</h1>
+          <h1 className="flex-1 text-lg font-bold text-blue-600">MisCuentas</h1>
           <ThemeToggle />
         </header>
 

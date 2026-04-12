@@ -110,7 +110,7 @@ export function CategoriesPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-400 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-600 border-t-transparent" />
       </div>
     );
   }
@@ -181,7 +181,7 @@ export function CategoriesPage() {
         <form onSubmit={handleSubmit}>
           <DialogContent className="space-y-4">
             {error && (
-              <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-400">
+              <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-600">
                 {error}
               </div>
             )}
