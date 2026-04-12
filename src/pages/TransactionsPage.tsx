@@ -201,11 +201,11 @@ export function TransactionsPage() {
             {total} {total === 1 ? 'transacción' : 'transacciones'}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowScanner(true)}>
+        <div className="flex flex-col gap-3 md:flex-row md:gap-4">
+          <Button variant="outline" onClick={() => setShowScanner(true)} className="w-full md:w-auto">
             <Camera className="mr-2 h-4 w-4" /> Escanear Factura
           </Button>
-          <Button onClick={handleOpenForm}>
+          <Button onClick={handleOpenForm} className="w-full md:w-auto">
             <Plus className="mr-2 h-4 w-4" /> Nueva Transacción
           </Button>
         </div>
