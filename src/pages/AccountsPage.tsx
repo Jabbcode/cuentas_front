@@ -20,6 +20,28 @@ export function AccountsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Account type labels and order for grouping
+  const accountTypeLabels: Record<Account['type'], string> = {
+    cash: 'Efectivo',
+    bank: 'Bancos',
+    credit_card: 'Tarjetas de Crédito',
+  };
+
+  const accountTypeOrder: Account['type'][] = ['bank', 'credit_card', 'cash'];
+
+  // Group accounts by type
+  const groupAccountsByType = (accounts: Account[]) => {
+    const grouped = accounts.reduce((acc, account) => {
+      if (!acc[account.type]) {
+        acc[account.type] = [];
+      }
+      acc[account.type].push(account);
+      return acc;
+    }, {} as Record<Account['type'], Account[]>);
+
+    return grouped;
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     type: 'bank' as 'cash' | 'bank' | 'credit_card',
@@ -106,6 +128,8 @@ export function AccountsPage() {
     }
   };
 
+  const groupedAccounts = groupAccountsByType(accounts);
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -128,18 +152,39 @@ export function AccountsPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="space-y-8">
         {accounts.length === 0 ? (
           <AccountEmpty onCreateClick={() => openForm()} />
         ) : (
-          accounts.map((account) => (
-            <AccountCard
-              key={account.id}
-              account={account}
-              onEdit={openForm}
-              onDelete={setDeleteId}
-            />
-          ))
+          <>
+            {accountTypeOrder.map((type) => {
+              const accountsOfType = groupedAccounts[type];
+              if (!accountsOfType || accountsOfType.length === 0) return null;
+
+              return (
+                <div key={type} className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {accountTypeLabels[type]}
+                    </h2>
+                    <span className="text-sm text-gray-500">
+                      ({accountsOfType.length})
+                    </span>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {accountsOfType.map((account) => (
+                      <AccountCard
+                        key={account.id}
+                        account={account}
+                        onEdit={openForm}
+                        onDelete={setDeleteId}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </>
         )}
       </div>
 
