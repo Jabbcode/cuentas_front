@@ -1,67 +1,71 @@
-# Claude Context Guide - Cuentas Frontend
+# 🧠 Claude Context Guide - Cuentas Frontend
 
-Esta carpeta contiene documentación y contexto completo del proyecto frontend para que Claude (o cualquier desarrollador) pueda entender la arquitectura, convenciones y estado del proyecto.
+Esta carpeta es la "Fuente de Verdad" del proyecto. Contiene el manual de operaciones y la inteligencia necesaria para mantener la integridad técnica y arquitectónica.
 
-## 📂 Estructura de esta carpeta
+---
 
-### Documentación Principal
-- **context.md** - Descripción general del proyecto, stack tecnológico y estado actual
-- **conventions.md** - Convenciones de código, naming, estructura de commits
-- **system-prompt.md** - Instrucciones de rol y comportamiento esperado de Claude
+## 📌 Navegación Rápida (Matriz de Consulta)
 
-### Arquitectura
-- **architecture/overview.md** - Diagrama conceptual y flujos de datos
-- **architecture/components.md** - Estructura y patrones de componentes
-- **architecture/hooks.md** - Custom hooks y su propósito
-- **architecture/api-client.md** - Configuración y patrones de cliente HTTP
+| Si necesito saber... | Consulto... | Descripción |
+|----------|----------|----------|
+| **El proyecto general** | `context.md` | Stack, negocio y visión. |
+| **Cómo escribir código** | `conventions.md` | Naming, estructura y patrones. |
+| **Verificación Técnica** | `typescript-verification.md` | 🚨 Protocolo obligatorio de Build/TSC. |
+| **Gestión de Tareas** | `task-structure-generator.md` | Automatización de tickets de Notion. |
+| **Estado del Proyecto** | `project-state.md` | Sprints, bugs y deuda técnica. |
+| **Arquitectura / API** | `architecture/` | Flujos de datos y cliente HTTP. |
 
-### Patrones y Ejemplos
-- **architecture/patterns/hooks.md** - Documentación detallada de hooks
-- **examples/hooks/** - Ejemplos reales de custom hooks del proyecto
-- **examples/components/** - Componentes bien implementados
+---
 
-### Decisiones y Guías
-- **decisions/** - Registro de decisiones arquitectónicas
-- **guidelines/code-style.md** - Estilo de código, formatting
-- **guidelines/testing-strategy.md** - Cómo testear
-- **guidelines/documentation.md** - Cómo documentar código
+## 📂 Estructura de la Carpeta
 
-### Estado del Proyecto
-- **project-state.md** - Estado actual, sprints, deuda técnica
+### 📑 Documentación Crítica
+- **context.md**: Descripción general y stack tecnológico.
+- **conventions.md**: Estándares de código y estructura "Source of Truth".
+- **typescript-verification.md**: Protocolo de compilación pre-entrega.
+- **system-prompt.md**: Instrucciones de comportamiento para Claude.
 
-## 🚀 Cómo usar esta carpeta
+### 🛠️ Frontend Skills (Patrones por Dominio)
+Cada carpeta contiene un `SKILL.md` (reglas) y un `EXAMPLES.md` (código real):
+- **component-composition-skill/**: shadcn/ui y Atomic Design.
+- **form-management-skill/**: React Hook Form + Zod.
+- **data-fetching-skill/**: Axios, servicios y JWT.
+- **routing-skill/**: Navigation y Guards (v7).
+- **state-management-skill/**: Context API y Custom Hooks.
+- **styling-skill/**: Tailwind CSS 4.0 y utilidades `cn`.
 
-### Si necesitas entender...
-| Necesito | Consulto |
-|----------|----------|
-| El proyecto en general | **context.md** |
-| Estructura de componentes | **architecture/components.md** |
-| Hooks disponibles | **architecture/hooks.md** |
-| Cómo hacer una petición HTTP | **architecture/api-client.md** |
-| Convenciones de nombres | **conventions.md** |
-| Decisiones pasadas | **decisions/** |
-| El estado actual | **project-state.md** |
+### 🏛️ Arquitectura y Decisiones
+- **architecture/**: Detalles de hooks, componentes y cliente API.
+- **decisions/**: Registro de decisiones técnicas (ADRs).
+- **guidelines/**: Estilo de código, testing y manejo de errores.
 
-### Pasando contexto a Claude
-Puedes pasar los URLs o contenido de los archivos relevantes a Claude para que tenga el contexto necesario.
+---
 
-**Ejemplo:**
-```
-"Revisa este archivo de convenciones y ayúdame a crear un nuevo componente:
-<pegar contenido de conventions.md>"
-```
+## 🚀 Protocolo de Trabajo para Claude
 
-## 📝 Mantenimiento
+1. **Análisis:** Leer la tarea en Notion y ejecutar `task-structure-generator.md`.
+2. **Contexto:** Identificar el dominio (Skill) y revisar `conventions.md`.
+3. **Implementación:** Escribir código siguiendo los ejemplos de la Skill correspondiente.
+4. **Validación:** Ejecutar obligatoriamente `typescript-verification.md`. No se reporta éxito sin un `npx tsc --noEmit` limpio.
+5. **Cierre:** Actualizar `project-state.md` si hay cambios significativos.
 
-Esta carpeta debe mantenerse actualizada:
-- Revísala al menos una vez por sprint
-- Actualiza **project-state.md** regularmente
-- Documenta nuevas decisiones en **decisions/**
-- Añade ejemplos cuando discovers nuevos patrones
+---
 
-## 📚 Referencias rápidas
+## 🔍 Búsqueda Rápida por Tópico
 
-- **Stack:** React 19, TypeScript, Vite, TailwindCSS, React Router, React Hook Form
-- **API Base:** Configurada con Axios + interceptores de auth
-- **Autenticación:** JWT Token almacenado en localStorage
-- **Estado:** Combinación de React hooks + Context API
+- **Autenticación:** Ver `context.md` y `architecture/api-client.md` (Interceptores).
+- **Llamadas HTTP:** Ver `architecture/api-client.md` y `data-fetching-skill/`.
+- **Estilos:** Ver `styling-skill/` y `conventions.md` (Sección Tailwind).
+- **Manejo de Estado:** Ver `state-management-skill/` y `architecture/hooks.md`.
+
+---
+
+## ✅ Checklist Pre-PR
+- [ ] ¿Cumple con el naming de `conventions.md`?
+- [ ] ¿Pasa el check de `typescript-verification.md`?
+- [ ] ¿Se han eliminado los `console.log`?
+- [ ] ¿Es responsive (Mobile-first)?
+
+---
+**Última actualización:** 2026-04-12
+**Estado:** Activo / Obligatorio para todo colaborador (Humano o IA).

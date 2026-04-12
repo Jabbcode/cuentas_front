@@ -1,102 +1,47 @@
 ---
 name: form-management-skill
-description: Manejar formularios complejos con React Hook Form y validación Zod
 type: skill
+version: 1.1
+description: Gestión de formularios complejos con React Hook Form y validación mediante Zod.
 ---
 
-## Propósito
+# Skill: Form Management (RHF + Zod)
 
-Encapsula todo el conocimiento para crear y validar formularios en el proyecto con React Hook Form y Zod.
+## 🎯 Propósito
+Estandarizar la creación de formularios type-safe, asegurando una validación robusta, manejo de errores claro y una experiencia de usuario fluida con estados de carga.
 
-## Cuándo Usar Este Skill
+## ⚡ Triggers (Cuándo activar esta skill)
+- Al crear formularios con más de 2 campos.
+- Cuando se requiera validación de negocio en el cliente.
+- Al integrar formularios con servicios de API (Data Fetching).
 
-- ✅ Crear nuevo formulario
-- ✅ Validar inputs de usuario
-- ✅ Manejar errores de validación
-- ✅ Integrar formulario con API
-- ✅ Manejar estados de carga y error
+## 🛠️ Especificaciones Técnicas
 
-## Lo Que Sabe Hacer
+### 1. Arquitectura "Schema-First"
+- **Zod:** Definir siempre el esquema de validación antes que el componente.
+- **Inferencia:** Extraer los tipos automáticamente usando `type FormValues = z.infer<typeof schema>`.
+- **Resolvers:** Usar siempre `@hookform/resolvers/zod`.
 
-- Crear formularios con React Hook Form
-- Validación type-safe con Zod
-- Manejo de errores claros
-- Estados: loading, success, error
-- Integración con API
-- Memoización de callbacks
-- Field arrays para inputs dinámicos
+### 2. Configuración de `useForm`
+- **Default Values:** Definir siempre valores iniciales para evitar "uncontrolled components".
+- **Modos:** Usar `mode: 'onTouched'` o `onChange` solo si la UX lo requiere específicamente.
 
-## Cuándo NO Usar Este Skill
+### 3. UX y Estados
+- **Loading:** Deshabilitar botones de submit mientras `isSubmitting` sea true.
+- **Feedback:** Mostrar mensajes de error específicos por campo justo debajo del input.
 
-- ❌ Para búsquedas simples (usar input normal)
-- ❌ Para filtros sin validación compleja
-- ❌ Para componentes sin estado de formulario
+## 📏 Reglas de Oro (Best Practices)
+- ✅ **Reset:** Ejecutar `reset()` tras un envío exitoso si no hay redirección.
+- ✅ **Memoización:** Envolver el `onSubmit` en un `useCallback` si se pasa a componentes hijos.
+- ✅ **Componentización:** Extraer inputs complejos a componentes reutilizables (ej. `ControlledInput`).
 
-## Patrones Clave
+## 🚫 Anti-Patterns (Evitar)
+- ❌ **Manual Validation:** Prohibido validar campos manualmente mediante `if` dentro del submit.
+- ❌ **Inline Styles:** No usar estilos inline para estados de error; usar clases de TailwindCSS.
+- ❌ **Button Type:** No usar `type="button"` para el envío; usar siempre `type="submit"` dentro del tag `<form>`.
 
-### 1. Schema Zod Primero
-```typescript
-const schema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(8, 'Mínimo 8 caracteres')
-});
-```
-
-### 2. Hook + Form Hook
-```typescript
-const { register, handleSubmit, formState: { errors, isLoading } } = useForm({
-  resolver: zodResolver(schema),
-  defaultValues: { email: '', password: '' }
-});
-```
-
-### 3. Manejo de Errores
-```typescript
-{errors.email && (
-  <span className="text-red-500">{errors.email.message}</span>
-)}
-```
-
-### 4. Estados Correctos
-```typescript
-<button disabled={isLoading} type="submit">
-  {isLoading ? 'Enviando...' : 'Enviar'}
-</button>
-```
-
-## Best Practices
-
-1. **Schema siempre primero**: Define Zod schema antes de usar en formulario
-2. **TypeScript types**: Infiere tipos del schema con `z.infer<typeof schema>`
-3. **Error messages claros**: Mensajes en español y específicos
-4. **Loading state**: Siempre muestra estado durante envío
-5. **Memoización**: useCallback para handlers pasados a children
-6. **No hardcodear valores**: Todos los campos dinámicos
-7. **Reset después de envío**: `reset()` en success
-8. **Validación en tiempo real**: Modo onChange si es necesario
-
-## Anti-Patterns
-
-❌ Validación manual en handlers (usa Zod)
-❌ Props sin tipado de Zod
-❌ Handlers sin useCallback
-❌ Errores genéricos ("Error")
-❌ Formularios sin loading state
-❌ type="button" en submit (siempre type="submit")
-❌ Estilos inline (usa TailwindCSS)
-
-## Dependencias
-
-- react-hook-form (^7.71.0)
-- zod (^4.3.0)
-- @hookform/resolvers (para zodResolver)
-
-## Ejemplos
-
-Ver `examples.md`
-
-## Referencias
-
-- [React Hook Form Docs](https://react-hook-form.com/)
-- [Zod Validation](https://zod.dev/)
-- `conventions.md` para patrones del proyecto
+## ✅ Checklist de Validación
+- [ ] ¿El esquema de Zod tiene mensajes de error amigables?
+- [ ] ¿Se infieren los tipos de TypeScript del esquema?
+- [ ] ¿El botón de submit muestra un estado de carga?
+- [ ] ¿Se limpian los errores al corregir el campo?

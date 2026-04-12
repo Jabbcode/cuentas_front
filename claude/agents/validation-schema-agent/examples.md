@@ -1,28 +1,18 @@
-# Ejemplos - validation-schema-agent
+# Ejemplos de Esquemas de Validación
 
-Cómo invocar este agent y qué esperar.
+## ✅ Creación de Schema de Registro
+**Instrucción**: validation-schema-agent: crear RegisterSchema
+**Contexto**: Email obligatorio, password min 8 caracteres, confirmar password debe coincidir.
+**Resultado esperado**:
+- Crea `register.schema.ts`.
+- Implementa `.refine()` para comparar passwords.
+- Retorna: "✅ RegisterSchema creado con validación cruzada de password."
 
-## Ejemplo Correcto
+## ✅ Actualización de Reglas
+**Instrucción**: validation-schema-agent: actualizar UserSchema
+**Contexto**: El campo 'phone' ahora es obligatorio y debe seguir formato internacional.
+**Resultado esperado**: Modificación directa del archivo con la nueva regex de validación.
 
-```
-validation-schema-agent: [descripción clara de qué crear]
-Contexto: [información relevante]
-Patrones: [patrones a seguir]
-```
-
-## Ejemplo Incorrecto
-
-```
-validation-schema-agent: crea algo
-```
-(demasiado vago)
-
-## Workflow
-
-Ver `AGENT.md` para workflow detallado.
-
-## Referencias
-
-- `AGENT.md` - Documentación del agent
-- `../conventions.md` - Convenciones
-- `../context.md` - Contexto del proyecto
+## ❌ Error: Falta de Especificación
+**Instrucción**: validation-schema-agent: haz un schema de login.
+**Respuesta**: "ERROR: No se han especificado las reglas de los campos. ¿Email y password son obligatorios? ¿Longitud mínima?"

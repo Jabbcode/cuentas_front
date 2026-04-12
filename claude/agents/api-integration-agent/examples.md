@@ -1,28 +1,18 @@
-# Ejemplos - api-integration-agent
+# Ejemplos de Integración de Datos
 
-Cómo invocar este agent y qué esperar.
+## ✅ Integración de Nuevo Endpoint
+**Instrucción**: api-integration-agent: integrar GET /users/profile
+**Contexto**: Crear servicio y hook para obtener datos del perfil. Usar Axios.
+**Resultado esperado**:
+- Crea `user.service.ts` y `useUserProfile.ts`.
+- Define `UserProfileDTO`.
+- Retorna: "✅ Servicio de perfil e interfaz de datos creados en local."
 
-## Ejemplo Correcto
+## ✅ Refactorización de Tipos
+**Instrucción**: api-integration-agent: actualizar tipos de POST /auth/login
+**Contexto**: El backend ahora devuelve un campo `lastLogin`. Actualizar interfaces.
+**Resultado esperado**: Edición directa de los tipos y validación de impacto en hooks.
 
-```
-api-integration-agent: [descripción clara de qué crear]
-Contexto: [información relevante]
-Patrones: [patrones a seguir]
-```
-
-## Ejemplo Incorrecto
-
-```
-api-integration-agent: crea algo
-```
-(demasiado vago)
-
-## Workflow
-
-Ver `AGENT.md` para workflow detallado.
-
-## Referencias
-
-- `AGENT.md` - Documentación del agent
-- `../conventions.md` - Convenciones
-- `../context.md` - Contexto del proyecto
+## ❌ Error: Falta de Contrato
+**Instrucción**: api-integration-agent: conéctame al backend.
+**Respuesta**: "ERROR: Información de endpoint o método insuficiente. Por favor, indica la ruta y estructura de datos."

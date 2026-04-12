@@ -1,28 +1,18 @@
-# Ejemplos - component-generator-agent
+# Ejemplos de Implementación UI
 
-Cómo invocar este agent y qué esperar.
+## ✅ Creación de un Organismo (Dashboard Card)
+**Instrucción**: component-generator-agent: crear src/components/organisms/FinanceCard.tsx
+**Contexto**: Necesito mostrar balance, ingresos y un botón de "Ver más". Usa Shadcn Card.
+**Resultado esperado**:
+- Crea FinanceCard.tsx con props tipadas.
+- Usa componentes de UI existentes.
+- Retorna: "✅ FinanceCard.tsx creado exitosamente en local."
 
-## Ejemplo Correcto
+## ✅ Refactorización de Estilos
+**Instrucción**: component-generator-agent: refactorizar src/components/atoms/Button.tsx
+**Contexto**: Cambiar el padding a 'p-4' y añadir variante 'ghost' usando cva.
+**Resultado esperado**: Edición directa del archivo existente y validación de tipos.
 
-```
-component-generator-agent: [descripción clara de qué crear]
-Contexto: [información relevante]
-Patrones: [patrones a seguir]
-```
-
-## Ejemplo Incorrecto
-
-```
-component-generator-agent: crea algo
-```
-(demasiado vago)
-
-## Workflow
-
-Ver `AGENT.md` para workflow detallado.
-
-## Referencias
-
-- `AGENT.md` - Documentación del agent
-- `../conventions.md` - Convenciones
-- `../context.md` - Contexto del proyecto
+## ❌ Error: Falta de Ruta
+**Instrucción**: component-generator-agent: crea un botón azul.
+**Respuesta**: "ERROR: Ruta de destino no especificada. Por favor, indica la ubicación en la estructura de carpetas."

@@ -1,19 +1,43 @@
-# Ejemplos - component-composition-skill
+# Ejemplos: Component Composition
 
-Ejemplos de código real del proyecto usando este skill.
+## ❌ Mal Patrón: El Componente "Configurable" (Rígido)
+Este patrón requiere añadir una nueva prop por cada cambio visual solicitado.
 
-Ver el archivo principal `SKILL.md` para documentación completa.
+```tsx
+// MAL: El componente es una caja negra difícil de personalizar
+<Banner 
+  title="Oferta" 
+  showButton={true} 
+  buttonText="Click aquí" 
+  onBtnClick={handleBtn}
+  variant="warning"
+/>
 
-## Ejemplo Básico
+// BIEN: Estructura semántica y reutilizable
+import { Banner } from './Banner';
 
-[Consulta el código del proyecto en `/src`]
+export const DiscountBanner = () => (
+  <Banner variant="warning">
+    <Banner.Header>
+      <Title>Oferta Especial</Title>
+    </Banner.Header>
+    <Banner.Body>
+      <p>Contenido flexible inyectado mediante composición.</p>
+      <Button onClick={handleBtn}>Click aquí</Button>
+    </Banner.Body>
+  </Banner>
+);
 
-## Patrones Correctos
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: 'elevated' | 'flat';
+  children: React.ReactNode;
+}
 
-Sigue los patrones documentados en `SKILL.md`.
-
-## Referencias
-
-- `SKILL.md` - Definición del skill
-- `../conventions.md` - Convenciones del proyecto
-- `../context.md` - Contexto del proyecto
+export const Card = ({ variant = 'flat', children, className, ...props }: CardProps) => (
+  <div 
+    className={`card card--${variant} ${className ?? ''}`} 
+    {...props}
+  >
+    {children}
+  </div>
+);

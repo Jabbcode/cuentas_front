@@ -1,150 +1,92 @@
-# Contexto del Proyecto - Cuentas Frontend
+# 🏦 Contexto del Proyecto: Cuentas Frontend
 
-## 📋 Descripción General
+## 📝 Descripción General
+**Cuentas** es una plataforma de gestión financiera personal. El objetivo es centralizar el control de activos (efectivo, bancos) y pasivos (tarjetas, deudas) con automatización de flujos recurrentes y análisis visual mediante IA y OCR.
 
-**Cuentas** es una aplicación web de gestión de finanzas personales que permite a los usuarios tener control total de sus gastos, ingresos, tarjetas de crédito, deudas y transacciones.
+---
 
-### Funcionalidades Principales
-- 💳 **Gestión de Cuentas:** Cash, banco, tarjetas de crédito
-- 💰 **Transacciones:** Registrar gastos e ingresos
-- 🏷️ **Categorías:** Clasificar transacciones por categoría
-- 💸 **Gastos Fijos:** Configurar gastos e ingresos recurrentes mensuales
-- 🎯 **Deudas:** Gestionar deudas con pagos e intereses
-- 🔄 **Pagos Recurrentes:** Automatizar pagos de deudas
-- 💳 **Tarjetas de Crédito:** Control de límites, fechas de corte y pagos
-- 📊 **Dashboard:** Resumen visual de finanzas
-- 📸 **Recibos:** Captura de imágenes de comprobantes (OCR)
+## 🛠️ Stack Tecnológico (Core)
 
-## 🛠️ Stack Tecnológico
+### Frontend
+- **Framework:** React 19.0 (Uso de APIs modernas y optimización de renderizado).
+- **Build Tool:** Vite 6.0 + TypeScript 5.7.
+- **Styling:** TailwindCSS 4.0 (Configuración basada en CSS y alto rendimiento).
+- **UI Components:** shadcn/ui (Basado en Radix UI + Lucide Icons).
+- **Forms & Validation:** React Hook Form 7.54 + Zod 3.24.
+- **Networking:** Axios 1.7 con Interceptores para gestión de JWT.
+- **Visualización:** Recharts 3.8 para análisis financiero.
+- **Interacción:** @dnd-kit para reordenamiento de elementos (Fixed Expenses).
 
-### Frontend (Este proyecto)
-- **Framework:** React 19.2.4
-- **Lenguaje:** TypeScript 5.9
-- **Build Tool:** Vite 8
-- **Styling:** TailwindCSS 4.2
-- **Enrutamiento:** React Router DOM 7.13
-- **Formularios:** React Hook Form 7.71 + Zod 4.3 (validación)
-- **HTTP Client:** Axios 1.13.6
-- **UI Components:** Lucide React (icons)
-- **Gráficos:** Recharts 3.8
-- **Drag & Drop:** @dnd-kit (sortable lists)
-- **Otros:** date-fns, clsx, tailwind-merge
+### Backend (Referencia para Integración)
+- **API:** RESTful Express + Node.js (TypeScript).
+- **Auth:** JWT (Bearer Token) almacenado en `localStorage`.
+- **Base de Datos:** PostgreSQL + Prisma ORM.
 
-### Backend (Proyecto separado)
-- **Runtime:** Node.js + TypeScript
-- **Framework:** Express 4.21
-- **BD:** PostgreSQL con Prisma ORM 5.22
-- **Autenticación:** JWT + bcrypt
-- **Validación:** Zod 3.23
-- **File Upload:** Multer 2.1
-- **OCR:** Tesseract.js 7
-- **IA:** Anthropic SDK (para análisis)
+---
 
-## 📁 Estructura del Proyecto
+## 📂 Arquitectura de Directorios (Source of Truth)
 
-```
+```text
 src/
-├── api/              # Clientes API para cada endpoint
-├── components/       # Componentes React reutilizables
-├── pages/           # Páginas de la aplicación
-├── hooks/           # Custom hooks personalizados
-├── context/         # Context API providers
-├── types/           # Definiciones de tipos TypeScript
-├── lib/             # Utilidades y helpers
-├── assets/          # Imágenes, iconos
-└── index.css        # Estilos globales
+├── api/          # Instancia de Axios y servicios (Ej: auth.api.ts, accounts.api.ts)
+├── components/   # UI Atómica y Compuesta
+│   ├── ui/       # Componentes base de shadcn/ui (No editar directamente)
+│   ├── shared/   # Componentes de negocio reutilizables (Modales, Cards de transacciones)
+│   └── layout/   # Estructura global (Navbar, Sidebar, PageWrapper)
+├── pages/        # Vistas principales vinculadas a rutas
+├── hooks/        # Lógica de fetching y estados complejos (useTransactions, useAuth)
+├── context/      # Providers globales (AuthContext, ThemeContext)
+├── types/        # Interfaces, Types y Enums de TypeScript (index.ts)
+├── lib/          # Configuración de utilidades (utils.ts con la función 'cn')
+└── assets/       # Recursos estáticos (Imágenes, SVG)
 ```
+---
 
-## 🔐 Autenticación
+## 🔐 Protocolo de Seguridad y Autenticación
 
-- **Tipo:** JWT (JSON Web Token)
-- **Almacenamiento:** localStorage con clave 'token'
-- **Interceptores:** Axios intercepta requests para añadir token Authorization header
-- **Logout Automático:** Si el servidor retorna 401, se elimina el token y redirige a /login
-- **Endpoints:** /api/auth/login, /api/auth/register
+- **JWT Flow:** Se utiliza el header `Authorization: Bearer <token>` en todas las peticiones privadas.
+- **Persistencia:** El token se almacena en `localStorage` bajo la clave `token`.
+- **Manejo de Sesión:**
+    - El interceptor de Axios (`src/api/client.ts`) inyecta el token automáticamente.
+    - Si el servidor responde con **401 (Unauthorized)**, el frontend debe limpiar el `localStorage` y redirigir inmediatamente a `/login`.
 
-## 📊 Flujo de Datos Principal
+---
 
-```
-Usuario → Componente → Hook (useX) → API Client → Axios → Backend
-                       ↓
-                   State (React)
-                       ↓
-                   UI Re-render
-```
+## 📐 Estándares de Desarrollo (Reglas Críticas)
 
-### Ejemplo: Obtener cuentas
-1. Componente solicita datos con `useAccounts()`
-2. Hook hace fetch a `accountsApi.getAll()`
-3. API Client usa Axios con interceptor de token
-4. Respuesta se guarda en estado local
-5. UI se re-renderiza con los datos
+1. **Tipado Estricto:** Prohibido el uso de `any`. Toda respuesta de API y payload debe estar definido en `src/types`.
+2. **Separación de Capas:**
+    - **Pages:** Solo orquestan componentes y hooks. No contienen lógica de Axios.
+    - **Hooks:** Manejan el estado y la llamada al servicio.
+    - **API Clients:** Solo definen el endpoint y el método HTTP.
+3. **Naming Convention:**
+    - **Componentes:** `PascalCase.tsx`.
+    - **Hooks/Utils:** `camelCase.ts`.
+    - **Estilos:** Priorizar utilidades de Tailwind sobre CSS plano.
+4. **Tailwind & shadcn/ui:**
+    - Usar la utilidad `cn()` para la concatenación de clases condicionales.
+    - Respetar el diseño **Mobile-first** usando los breakpoints de Tailwind (`md:`, `lg:`).
 
-## 🔄 Páginas de la Aplicación
+---
 
-| Página | Ruta | Descripción |
-|--------|------|-------------|
-| Login | `/login` | Autenticación de usuario |
-| Register | `/register` | Registro de nuevo usuario |
-| Dashboard | `/` | Resumen de finanzas |
-| Accounts | `/accounts` | Gestión de cuentas |
-| Transactions | `/transactions` | Historial y creación de transacciones |
-| Fixed Expenses | `/fixed-expenses` | Gastos/ingresos recurrentes |
-| Categories | `/categories` | Gestión de categorías |
-| Credit Cards | `/credit-cards` | Gestión de tarjetas de crédito |
-| Debts | `/debts` | Gestión de deudas |
-| Settings | `/settings` | Configuración de usuario |
+## 🔄 Flujos de Datos Críticos
 
-## 🔗 Integración con Backend
+### Gestión de Transacciones e Ingresos
+1. El usuario completa el formulario (validado por **Zod** vía **React Hook Form**).
+2. Se invoca el servicio API correspondiente.
+3. Tras la respuesta exitosa (200/201), se debe actualizar el estado global o local para que los gráficos de **Recharts** y los balances se refresquen automáticamente.
 
-- **Base URL:** Variable de entorno `VITE_API_URL` (default: http://localhost:3001/api)
-- **Puerto de desarrollo:** 5173 (Vite)
-- **CORS:** Configurado en backend para permitir requests desde frontend
-- **Autenticación:** Bearer token en header `Authorization`
+---
 
-## 👥 Estado del Usuario
+## 📞 Integración y Variables de Entorno
+- **Base URL:** Se define en `VITE_API_URL` (Ej: `http://localhost:3001/api`).
+- **Puerto Dev:** 5173.
+- **OCR/IA:** El procesamiento de recibos se realiza enviando `FormData` al backend, el cual utiliza Tesseract.js y Anthropic SDK.
 
-Actualmente se maneja con localStorage:
-- Token JWT en `localStorage.token`
-- No hay persistencia de datos de usuario en el cliente
-- Context API disponible en `/src/context` para estado global si es necesario
+---
 
-## 🚀 Despliegue
-
-- **Plataforma:** Vercel
-- **Build:** `npm run build` (TypeScript compilation + Vite build)
-- **Output:** Carpeta `dist/` con assets estáticos
-- **Redireccionamiento:** Configurado en `public/_redirects` para SPA routing
-
-## 📦 Dependencias Principales para Entender
-
-### React Hook Form
-- Gestión eficiente de formularios sin re-renders innecesarios
-- Patrón: `const { register, handleSubmit, formState: { errors } } = useForm()`
-
-### Zod
-- Validación de esquemas en tiempo de compilación
-- Se usa para validar datos del formulario antes de enviar
-
-### Recharts
-- Librería de gráficos para visualización en Dashboard
-- Componentes: BarChart, LineChart, etc.
-
-### @dnd-kit
-- Drag & drop para ordenar gastos fijos
-- Implementado en Fixed Expenses page
-
-## 🔑 Variables de Entorno
-
-```
-VITE_API_URL=http://localhost:3001/api  # URL del backend en desarrollo
-```
-
-En producción (Vercel), se configura a través de variables de entorno del proyecto.
-
-## 📞 Puntos de Integración Críticos
-
-1. **Auth Interceptor** (`src/api/client.ts`) - Punto crítico de manejo de token
-2. **API Clients** (`src/api/*.api.ts`) - Cada página tiene su cliente correspondiente
-3. **Hooks** (`src/hooks/*.ts`) - Encapsulan lógica de fetching y estado
-4. **Types** (`src/types/index.ts`) - Definiciones de tipos compartidas entre frontend y backend
+## 📌 Roadmap de Implementación
+- [ ] Dashboards interactivos con filtros de fecha.
+- [ ] Gestión avanzada de tarjetas de crédito (fechas de corte y pago).
+- [ ] Automatización de pagos recurrentes y deudas con interés.
+- [ ] Optimización de carga de imágenes para recibos.

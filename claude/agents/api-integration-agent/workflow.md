@@ -1,32 +1,21 @@
-# Workflow - api-integration-agent
+# Workflow - api-integration-agent (The Connector)
 
-Pasos que ejecuta este agent.
+## 1. Fase de Análisis de Contrato
+- Define las interfaces de Entrada (Request) y Salida (Response).
+- Determina la estrategia de fetching (Query vs Mutation).
 
-## Pasos
+## 2. Fase de Estructuración (File System)
+- Localiza o crea el servicio en `src/services/api/`.
+- Define los tipos en un archivo `.types.ts` dedicado para escalabilidad.
 
-1. **Input:** Recibe instrucción
-2. **Análisis:** Entiende el requerimiento
-3. **Implementación:** Crea la solución
-4. **Validación:** Verifica TypeScript y patrones
-5. **Output:** Retorna código listo
+## 3. Fase de Implementación Silenciosa
+- Escribe el cliente API (Axios/Fetch) siguiendo las `conventions.md`.
+- Implementa el hook de datos con manejo de estados `loading`, `error` y `data`.
+- Aplica transformadores de datos si la API no coincide con las necesidades de la UI.
 
-## Entradas Esperadas
+## 4. Validación Técnica
+- Verifica la coherencia de los tipos en todo el flujo de datos.
+- Ejecuta internamente 'typescript-verification.md'.
 
-- Descripción clara de qué crear
-- Contexto del proyecto (si aplica)
-- Patrones a seguir
-- Constraints técnicos
-
-## Salidas Esperadas
-
-- Código funcional
-- TypeScript correcto
-- Siguiendo patrones
-- Listo para usar
-
-## Validaciones
-
-- TypeScript types correctos
-- Convenciones seguidas
-- Patrones respetados
-- Errores manejados
+## 5. Reporte de Salida
+- Retorna al Meta-Agente las rutas de los servicios/hooks creados y el estado de la validación.

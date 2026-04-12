@@ -1,32 +1,21 @@
-# Workflow - validation-schema-agent
+# Workflow - validation-schema-agent (The Validator)
 
-Pasos que ejecuta este agent.
+## 1. Fase de Definición de Reglas
+- Analiza los requisitos de negocio (ej: longitud de password, formato de email).
+- Identifica campos opcionales, nulos o valores por defecto.
 
-## Pasos
+## 2. Fase de Estructuración (File System)
+- Crea o localiza el archivo en `src/schemas/` (ej: `auth.schema.ts`).
+- Prepara la exportación tanto del esquema como del tipo inferido.
 
-1. **Input:** Recibe instrucción
-2. **Análisis:** Entiende el requerimiento
-3. **Implementación:** Crea la solución
-4. **Validación:** Verifica TypeScript y patrones
-5. **Output:** Retorna código listo
+## 3. Fase de Implementación Silenciosa
+- Escribe el esquema utilizando las primitivas de Zod.
+- Añade validaciones avanzadas (regex, comparaciones entre campos).
+- Incluye el bloque de mensajes de error (`required_error`, `invalid_type_error`).
 
-## Entradas Esperadas
+## 4. Validación Técnica
+- Verifica que el tipo inferido sea compatible con el resto del sistema.
+- Asegura que se sigan las `conventions.md` en el nombrado de esquemas.
 
-- Descripción clara de qué crear
-- Contexto del proyecto (si aplica)
-- Patrones a seguir
-- Constraints técnicos
-
-## Salidas Esperadas
-
-- Código funcional
-- TypeScript correcto
-- Siguiendo patrones
-- Listo para usar
-
-## Validaciones
-
-- TypeScript types correctos
-- Convenciones seguidas
-- Patrones respetados
-- Errores manejados
+## 5. Reporte de Salida
+- Confirma la creación del esquema y exporta el nombre del tipo generado para uso del Meta-Agente.

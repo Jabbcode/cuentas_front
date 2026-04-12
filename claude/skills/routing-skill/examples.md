@@ -1,19 +1,60 @@
-# Ejemplos - routing-skill
+# Ejemplos: Routing & Protection
 
-Ejemplos de código real del proyecto usando este skill.
+## ✅ Estructura de Rutas Protegidas
+Ejemplo de cómo envolver rutas para controlar el acceso.
 
-Ver el archivo principal `SKILL.md` para documentación completa.
+```tsx
+// AppRoutes.tsx
+import { lazy, Suspense } from 'react';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { PrivateRoute } from './components/PrivateRoute';
 
-## Ejemplo Básico
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Login = lazy(() => import('./pages/Login'));
 
-[Consulta el código del proyecto en `/src`]
+const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <Login />
+  },
+  {
+    path: '/',
+    element: <PrivateRoute />, // Wrapper de protección
+    children: [
+      {
+        path: 'dashboard',
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Dashboard />
+          </Suspense>
+        )
+      }
+    ]
+  },
+  {
+    path: '*',
+    element: <Navigate to="/dashboard" replace />
+  }
+]);
 
-## Patrones Correctos
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
-Sigue los patrones documentados en `SKILL.md`.
+export const PrivateRoute = () => {
+  const { isAuthenticated, isLoading } = useAuth();
 
-## Referencias
+  if (isLoading) return <FullPageLoader />;
 
-- `SKILL.md` - Definición del skill
-- `../conventions.md` - Convenciones del proyecto
-- `../context.md` - Contexto del proyecto
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+};
+
+// routes.constants.ts
+export const ROUTES = {
+  USER_DETAILS: (id: string) => `/users/${id}`,
+  DASHBOARD: '/dashboard'
+} as const;
+
+// Uso en componente
+const handleUserClick = (id: string) => {
+  navigate(ROUTES.USER_DETAILS(id));
+};

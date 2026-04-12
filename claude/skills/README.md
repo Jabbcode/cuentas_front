@@ -1,60 +1,69 @@
-# Frontend Skills
+# 🧠 Frontend Engineering Skills (Stack: shadcn/ui + React)
 
-Habilidades disponibles para trabajar en el frontend de Cuentas.
+Este directorio contiene el "Manual de Operaciones" para el desarrollo frontend del proyecto. Cada skill define patrones técnicos, restricciones de diseño y estándares de calidad que deben seguirse estrictamente.
 
-## 📚 Skills Documentados
-
-### 1. Form Management Skill
-- **Descripción:** Manejar formularios complejos con React Hook Form y Zod
-- **Cuándo usar:** Crear formularios con validación
-- **Documentación:** [`form-management-skill/SKILL.md`](./form-management-skill/SKILL.md)
-- **Ejemplos:** [`form-management-skill/examples.md`](./form-management-skill/examples.md)
-
-### 2. Data Fetching Skill
-- **Descripción:** Obtener datos del backend con Axios y JWT
-- **Cuándo usar:** Cargar datos de una página o endpoint
-- **Documentación:** [`data-fetching-skill/SKILL.md`](./data-fetching-skill/SKILL.md)
-- **Ejemplos:** [`data-fetching-skill/examples.md`](./data-fetching-skill/examples.md)
-
-### 3. State Management Skill
-- **Descripción:** Gestionar estado con React hooks y Context
-- **Cuándo usar:** Compartir estado entre componentes
-- **Documentación:** [`state-management-skill/SKILL.md`](./state-management-skill/SKILL.md)
-- **Ejemplos:** [`state-management-skill/examples.md`](./state-management-skill/examples.md)
-
-### 4. Component Composition Skill
-- **Descripción:** Crear componentes reutilizables y bien tipados
-- **Cuándo usar:** Crear nuevos componentes
-- **Documentación:** [`component-composition-skill/SKILL.md`](./component-composition-skill/SKILL.md)
-- **Ejemplos:** [`component-composition-skill/examples.md`](./component-composition-skill/examples.md)
-
-### 5. Routing Skill
-- **Descripción:** Navegación con React Router y protección de rutas
-- **Cuándo usar:** Crear nuevas páginas o rutas
-- **Documentación:** [`routing-skill/SKILL.md`](./routing-skill/SKILL.md)
-- **Ejemplos:** [`routing-skill/examples.md`](./routing-skill/examples.md)
-
-### 6. Styling Skill
-- **Descripción:** Estilizar con TailwindCSS
-- **Cuándo usar:** Diseñar componentes y páginas
-- **Documentación:** [`styling-skill/SKILL.md`](./styling-skill/SKILL.md)
-- **Ejemplos:** [`styling-skill/examples.md`](./styling-skill/examples.md)
+## 🏗️ Core Stack & Arquitectura
+- **UI:** shadcn/ui (Radix UI + Tailwind CSS).
+- **Forms:** React Hook Form + Zod.
+- **Fetching:** Axios + JWT Auth.
+- **Routing:** React Router v7.
 
 ---
 
-## 🎯 Cómo Usar
+## 📚 Catálogo de Skills Documentadas
 
-1. Encuentra el skill que necesitas en la lista arriba
-2. Lee el `SKILL.md` principal
-3. Consulta `examples.md` para ver código real
-4. Sigue los patrones documentados
+### 1. 🧩 Component Composition (shadcn/ui focus)
+- **Descripción:** Creación de componentes atómicos y compuestos altamente reutilizables.
+- **Cuándo usar:** Al crear componentes base o maquetar interfaces complejas con slots.
+- **Recursos:** [`SKILL.md`](./component-composition-skill/SKILL.md) | [`EXAMPLES.md`](./component-composition-skill/EXAMPLES.md)
 
-## 📌 Importante
+### 2. 📝 Form Management
+- **Descripción:** Gestión de formularios Type-safe con validación de esquemas Zod.
+- **Cuándo usar:** Login, registros, edición de perfiles y cualquier entrada de datos.
+- **Recursos:** [`SKILL.md`](./form-management-skill/SKILL.md) | [`EXAMPLES.md`](./form-management-skill/EXAMPLES.md)
 
-Cada skill tiene:
-- **SKILL.md** - Definición, patrones, best practices
-- **examples.md** - Código real del proyecto
-- **README.md** - Intro rápida
+### 3. 🌐 Data Fetching
+- **Descripción:** Comunicación con backend, interceptores Axios y gestión de sesiones JWT.
+- **Cuándo usar:** Llamadas a API, sincronización de datos y manejo de errores globales de red.
+- **Recursos:** [`SKILL.md`](./data-fetching-skill/SKILL.md) | [`EXAMPLES.md`](./data-fetching-skill/EXAMPLES.md)
 
-Consult
-a el `SKILL.md` de cada carpeta para detalles completos.
+### 4. 🗺️ Routing & Protection
+- **Descripción:** Navegación SPA, protección de rutas privadas y Lazy Loading.
+- **Cuándo usar:** Definir nuevas páginas o restringir accesos según rol/autenticación.
+- **Recursos:** [`SKILL.md`](./routing-skill/SKILL.md) | [`EXAMPLES.md`](./routing-skill/EXAMPLES.md)
+
+### 5. ⚡ State Management
+- **Descripción:** Gestión de estado local y compartido con Context API y Custom Hooks.
+- **Cuándo usar:** Compartir datos entre componentes sin Prop Drilling (ej: AuthContext, Theme).
+- **Recursos:** [`SKILL.md`](./state-management-skill/SKILL.md) | [`EXAMPLES.md`](./state-management-skill/EXAMPLES.md)
+
+### 6. 🎨 Styling & Design System
+- **Descripción:** Estilizado con Tailwind CSS, utilidades `cn` y variantes de shadcn.
+- **Cuándo usar:** Diseño responsivo, estados de interacción y Dark Mode.
+- **Recursos:** [`SKILL.md`](./styling-skill/SKILL.md) | [`EXAMPLES.md`](./styling-skill/EXAMPLES.md)
+
+---
+
+### 7. 🔍 TypeScript Verification
+- **Descripción:** Protocolo obligatorio de compilación y chequeo de tipos antes de cada entrega.
+- **Cuándo usar:** Siempre, antes de dar por terminada cualquier tarea de código.
+- **Recursos:** [`typescript-verification.md`](../typescript-verification.md)
+
+---
+
+## 🎯 Instrucciones para la IA (Claude)
+
+Para asegurar la máxima calidad en el código generado, utiliza este protocolo:
+
+1. **Identificación:** Antes de codificar, identifica qué skills son necesarios para la tarea actual (ej: "Necesito `form-management` y `styling`").
+2. **Contexto:** Lee siempre el archivo `SKILL.md` correspondiente para entender las restricciones (`Anti-Patterns`) y las reglas de oro.
+3. **Referencia:** Utiliza el archivo `EXAMPLES.md` como plantilla de estructura para no inventar patrones nuevos.
+4. **Validación:** Al finalizar, pasa el "Checklist de Validación" que se encuentra al final de cada `SKILL.md`.
+
+## 📌 Convención de Nombres
+- `SKILL.md`: Instrucciones de sistema y reglas técnicas.
+- `EXAMPLES.md`: Fragmentos de código real "Bad vs Good".
+- `README.md`: Resumen ejecutivo de la carpeta.
+
+---
+*Nota: Este sistema de skills está optimizado para trabajar con el componente `cn` de shadcn/ui y tipado estricto de TypeScript.*
