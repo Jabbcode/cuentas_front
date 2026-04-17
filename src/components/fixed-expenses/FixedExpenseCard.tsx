@@ -36,9 +36,10 @@ export function FixedExpenseCard({
   const [showPayDialog, setShowPayDialog] = useState(false);
   const [payAmount, setPayAmount] = useState(item.amount.toString());
 
-  const daysUntil = getDaysUntilDue(item.dueDay);
-  const dueSoon = isDueSoon(item.dueDay) && !item.isPaidThisMonth;
-  const overdue = isOverdue(item.dueDay) && !item.isPaidThisMonth;
+  const isCreditCard = !!item.creditCardAccountId;
+  const daysUntil = getDaysUntilDue(item.dueDay, item.isPaidThisMonth, isCreditCard);
+  const dueSoon = isDueSoon(item.dueDay, item.isPaidThisMonth, isCreditCard);
+  const overdue = isOverdue(item.dueDay, item.isPaidThisMonth, isCreditCard);
 
   const handlePay = () => {
     const amount = parseFloat(payAmount);
