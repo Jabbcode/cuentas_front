@@ -15,7 +15,7 @@ export function FixedVsVariableChart({ data }: FixedVsVariableChartProps) {
           <CardTitle className="text-base lg:text-lg">Fijos vs Variables</CardTitle>
         </CardHeader>
         <CardContent className="p-4 pt-0 lg:p-6 lg:pt-0">
-          <div className="flex h-32 items-center justify-center text-sm text-gray-500 lg:h-48">
+          <div className="flex h-32 items-center justify-center text-sm text-gray-500 dark:text-gray-400 lg:h-48">
             Sin datos de gastos
           </div>
         </CardContent>
@@ -50,18 +50,18 @@ export function FixedVsVariableChart({ data }: FixedVsVariableChartProps) {
           <div className="text-center">
             <div className="flex items-center justify-center gap-1.5">
               <div className="h-2.5 w-2.5 rounded-full bg-blue-500 lg:h-3 lg:w-3" />
-              <span className="text-xs text-gray-600 lg:text-sm">Fijos</span>
+              <span className="text-xs text-gray-600 dark:text-gray-300 lg:text-sm">Fijos</span>
             </div>
-            <p className="mt-1 text-base font-bold text-blue-600 lg:text-lg">
+            <p className="mt-1 text-base font-bold text-blue-600 dark:text-blue-600 lg:text-lg">
               {data.fixedPercentage}%
             </p>
           </div>
           <div className="text-center">
             <div className="flex items-center justify-center gap-1.5">
               <div className="h-2.5 w-2.5 rounded-full bg-green-500 lg:h-3 lg:w-3" />
-              <span className="text-xs text-gray-600 lg:text-sm">Variables</span>
+              <span className="text-xs text-gray-600 dark:text-gray-300 lg:text-sm">Variables</span>
             </div>
-            <p className="mt-1 text-base font-bold text-green-600 lg:text-lg">
+            <p className="mt-1 text-base font-bold text-green-600 dark:text-green-600 lg:text-lg">
               {data.variablePercentage}%
             </p>
           </div>

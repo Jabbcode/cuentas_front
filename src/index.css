@@ -1,6 +1,10 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+@variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* --- Light Mode - Professional Finance UI --- */
   --color-background: hsl(0 0% 100%);
   --color-foreground: hsl(222.2 84% 4.9%);
   --color-card: hsl(0 0% 100%);
@@ -20,12 +24,66 @@
   --color-border: hsl(214.3 31.8% 91.4%);
   --color-input: hsl(214.3 31.8% 91.4%);
   --color-ring: hsl(221.2 83.2% 53.3%);
+
+  /* --- Dark Mode - Midnight Obsidian Deep --- */
+  --color-dark-background: hsl(230 25% 2%);
+  /* #030407 */
+  --color-dark-surface: hsl(230 20% 6%);
+  /* #0c0e14 */
+  --color-dark-surface-elevated: hsl(230 15% 10%);
+  /* #15171f */
+  --color-dark-border: hsl(230 12% 18%);
+  /* #282a35 */
+  --color-dark-foreground: hsl(210 20% 98%);
+  /* #f8fafc */
+  --color-dark-muted: hsl(225 8% 60%);
+  /* #9499ad */
+
+  /* Primary & Accent Dark */
+  --color-dark-primary: hsl(263 90% 65%);
+  /* Violeta Eléctrico */
+  --color-dark-primary-foreground: hsl(230 25% 2%);
+  --color-dark-accent: hsl(263 90% 65% / 0.15);
+
+  /* --- Semantic Colors (Optimized for both) --- */
+  --color-success: hsl(160 84% 45%);
+  --color-success-muted: hsl(160 84% 10%);
+  --color-warning: hsl(42 100% 55%);
+  --color-warning-muted: hsl(42 100% 10%);
+  --color-error: hsl(350 90% 60%);
+  --color-error-muted: hsl(350 90% 10%);
+  --color-info: hsl(195 90% 55%);
+  --color-info-muted: hsl(195 90% 10%);
+
+  /* --- Radius Scale --- */
   --radius: 0.5rem;
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* --- Custom Color Aliases (Light Mode default) --- */
+  --color-gray-50: hsl(0 0% 100%);
+  --color-gray-900: hsl(222.2 84% 4.9%);
+  --color-gray-800: hsl(215 25% 27%);
+  --color-gray-700: hsl(215 20% 40%);
+  --color-gray-600: hsl(215.4 16.3% 46.9%);
+  --color-gray-500: hsl(215 16% 47%);
+  --color-gray-400: hsl(215 20% 65%);
+  --color-gray-300: hsl(214.3 31.8% 91.4%);
+  --color-gray-200: hsl(214.3 31.8% 91.4%);
+  --color-gray-100: hsl(210 40% 96.1%);
+
+  --color-blue-600: hsl(221.2 83.2% 53.3%);
+  --color-blue-400: hsl(217 91% 60%);
+  --color-green-600: hsl(142 71% 45%);
+  --color-green-400: hsl(142 76% 45%);
+  --color-red-600: hsl(0 84.2% 60.2%);
+  --color-red-400: hsl(0 84% 65%);
+  --color-yellow-600: hsl(48 96% 53%);
+  --color-yellow-400: hsl(48 96% 53%);
 }
 
+/* --- Base Styles --- */
 * {
   border-color: var(--color-border);
 }
@@ -33,5 +91,47 @@
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --- Dark Mode Overrides --- */
+.dark {
+  --color-background: var(--color-dark-background);
+  --color-foreground: var(--color-dark-foreground);
+  --color-border: var(--color-dark-border);
+  --color-card: var(--color-dark-surface);
+  --color-card-foreground: var(--color-dark-foreground);
+  --color-popover: var(--color-dark-surface-elevated);
+  --color-popover-foreground: var(--color-dark-foreground);
+  --color-primary: var(--color-dark-primary);
+  --color-primary-foreground: var(--color-dark-primary-foreground);
+  --color-muted: var(--color-dark-surface-elevated);
+  --color-muted-foreground: var(--color-dark-muted);
+  --color-accent: var(--color-dark-accent);
+  --color-ring: var(--color-dark-primary);
+
+  /* Alias Overrides for Dark Mode */
+  --color-gray-50: var(--color-dark-background);
+  --color-gray-900: var(--color-dark-foreground);
+  --color-gray-800: var(--color-dark-surface);
+  --color-gray-700: var(--color-dark-surface-elevated);
+  --color-gray-600: var(--color-dark-border);
+  --color-gray-500: var(--color-dark-muted);
+  --color-gray-400: hsl(225 8% 50%);
+  --color-gray-300: hsl(230 12% 25%);
+  --color-gray-200: var(--color-dark-border);
+  --color-gray-100: var(--color-dark-surface);
+
+  --color-blue-600: var(--color-dark-primary);
+  --color-blue-400: var(--color-info);
+  --color-green-600: var(--color-success);
+  --color-red-600: var(--color-error);
+  --color-yellow-600: var(--color-warning);
+}
+
+.dark body {
+  background-color: var(--color-dark-background);
+  color: var(--color-dark-foreground);
 }

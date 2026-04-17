@@ -110,7 +110,7 @@ export function CategoriesPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 dark:border-blue-600 border-t-transparent" />
       </div>
     );
   }
@@ -125,11 +125,11 @@ export function CategoriesPage() {
           {items.map((cat) => (
             <div
               key={cat.id}
-              className="flex items-center justify-between rounded-lg border border-gray-200 p-3 transition-all hover:shadow-sm"
+              className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 p-3 transition-all hover:shadow-sm"
             >
               <div className="flex items-center gap-3">
                 <CategoryIcon icon={cat.icon} color={cat.color} size="lg" tooltip={cat.name} />
-                <span className="font-medium text-gray-900">{cat.name}</span>
+                <span className="font-medium text-gray-900 dark:text-gray-50">{cat.name}</span>
               </div>
               <div className="flex gap-1">
                 <Button variant="ghost" size="icon" onClick={() => openForm(cat)}>
@@ -139,7 +139,7 @@ export function CategoriesPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setDeleteId(cat.id)}
-                  className="text-gray-400 hover:text-red-600"
+                  className="text-gray-400 hover:text-red-600 dark:hover:text-red-400"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -147,7 +147,7 @@ export function CategoriesPage() {
             </div>
           ))}
           {items.length === 0 && (
-            <p className="py-8 text-center text-gray-500">Sin categorías</p>
+            <p className="py-8 text-center text-gray-500 dark:text-gray-400">Sin categorías</p>
           )}
         </div>
       </CardContent>
@@ -158,8 +158,8 @@ export function CategoriesPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Categorías</h1>
-          <p className="text-gray-500">Organiza tus transacciones</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Categorías</h1>
+          <p className="text-gray-500 dark:text-gray-400">Organiza tus transacciones</p>
         </div>
         <Button onClick={() => openForm()}>
           <Plus className="mr-2 h-4 w-4" /> Nueva Categoría
@@ -181,7 +181,7 @@ export function CategoriesPage() {
         <form onSubmit={handleSubmit}>
           <DialogContent className="space-y-4">
             {error && (
-              <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+              <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-600">
                 {error}
               </div>
             )}

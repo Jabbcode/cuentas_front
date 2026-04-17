@@ -33,14 +33,14 @@ export function ConfirmDialog({
     <Dialog open={open} onClose={onClose}>
       <DialogHeader>
         <DialogTitle className="flex items-center gap-3">
-          <div className={`rounded-full p-2 ${variant === 'danger' ? 'bg-red-100' : 'bg-orange-100'}`}>
-            <AlertTriangle className={`h-5 w-5 ${variant === 'danger' ? 'text-red-600' : 'text-orange-600'}`} />
+          <div className={`rounded-full p-2 ${variant === 'danger' ? 'bg-red-100 dark:bg-red-600/10' : 'bg-orange-100 dark:bg-yellow-600/10'}`}>
+            <AlertTriangle className={`h-5 w-5 ${variant === 'danger' ? 'text-red-600' : 'text-orange-600 dark:text-yellow-600'}`} />
           </div>
           {title}
         </DialogTitle>
       </DialogHeader>
       <DialogContent>
-        <p className="text-gray-600">{description}</p>
+        <p className="text-gray-600 dark:text-gray-500">{description}</p>
       </DialogContent>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={loading}>

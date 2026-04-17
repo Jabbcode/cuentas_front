@@ -17,7 +17,7 @@ export function RegisterPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-50">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
@@ -43,10 +43,10 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4 dark:from-gray-50 dark:to-gray-800">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-600/10">
             <Wallet className="h-6 w-6 text-blue-600" />
           </div>
           <CardTitle className="text-2xl font-bold">Crear cuenta</CardTitle>
@@ -55,7 +55,7 @@ export function RegisterPage() {
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-600/10">
                 {error}
               </div>
             )}
@@ -98,7 +98,7 @@ export function RegisterPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </Button>
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-center text-sm text-gray-500 dark:text-gray-500">
               ¿Ya tienes cuenta?{' '}
               <Link to="/login" className="font-medium text-blue-600 hover:underline">
                 Inicia sesión

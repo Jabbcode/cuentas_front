@@ -20,8 +20,8 @@ export function IconPicker({ value, onChange, color = '#3B82F6' }: IconPickerPro
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex h-12 w-12 items-center justify-center rounded-xl border-2 border-gray-200 bg-white transition-all hover:border-gray-300',
-          isOpen && 'border-blue-500 ring-2 ring-blue-200'
+          'flex h-12 w-12 items-center justify-center rounded-xl border-2 border-gray-200 bg-white transition-all hover:border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-300',
+          isOpen && 'border-blue-500 ring-2 ring-blue-200 dark:border-blue-600 dark:ring-blue-900/30'
         )}
       >
         <SelectedIcon className="h-6 w-6" style={{ color }} />
@@ -31,11 +31,11 @@ export function IconPicker({ value, onChange, color = '#3B82F6' }: IconPickerPro
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute left-0 top-14 z-20 w-72 rounded-lg border border-gray-200 bg-white p-3 shadow-xl">
+          <div className="absolute left-0 top-14 z-20 w-72 rounded-lg border border-gray-200 bg-white p-3 shadow-xl dark:border-gray-600 dark:bg-gray-800">
             <div className="max-h-64 overflow-y-auto space-y-3">
               {iconCategories.map((category) => (
                 <div key={category.name}>
-                  <p className="mb-1.5 text-xs font-medium text-gray-500">{category.name}</p>
+                  <p className="mb-1.5 text-xs font-medium text-gray-500 dark:text-gray-500">{category.name}</p>
                   <div className="flex flex-wrap gap-1">
                     {category.icons.map((iconName) => {
                       const Icon = categoryIcons[iconName];
@@ -49,8 +49,8 @@ export function IconPicker({ value, onChange, color = '#3B82F6' }: IconPickerPro
                             setIsOpen(false);
                           }}
                           className={cn(
-                            'flex h-8 w-8 items-center justify-center rounded-md transition-all hover:bg-gray-100',
-                            value === iconName && 'bg-blue-100 ring-2 ring-blue-500'
+                            'flex h-8 w-8 items-center justify-center rounded-md transition-all hover:bg-gray-100 dark:hover:bg-gray-700',
+                            value === iconName && 'bg-blue-100 ring-2 ring-blue-500 dark:bg-blue-600/10 dark:ring-blue-600'
                           )}
                           title={iconName}
                         >

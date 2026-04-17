@@ -15,7 +15,7 @@ export function DashboardPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent dark:border-blue-600" />
       </div>
     );
   }
@@ -24,8 +24,8 @@ export function DashboardPage() {
     <div className="space-y-4 lg:space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">Dashboard</h1>
-          <p className="text-sm text-gray-500 lg:text-base">Resumen de tus finanzas personales</p>
+          <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl dark:text-gray-50">Dashboard</h1>
+          <p className="text-sm text-gray-500 lg:text-base dark:text-gray-400">Resumen de tus finanzas personales</p>
         </div>
         <Button
           variant="outline"
