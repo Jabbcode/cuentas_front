@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Category } from '../types';
+import type { Category, CategorySpending } from '../types';
 
 export const categoriesApi = {
   getAll: async (type?: 'expense' | 'income'): Promise<Category[]> => {
@@ -25,5 +25,10 @@ export const categoriesApi = {
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/categories/${id}`);
+  },
+
+  getSpending: async (id: string): Promise<CategorySpending> => {
+    const response = await api.get(`/categories/${id}/spending`);
+    return response.data;
   },
 };

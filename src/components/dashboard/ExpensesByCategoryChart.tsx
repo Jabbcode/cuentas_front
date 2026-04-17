@@ -1,6 +1,7 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { CategoryIcon } from '../ui/category-icon';
+import { CategoryLimitBadge } from '../categories/CategoryLimitBadge';
 import { formatCurrency } from '../../lib/utils';
 import type { CategorySummary } from '../../types';
 
@@ -55,7 +56,7 @@ export function ExpensesByCategoryChart({ categories }: ExpensesByCategoryChartP
           <div className="w-full flex-1 space-y-1.5 lg:space-y-2">
             {categories.slice(0, 5).map((cat, index) => (
               <div key={cat.id} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <div
                     className="h-2.5 w-2.5 rounded-full lg:h-3 lg:w-3"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
@@ -63,9 +64,17 @@ export function ExpensesByCategoryChart({ categories }: ExpensesByCategoryChartP
                   <CategoryIcon icon={cat.icon} color={cat.color} size="sm" tooltip={cat.name} />
                   <span className="text-xs text-gray-700 lg:text-sm">{cat.name}</span>
                 </div>
-                <div className="text-right">
+                <div className="flex items-center gap-1.5 text-right">
                   <span className="text-xs font-medium text-gray-900 lg:text-sm">{formatCurrency(cat.total)}</span>
-                  <span className="ml-1 text-[10px] text-gray-500 lg:ml-2 lg:text-xs">({cat.percentage}%)</span>
+                  <span className="text-[10px] text-gray-500 lg:text-xs">({cat.percentage}%)</span>
+                  {cat.monthlyLimit && (
+                    <CategoryLimitBadge
+                      spent={cat.total}
+                      limit={cat.monthlyLimit}
+                      percentage={cat.monthlyLimit > 0 ? (cat.total / cat.monthlyLimit) * 100 : null}
+                      compact
+                    />
+                  )}
                 </div>
               </div>
             ))}

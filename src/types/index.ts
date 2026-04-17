@@ -26,6 +26,17 @@ export interface Category {
   type: 'expense' | 'income';
   icon?: string;
   color?: string;
+  monthlyLimit?: number;
+}
+
+export interface CategorySpending {
+  categoryId: string;
+  categoryName: string;
+  spent: number;
+  limit: number | null;
+  remaining: number | null;
+  percentage: number | null;
+  isOverLimit: boolean;
 }
 
 export interface Transaction {
@@ -85,6 +96,7 @@ export interface CategorySummary {
   name: string;
   icon?: string;
   color?: string;
+  monthlyLimit?: number;
   total: number;
   percentage: number;
 }
