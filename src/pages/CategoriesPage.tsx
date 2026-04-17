@@ -130,18 +130,38 @@ export function CategoriesPage() {
           {items.map((cat) => (
             <div
               key={cat.id}
-              className="flex items-center justify-between rounded-lg border border-gray-200 p-3 transition-all hover:shadow-sm"
+              className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3 transition-all hover:shadow-sm lg:flex-row lg:items-center lg:justify-between lg:gap-0"
             >
-              <div className="flex items-center gap-3 flex-1">
-                <CategoryIcon icon={cat.icon} color={cat.color} size="lg" tooltip={cat.name} />
-                <span className="font-medium text-gray-900">{cat.name}</span>
-                {cat.monthlyLimit && (
-                  <div className="ml-2">
-                    <CategoryLimitDisplay categoryId={cat.id} />
-                  </div>
-                )}
+              <div className="flex items-center justify-between lg:flex-1">
+                <div className="flex items-center gap-3">
+                  <CategoryIcon icon={cat.icon} color={cat.color} size="lg" tooltip={cat.name} />
+                  <span className="font-medium text-gray-900">{cat.name}</span>
+                  {cat.monthlyLimit && (
+                    <div className="ml-2 hidden lg:block">
+                      <CategoryLimitDisplay categoryId={cat.id} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-1 lg:hidden">
+                  <Button variant="ghost" size="icon" onClick={() => openForm(cat)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setDeleteId(cat.id)}
+                    className="text-gray-400 hover:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-1">
+              {cat.monthlyLimit && (
+                <div className="ml-11 lg:hidden">
+                  <CategoryLimitDisplay categoryId={cat.id} />
+                </div>
+              )}
+              <div className="hidden gap-1 lg:flex">
                 <Button variant="ghost" size="icon" onClick={() => openForm(cat)}>
                   <Pencil className="h-4 w-4" />
                 </Button>
