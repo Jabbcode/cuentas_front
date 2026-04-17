@@ -9,6 +9,7 @@ import { Label } from '../components/ui/label';
 import { Select } from '../components/ui/select';
 import { IconPicker } from '../components/ui/icon-picker';
 import { CategoryIcon } from '../components/ui/category-icon';
+import { CategoryLimitDisplay } from '../components/categories/CategoryLimitDisplay';
 import { categoriesApi } from '../api/categories.api';
 import { DEFAULT_ICON } from '../lib/category-icons';
 import type { Category } from '../types';
@@ -27,6 +28,7 @@ export function CategoriesPage() {
     type: 'expense' as 'expense' | 'income',
     icon: DEFAULT_ICON,
     color: '#3B82F6',
+    monthlyLimit: '',
   });
 
   const loadCategories = useCallback(async () => {
@@ -51,6 +53,7 @@ export function CategoriesPage() {
         type: category.type,
         icon: category.icon || DEFAULT_ICON,
         color: category.color || '#3B82F6',
+        monthlyLimit: category.monthlyLimit ? category.monthlyLimit.toString() : '',
       });
     } else {
       setEditingCategory(null);
@@ -59,6 +62,7 @@ export function CategoriesPage() {
         type: 'expense',
         icon: DEFAULT_ICON,
         color: '#3B82F6',
+        monthlyLimit: '',
       });
     }
     setShowForm(true);
@@ -73,6 +77,7 @@ export function CategoriesPage() {
         type: formData.type,
         icon: formData.icon,
         color: formData.color,
+        monthlyLimit: formData.monthlyLimit ? parseFloat(formData.monthlyLimit) : null,
       };
 
       if (editingCategory) {
@@ -127,9 +132,14 @@ export function CategoriesPage() {
               key={cat.id}
               className="flex items-center justify-between rounded-lg border border-gray-200 p-3 transition-all hover:shadow-sm"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-1">
                 <CategoryIcon icon={cat.icon} color={cat.color} size="lg" tooltip={cat.name} />
                 <span className="font-medium text-gray-900">{cat.name}</span>
+                {cat.monthlyLimit && (
+                  <div className="ml-2">
+                    <CategoryLimitDisplay categoryId={cat.id} monthlyLimit={cat.monthlyLimit} />
+                  </div>
+                )}
               </div>
               <div className="flex gap-1">
                 <Button variant="ghost" size="icon" onClick={() => openForm(cat)}>
@@ -236,6 +246,39 @@ export function CategoriesPage() {
                 </div>
               </div>
             </div>
+
+            {formData.type === 'expense' && (
+              <div>
+                <Label htmlFor="monthlyLimit">Límite Mensual (opcional)</Label>
+                <div className="relative">
+                  <Input
+                    id="monthlyLimit"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Ej: 500"
+                    value={formData.monthlyLimit}
+                    onChange={(e) => setFormData({ ...formData, monthlyLimit: e.target.value })}
+                    className={formData.monthlyLimit ? 'pr-8' : ''}
+                  />
+                  {formData.monthlyLimit && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, monthlyLimit: '' })}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      title="Quitar límite"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Establece un límite mensual de gasto para esta categoría. Puedes dejarlo vacío para quitar el límite.
+                </p>
+              </div>
+            )}
           </DialogContent>
 
           <DialogFooter>
