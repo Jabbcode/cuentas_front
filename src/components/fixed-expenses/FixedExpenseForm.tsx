@@ -31,6 +31,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
     description: '',
     accountId: '',
     categoryId: '',
+    creditCardAccountId: null as string | null,
   });
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
             description: expense.description || '',
             accountId: expense.accountId,
             categoryId: expense.categoryId,
+            creditCardAccountId: expense.creditCardAccountId || null,
           });
         } else {
           const defaultCategory = categoriesData.find((c) => c.type === 'expense');
@@ -181,21 +183,23 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
             />
           </div>
 
-          {/* Due Day */}
-          <div>
-            <Label htmlFor="dueDay">Día del mes</Label>
-            <Select
-              id="dueDay"
-              value={formData.dueDay}
-              onChange={(e) => setFormData({ ...formData, dueDay: e.target.value })}
-            >
-              {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                <option key={day} value={day}>
-                  Día {day}
-                </option>
-              ))}
-            </Select>
-          </div>
+          {/* Due Day - Hidden for credit card sync'd expenses */}
+          {!formData.creditCardAccountId && (
+            <div>
+              <Label htmlFor="dueDay">Día del mes</Label>
+              <Select
+                id="dueDay"
+                value={formData.dueDay}
+                onChange={(e) => setFormData({ ...formData, dueDay: e.target.value })}
+              >
+                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                  <option key={day} value={day}>
+                    Día {day}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          )}
 
           {/* Account */}
           <div>

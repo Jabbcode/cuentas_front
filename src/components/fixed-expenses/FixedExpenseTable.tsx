@@ -71,9 +71,10 @@ export function FixedExpenseTable({
   };
 
   const getStatusBadge = (item: FixedExpenseWithStatus) => {
-    const daysUntil = getDaysUntilDue(item.dueDay);
-    const dueSoon = isDueSoon(item.dueDay) && !item.isPaidThisMonth;
-    const overdue = isOverdue(item.dueDay) && !item.isPaidThisMonth;
+    const isCreditCard = !!item.creditCardAccountId;
+    const daysUntil = getDaysUntilDue(item.dueDay, item.isPaidThisMonth, isCreditCard);
+    const dueSoon = isDueSoon(item.dueDay, item.isPaidThisMonth, isCreditCard);
+    const overdue = isOverdue(item.dueDay, item.isPaidThisMonth, isCreditCard);
 
     if (item.isPaidThisMonth) {
       return (
@@ -93,8 +94,9 @@ export function FixedExpenseTable({
   };
 
   const MobileCard = ({ item }: { item: FixedExpenseWithStatus }) => {
-    const overdue = isOverdue(item.dueDay) && !item.isPaidThisMonth;
-    const dueSoon = isDueSoon(item.dueDay) && !item.isPaidThisMonth && !overdue;
+    const isCreditCard = !!item.creditCardAccountId;
+    const overdue = isOverdue(item.dueDay, item.isPaidThisMonth, isCreditCard);
+    const dueSoon = isDueSoon(item.dueDay, item.isPaidThisMonth, isCreditCard) && !overdue;
 
     return (
       <div
@@ -125,7 +127,7 @@ export function FixedExpenseTable({
               <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
                 <span className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  {formatShortDate(getNextDueDate(item.dueDay))}
+                  {formatShortDate(getNextDueDate(item.dueDay, item.isPaidThisMonth, isCreditCard))}
                 </span>
                 <span>•</span>
                 <span>{item.account?.name}</span>
@@ -174,8 +176,9 @@ export function FixedExpenseTable({
   };
 
   const DesktopRow = ({ item }: { item: FixedExpenseWithStatus }) => {
-    const overdue = isOverdue(item.dueDay) && !item.isPaidThisMonth;
-    const dueSoon = isDueSoon(item.dueDay) && !item.isPaidThisMonth && !overdue;
+    const isCreditCard = !!item.creditCardAccountId;
+    const overdue = isOverdue(item.dueDay, item.isPaidThisMonth, isCreditCard);
+    const dueSoon = isDueSoon(item.dueDay, item.isPaidThisMonth, isCreditCard) && !overdue;
 
     return (
       <tr
@@ -207,7 +210,7 @@ export function FixedExpenseTable({
           </div>
         </td>
         <td className="px-3 py-2 text-center">
-          <span className="text-sm font-medium text-gray-700">{formatShortDate(getNextDueDate(item.dueDay))}</span>
+          <span className="text-sm font-medium text-gray-700">{formatShortDate(getNextDueDate(item.dueDay, item.isPaidThisMonth, isCreditCard))}</span>
         </td>
         <td className="px-3 py-2 text-right">
           <span className={cn(
