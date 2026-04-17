@@ -137,7 +137,7 @@ export function CategoriesPage() {
                 <span className="font-medium text-gray-900">{cat.name}</span>
                 {cat.monthlyLimit && (
                   <div className="ml-2">
-                    <CategoryLimitDisplay categoryId={cat.id} monthlyLimit={cat.monthlyLimit} />
+                    <CategoryLimitDisplay categoryId={cat.id} />
                   </div>
                 )}
               </div>

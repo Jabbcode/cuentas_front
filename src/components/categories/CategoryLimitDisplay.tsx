@@ -5,10 +5,9 @@ import type { CategorySpending } from '../../types';
 
 interface CategoryLimitDisplayProps {
   categoryId: string;
-  monthlyLimit: number;
 }
 
-export function CategoryLimitDisplay({ categoryId, monthlyLimit }: CategoryLimitDisplayProps) {
+export function CategoryLimitDisplay({ categoryId }: CategoryLimitDisplayProps) {
   const [spending, setSpending] = useState<CategorySpending | null>(null);
   const [loading, setLoading] = useState(true);
 

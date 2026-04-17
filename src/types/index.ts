@@ -26,7 +26,7 @@ export interface Category {
   type: 'expense' | 'income';
   icon?: string;
   color?: string;
-  monthlyLimit?: number;
+  monthlyLimit?: number | null;
 }
 
 export interface CategorySpending {
@@ -96,7 +96,7 @@ export interface CategorySummary {
   name: string;
   icon?: string;
   color?: string;
-  monthlyLimit?: number;
+  monthlyLimit?: number | null;
   total: number;
   percentage: number;
 }
