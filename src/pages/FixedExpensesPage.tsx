@@ -62,7 +62,12 @@ export function FixedExpensesPage() {
   const expenseCategories = useMemo(() => {
     const categories = new Map<string, CategoryInfo>();
     summary?.items
-      .filter((item) => item.type === 'expense' && item.category)
+      .filter((item) =>
+        item.type === 'expense' &&
+        item.category &&
+        !item.creditCardAccountId &&
+        !item.recurringDebtPaymentId
+      )
       .forEach((item) => {
         if (item.category && !categories.has(item.category.id)) {
           categories.set(item.category.id, item.category);
@@ -110,13 +115,13 @@ export function FixedExpensesPage() {
 
   // Credit Card items (separate from regular expenses)
   const creditCardItems = useMemo(() => {
-    const items = summary?.items.filter((item) => item.creditCardAccountId) || [];
+    const items = summary?.items.filter((item) => item.creditCardAccountId && item.isActive) || [];
     return items.sort((a, b) => a.dueDay - b.dueDay);
   }, [summary]);
 
   // Recurring Debt Payment items (separate from regular expenses)
   const debtPaymentItems = useMemo(() => {
-    const items = summary?.items.filter((item) => item.recurringDebtPaymentId) || [];
+    const items = summary?.items.filter((item) => item.recurringDebtPaymentId && item.isActive) || [];
     return items.sort((a, b) => a.dueDay - b.dueDay);
   }, [summary]);
 
