@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Transaction, TransactionsResponse } from '../types';
+import type { Transaction, TransactionsResponse, ReceiptItem } from '../types';
 
 export interface TransactionFilters {
   startDate?: string;
@@ -31,6 +31,12 @@ export const transactionsApi = {
     categoryId: string;
     fixedExpenseId?: string;
     imageHash?: string;
+    receiptItems?: Array<{
+      name: string;
+      quantity: number;
+      unitPrice: number;
+      totalPrice: number;
+    }>;
   }): Promise<Transaction> => {
     const response = await api.post('/transactions', data);
     return response.data;
@@ -43,5 +49,10 @@ export const transactionsApi = {
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/transactions/${id}`);
+  },
+
+  getReceiptItems: async (transactionId: string): Promise<ReceiptItem[]> => {
+    const response = await api.get(`/transactions/${transactionId}/items`);
+    return response.data;
   },
 };

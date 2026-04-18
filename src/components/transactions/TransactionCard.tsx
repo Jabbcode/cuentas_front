@@ -1,4 +1,4 @@
-import { Trash2, CreditCard, Pencil } from 'lucide-react';
+import { Trash2, CreditCard, Pencil, Receipt, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -12,6 +12,8 @@ interface TransactionCardProps {
   accounts: Account[];
   onDelete: (id: string) => void;
   onEdit: (transaction: Transaction) => void;
+  onViewItems?: (transaction: Transaction) => void;
+  isLoadingItems?: boolean;
 }
 
 export function TransactionCard({
@@ -19,6 +21,8 @@ export function TransactionCard({
   accounts,
   onDelete,
   onEdit,
+  onViewItems,
+  isLoadingItems = false,
 }: TransactionCardProps) {
   const creditCardPeriod = getCreditCardPeriod(
     tx,
@@ -26,6 +30,10 @@ export function TransactionCard({
   );
   const isCreditCard =
     accounts.find((acc) => acc.id === tx.accountId)?.type === 'credit_card';
+
+  // Check if transaction has receipt items - explicit check
+  const itemsLength = tx.receiptItems?.length ?? tx._count?.receiptItems ?? 0;
+  const hasReceiptItems = itemsLength > 0;
 
   return (
     <Card className="transition-all hover:shadow-md">
@@ -66,6 +74,22 @@ export function TransactionCard({
             {tx.type === 'income' ? '+' : '-'}
             {formatCurrency(Number(tx.amount))}
           </span>
+          {hasReceiptItems && onViewItems && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onViewItems(tx)}
+              disabled={isLoadingItems}
+              className="h-8 w-8 text-gray-400 hover:text-purple-600 pointer"
+              title={isLoadingItems ? 'Cargando items...' : `Ver detalle (${itemsLength} items)`}
+            >
+              {isLoadingItems ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Receipt className="h-4 w-4" />
+              )}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"

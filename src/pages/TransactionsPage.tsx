@@ -12,6 +12,7 @@ import { TransactionGroupedView } from '../components/transactions/TransactionGr
 import { TransactionPagination } from '../components/transactions/TransactionPagination';
 import { EditTransactionModal } from '../components/transactions/EditTransactionModal';
 import { ReceiptScanner } from '../components/transactions/ReceiptScanner';
+import { ReceiptItemsModal } from '../components/receipts/ReceiptItemsModal';
 import { useTransactions } from '../hooks/useTransactions';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
 import { usePagination } from '../hooks/usePagination';
@@ -27,6 +28,8 @@ export function TransactionsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [viewingItems, setViewingItems] = useState<Transaction | null>(null);
+  const [loadingItemsId, setLoadingItemsId] = useState<string | null>(null);
 
   // Paginación
   const pagination = usePagination(20);
@@ -54,6 +57,7 @@ export function TransactionsPage() {
       accountId: accounts.length > 0 ? accounts[0].id : '',
       categoryId: categories.find((c) => c.type === 'expense')?.id || '',
       imageHash: undefined as string | undefined,
+      receiptItems: [] as Array<{ name: string; quantity: number; unitPrice: number; totalPrice: number }>,
     }),
     [accounts, categories]
   );
@@ -66,6 +70,7 @@ export function TransactionsPage() {
     accountId: '',
     categoryId: '',
     imageHash: '' as string | undefined,
+    receiptItems: [] as Array<{ name: string; quantity: number; unitPrice: number; totalPrice: number }>,
   });
 
   const filteredCategories = categories.filter((c) => c.type === formData.type);
@@ -127,6 +132,7 @@ export function TransactionsPage() {
       accountId: accounts.length > 0 ? accounts[0].id : '',
       categoryId,
       imageHash: scannedData.imageHash,
+      receiptItems: scannedData.items || [],
     });
 
     // Open form
@@ -144,10 +150,30 @@ export function TransactionsPage() {
         accountId: formData.accountId,
         categoryId: formData.categoryId,
         imageHash: formData.imageHash || undefined,
+        receiptItems: formData.receiptItems.length > 0 ? formData.receiptItems : undefined,
       });
       handleCloseForm();
       reload();
     } catch (error) {
+    }
+  };
+
+  const handleViewItems = async (transaction: Transaction) => {
+    // If items are already loaded, just show them
+    if (transaction.receiptItems && transaction.receiptItems.length > 0) {
+      setViewingItems(transaction);
+      return;
+    }
+
+    // Otherwise, load items from API
+    setLoadingItemsId(transaction.id);
+    try {
+      const items = await transactionsApi.getReceiptItems(transaction.id);
+      setViewingItems({ ...transaction, receiptItems: items });
+    } catch (error) {
+      console.error('Error loading receipt items:', error);
+    } finally {
+      setLoadingItemsId(null);
     }
   };
 
@@ -235,6 +261,8 @@ export function TransactionsPage() {
           accounts={accounts}
           onDelete={setDeleteId}
           onEdit={handleEdit}
+          onViewItems={handleViewItems}
+          loadingItemsId={loadingItemsId}
           onCreateClick={handleOpenForm}
         />
       ) : (
@@ -244,6 +272,8 @@ export function TransactionsPage() {
             accounts={accounts}
             onDelete={setDeleteId}
             onEdit={handleEdit}
+            onViewItems={handleViewItems}
+            loadingItemsId={loadingItemsId}
             onCreateClick={handleOpenForm}
           />
         )
@@ -416,6 +446,16 @@ export function TransactionsPage() {
         onClose={() => setShowScanner(false)}
         onScanned={handleScannedReceipt}
       />
+
+      {/* Receipt Items Modal */}
+      {viewingItems && viewingItems.receiptItems && (
+        <ReceiptItemsModal
+          open={!loadingItemsId}
+          onClose={() => setViewingItems(null)}
+          items={viewingItems.receiptItems}
+          transactionAmount={Number(viewingItems.amount)}
+        />
+      )}
     </div>
   );
 }

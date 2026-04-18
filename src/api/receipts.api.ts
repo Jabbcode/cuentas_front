@@ -8,6 +8,12 @@ export interface ScanReceiptData {
   confidence: 'high' | 'medium' | 'low';
   rawText?: string;
   imageHash: string;
+  items?: Array<{
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }>;
 }
 
 export interface ExistingTransaction {
