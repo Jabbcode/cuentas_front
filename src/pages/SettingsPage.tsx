@@ -32,6 +32,7 @@ export function SettingsPage() {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -49,8 +50,12 @@ export function SettingsPage() {
       ]);
       setProfile(profileData);
       setStatistics(statsData);
-    } catch (error: any) {
-      showMessage('error', error.response?.data?.error || 'Error loading data');
+    } catch (err: unknown) {
+      showMessage(
+        'error',
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+          'Error loading data'
+      );
     }
   };
 
@@ -70,8 +75,12 @@ export function SettingsPage() {
       });
       setProfile(updatedProfile);
       showMessage('success', 'Profile updated successfully');
-    } catch (error: any) {
-      showMessage('error', error.response?.data?.error || 'Error updating profile');
+    } catch (err: unknown) {
+      showMessage(
+        'error',
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+          'Error updating profile'
+      );
     } finally {
       setLoading(false);
     }
@@ -91,8 +100,12 @@ export function SettingsPage() {
       setNewPassword('');
       setConfirmPassword('');
       showMessage('success', 'Password changed successfully');
-    } catch (error: any) {
-      showMessage('error', error.response?.data?.error || 'Error changing password');
+    } catch (err: unknown) {
+      showMessage(
+        'error',
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+          'Error changing password'
+      );
     } finally {
       setLoading(false);
     }
@@ -121,8 +134,12 @@ export function SettingsPage() {
       setTimeout(() => {
         logout();
       }, 2000);
-    } catch (error: any) {
-      showMessage('error', error.response?.data?.error || 'Error deleting account');
+    } catch (err: unknown) {
+      showMessage(
+        'error',
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+          'Error deleting account'
+      );
       setLoading(false);
     }
   };

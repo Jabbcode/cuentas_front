@@ -1,7 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Plus, ArrowUpCircle, ArrowDownCircle, AlertTriangle, Camera } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../components/ui/dialog';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../components/ui/dialog';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -57,7 +63,12 @@ export function TransactionsPage() {
       accountId: accounts.length > 0 ? accounts[0].id : '',
       categoryId: categories.find((c) => c.type === 'expense')?.id || '',
       imageHash: undefined as string | undefined,
-      receiptItems: [] as Array<{ name: string; quantity: number; unitPrice: number; totalPrice: number }>,
+      receiptItems: [] as Array<{
+        name: string;
+        quantity: number;
+        unitPrice: number;
+        totalPrice: number;
+      }>,
     }),
     [accounts, categories]
   );
@@ -70,7 +81,12 @@ export function TransactionsPage() {
     accountId: '',
     categoryId: '',
     imageHash: '' as string | undefined,
-    receiptItems: [] as Array<{ name: string; quantity: number; unitPrice: number; totalPrice: number }>,
+    receiptItems: [] as Array<{
+      name: string;
+      quantity: number;
+      unitPrice: number;
+      totalPrice: number;
+    }>,
   });
 
   const filteredCategories = categories.filter((c) => c.type === formData.type);
@@ -116,7 +132,9 @@ export function TransactionsPage() {
     let categoryId = formData.categoryId;
     if (scannedData.suggestedCategory) {
       const matchedCategory = categories.find(
-        (c) => c.type === 'expense' && c.name.toLowerCase() === scannedData.suggestedCategory?.toLowerCase()
+        (c) =>
+          c.type === 'expense' &&
+          c.name.toLowerCase() === scannedData.suggestedCategory?.toLowerCase()
       );
       if (matchedCategory) {
         categoryId = matchedCategory.id;
@@ -154,7 +172,8 @@ export function TransactionsPage() {
       });
       handleCloseForm();
       reload();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error creating transaction:', err);
     }
   };
 
@@ -184,7 +203,8 @@ export function TransactionsPage() {
       await transactionsApi.delete(deleteId);
       setDeleteId(null);
       reload();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error deleting transaction:', err);
     } finally {
       setDeleting(false);
     }
@@ -194,19 +214,18 @@ export function TransactionsPage() {
     setEditingTransaction(transaction);
   };
 
-  const handleSaveEdit = async (id: string, data: any) => {
-    try {
-      await transactionsApi.update(id, {
-        description: data.description || undefined,
-        categoryId: data.categoryId,
-        date: new Date(data.date).toISOString(),
-        amount: parseFloat(data.amount),
-      });
-      setEditingTransaction(null);
-      reload();
-    } catch (error) {
-      throw error;
-    }
+  const handleSaveEdit = async (
+    id: string,
+    data: { description?: string; categoryId: string; date: string; amount: string }
+  ) => {
+    await transactionsApi.update(id, {
+      description: data.description || undefined,
+      categoryId: data.categoryId,
+      date: new Date(data.date).toISOString(),
+      amount: parseFloat(data.amount),
+    });
+    setEditingTransaction(null);
+    reload();
   };
 
   if (loading) {
@@ -228,7 +247,11 @@ export function TransactionsPage() {
           </p>
         </div>
         <div className="flex flex-col gap-3 md:flex-row md:gap-4">
-          <Button variant="outline" onClick={() => setShowScanner(true)} className="w-full md:w-auto">
+          <Button
+            variant="outline"
+            onClick={() => setShowScanner(true)}
+            className="w-full md:w-auto"
+          >
             <Camera className="mr-2 h-4 w-4" /> Escanear Factura
           </Button>
           <Button onClick={handleOpenForm} className="w-full md:w-auto">
@@ -435,7 +458,11 @@ export function TransactionsPage() {
         open={!!editingTransaction}
         transaction={editingTransaction}
         categories={categories}
-        account={editingTransaction ? accounts.find(a => a.id === editingTransaction.accountId) || null : null}
+        account={
+          editingTransaction
+            ? accounts.find((a) => a.id === editingTransaction.accountId) || null
+            : null
+        }
         onClose={() => setEditingTransaction(null)}
         onSave={handleSaveEdit}
       />

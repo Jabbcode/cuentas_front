@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../components/ui/dialog';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../components/ui/dialog';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -36,13 +42,16 @@ export function AccountsPage() {
 
   // Group accounts by type
   const groupAccountsByType = (accounts: Account[]) => {
-    const grouped = accounts.reduce((acc, account) => {
-      if (!acc[account.type]) {
-        acc[account.type] = [];
-      }
-      acc[account.type].push(account);
-      return acc;
-    }, {} as Record<Account['type'], Account[]>);
+    const grouped = accounts.reduce(
+      (acc, account) => {
+        if (!acc[account.type]) {
+          acc[account.type] = [];
+        }
+        acc[account.type].push(account);
+        return acc;
+      },
+      {} as Record<Account['type'], Account[]>
+    );
 
     return grouped;
   };
@@ -101,7 +110,17 @@ export function AccountsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const data: any = {
+      const data: {
+        name: string;
+        type: 'cash' | 'bank' | 'credit_card';
+        balance: number;
+        currency: string;
+        color: string;
+        creditLimit?: number;
+        cutoffDay?: number;
+        paymentDueDay?: number;
+        paymentAccountId?: string;
+      } = {
         name: formData.name,
         type: formData.type,
         balance: parseFloat(formData.balance),
@@ -124,7 +143,8 @@ export function AccountsPage() {
 
       setShowForm(false);
       reload();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error saving account:', err);
     }
   };
 
@@ -135,7 +155,8 @@ export function AccountsPage() {
       await accountsApi.delete(deleteId);
       setDeleteId(null);
       reload();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error deleting account:', err);
     } finally {
       setDeleting(false);
     }
@@ -157,7 +178,8 @@ export function AccountsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Cuentas</h1>
           <p className="text-gray-500">
-            Balance total: <span className="font-semibold text-gray-900">{formatCurrency(totalBalance)}</span>
+            Balance total:{' '}
+            <span className="font-semibold text-gray-900">{formatCurrency(totalBalance)}</span>
           </p>
         </div>
         <Button onClick={() => openForm()}>
@@ -190,9 +212,7 @@ export function AccountsPage() {
                     <h2 className="text-lg font-semibold text-gray-900">
                       {accountTypeLabels[type]}
                     </h2>
-                    <span className="text-sm text-gray-500">
-                      ({accountsOfType.length})
-                    </span>
+                    <span className="text-sm text-gray-500">({accountsOfType.length})</span>
                   </button>
                   {isExpanded && (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -236,7 +256,12 @@ export function AccountsPage() {
               <Select
                 id="type"
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as 'cash' | 'bank' | 'credit_card' })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    type: e.target.value as 'cash' | 'bank' | 'credit_card',
+                  })
+                }
               >
                 <option value="bank">Banco</option>
                 <option value="cash">Efectivo</option>
@@ -282,7 +307,8 @@ export function AccountsPage() {
                     Configuración de Tarjeta de Crédito
                   </p>
                   <p className="text-xs text-purple-700">
-                    Completa estos campos para habilitar el seguimiento de períodos de corte y pagos.
+                    Completa estos campos para habilitar el seguimiento de períodos de corte y
+                    pagos.
                   </p>
                 </div>
 
@@ -297,7 +323,9 @@ export function AccountsPage() {
                     value={formData.creditLimit}
                     onChange={(e) => setFormData({ ...formData, creditLimit: e.target.value })}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Monto máximo disponible en la tarjeta</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Monto máximo disponible en la tarjeta
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -358,9 +386,7 @@ export function AccountsPage() {
             <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
               Cancelar
             </Button>
-            <Button type="submit">
-              {editingAccount ? 'Guardar' : 'Crear'}
-            </Button>
+            <Button type="submit">{editingAccount ? 'Guardar' : 'Crear'}</Button>
           </DialogFooter>
         </form>
       </Dialog>

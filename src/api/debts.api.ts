@@ -28,7 +28,7 @@ export const debtsApi = {
     return data;
   },
 
-  async pay(id: string, input: PayDebtInput): Promise<any> {
+  async pay(id: string, input: PayDebtInput): Promise<{ message: string; payment: unknown }> {
     const { data } = await api.post(`/debts/${id}/pay`, input);
     return data;
   },

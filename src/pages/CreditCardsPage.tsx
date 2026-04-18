@@ -24,13 +24,14 @@ export function CreditCardsPage() {
   // Initialize all cards as collapsed by default
   useEffect(() => {
     if (statements.length > 0 && collapsedCards.size === 0) {
-      const allCardIds = statements.map(s => s.account.id);
+      const allCardIds = statements.map((s) => s.account.id);
       setCollapsedCards(new Set(allCardIds));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statements]);
 
   const toggleCardCollapse = (accountId: string) => {
-    setCollapsedCards(prev => {
+    setCollapsedCards((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(accountId)) {
         newSet.delete(accountId);
@@ -41,7 +42,7 @@ export function CreditCardsPage() {
     });
   };
 
-  const handleOpenPayment = (statement: any) => {
+  const handleOpenPayment = (statement: CreditCardStatement) => {
     paymentModal.openModal(statement, defaultAccountId);
   };
 
@@ -70,7 +71,8 @@ export function CreditCardsPage() {
       });
       handleClosePayment();
       reload();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error paying credit card:', err);
     } finally {
       setPaying(false);
     }

@@ -11,7 +11,8 @@ export function useRecurringDebtPayments(debtId?: string) {
     try {
       const data = await recurringDebtPaymentsApi.getAll(debtId);
       setRecurringPayments(data);
-    } catch (error) {
+    } catch (err) {
+      console.error('Error loading recurring payments:', err);
     } finally {
       setLoading(false);
     }
@@ -25,23 +26,21 @@ export function useRecurringDebtPayments(debtId?: string) {
     loadRecurringPayments();
   }, [loadRecurringPayments]);
 
-  const deleteRecurringPayment = useCallback(async (id: string) => {
-    try {
+  const deleteRecurringPayment = useCallback(
+    async (id: string) => {
       await recurringDebtPaymentsApi.delete(id);
       reload();
-    } catch (error) {
-      throw error;
-    }
-  }, [reload]);
+    },
+    [reload]
+  );
 
-  const toggleActive = useCallback(async (id: string, isActive: boolean) => {
-    try {
+  const toggleActive = useCallback(
+    async (id: string, isActive: boolean) => {
       await recurringDebtPaymentsApi.update(id, { isActive });
       reload();
-    } catch (error) {
-      throw error;
-    }
-  }, [reload]);
+    },
+    [reload]
+  );
 
   return {
     recurringPayments,

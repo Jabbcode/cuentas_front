@@ -50,6 +50,7 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
       // Start with interest only for custom mode
       setAmount(interest > 0 ? interest.toFixed(2) : '');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debt, interest, paymentMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,14 +60,15 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
     try {
       await onPay(parseFloat(amount), accountId, notes || undefined);
       onClose();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error processing payment:', err);
     } finally {
       setLoading(false);
     }
   };
 
   // Filter accounts with sufficient balance
-  const availableAccounts = accounts.filter(acc => Number(acc.balance) >= paymentAmount);
+  const availableAccounts = accounts.filter((acc) => Number(acc.balance) >= paymentAmount);
 
   return (
     <Dialog open onClose={onClose}>
@@ -113,9 +115,7 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
                 }`}
               >
                 ✏️ Monto Personalizado
-                <p className="text-xs font-normal mt-1 text-gray-600">
-                  Elige el monto
-                </p>
+                <p className="text-xs font-normal mt-1 text-gray-600">Elige el monto</p>
               </button>
             </div>
           </div>
@@ -139,7 +139,10 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
                 value={amount}
                 onChange={(e) => {
                   setAmount(e.target.value);
-                  if (paymentMode === 'full' && e.target.value !== (Number(debt.remainingAmount) + interest).toFixed(2)) {
+                  if (
+                    paymentMode === 'full' &&
+                    e.target.value !== (Number(debt.remainingAmount) + interest).toFixed(2)
+                  ) {
                     setPaymentMode('custom');
                   }
                 }}
@@ -173,14 +176,17 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
             <div className="mt-2 space-y-1 text-xs">
               {interest > 0 && (
                 <p className="text-gray-600">
-                  • Interés calculado: <span className="font-medium">{formatCurrency(interest)}</span>
+                  • Interés calculado:{' '}
+                  <span className="font-medium">{formatCurrency(interest)}</span>
                 </p>
               )}
               <p className="text-gray-600">
-                • Aplicado al principal: <span className="font-medium text-blue-600">{formatCurrency(principal)}</span>
+                • Aplicado al principal:{' '}
+                <span className="font-medium text-blue-600">{formatCurrency(principal)}</span>
               </p>
               <p className="text-gray-900 font-medium">
-                • Nuevo saldo restante: <span className={newRemaining <= 0 ? 'text-green-600' : 'text-orange-600'}>
+                • Nuevo saldo restante:{' '}
+                <span className={newRemaining <= 0 ? 'text-green-600' : 'text-orange-600'}>
                   {formatCurrency(Math.max(0, newRemaining))}
                 </span>
                 {newRemaining <= 0 && ' ✓ Deuda liquidada'}
@@ -238,10 +244,7 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
           <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
             Cancelar
           </Button>
-          <Button
-            type="submit"
-            disabled={loading || !accountId || availableAccounts.length === 0}
-          >
+          <Button type="submit" disabled={loading || !accountId || availableAccounts.length === 0}>
             {loading ? 'Procesando...' : 'Confirmar Pago'}
           </Button>
         </DialogFooter>

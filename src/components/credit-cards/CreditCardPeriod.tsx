@@ -2,12 +2,13 @@ import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { formatCurrency, formatDate } from '../../lib/utils';
 import { getDaysColor } from '../../lib/credit-card-utils';
+import type { Transaction } from '../../types';
 
 interface ClosedPeriodData {
   startDate: string;
   endDate: string;
   balance: number;
-  transactions: any[];
+  transactions: Transaction[];
   isPaid: boolean;
   paymentDueDate: string;
   daysUntilDue: number;
@@ -17,7 +18,7 @@ interface CurrentPeriodData {
   startDate: string;
   endDate: string;
   balance: number;
-  transactions: any[];
+  transactions: Transaction[];
   daysUntilCutoff: number;
 }
 
@@ -35,12 +36,8 @@ export function CreditCardPeriod({ type, period, onPayClick }: CreditCardPeriodP
   return (
     <div className="rounded-lg border border-gray-200 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h4 className="font-medium text-gray-900">
-          {isClosed ? 'A Pagar' : 'Período Actual'}
-        </h4>
-        {isClosed && closedPeriod.isPaid && (
-          <Badge variant="success">Pagado</Badge>
-        )}
+        <h4 className="font-medium text-gray-900">{isClosed ? 'A Pagar' : 'Período Actual'}</h4>
+        {isClosed && closedPeriod.isPaid && <Badge variant="success">Pagado</Badge>}
       </div>
 
       <div className="space-y-2 text-sm">
@@ -52,9 +49,7 @@ export function CreditCardPeriod({ type, period, onPayClick }: CreditCardPeriodP
         </div>
 
         <div className="flex justify-between">
-          <span className="text-gray-600">
-            {isClosed ? 'Monto:' : 'Acumulado:'}
-          </span>
+          <span className="text-gray-600">{isClosed ? 'Monto:' : 'Acumulado:'}</span>
           <span
             className={`text-lg font-bold ${
               isClosed
@@ -64,9 +59,7 @@ export function CreditCardPeriod({ type, period, onPayClick }: CreditCardPeriodP
                 : 'text-orange-600'
             }`}
           >
-            {isClosed && period.balance === 0
-              ? 'Sin saldo'
-              : formatCurrency(period.balance)}
+            {isClosed && period.balance === 0 ? 'Sin saldo' : formatCurrency(period.balance)}
           </span>
         </div>
 
@@ -86,10 +79,10 @@ export function CreditCardPeriod({ type, period, onPayClick }: CreditCardPeriodP
                   {closedPeriod.daysUntilDue === 0
                     ? 'hoy'
                     : closedPeriod.daysUntilDue === 1
-                    ? 'mañana'
-                    : closedPeriod.daysUntilDue < 0
-                    ? `vencido`
-                    : `${closedPeriod.daysUntilDue}d`}
+                      ? 'mañana'
+                      : closedPeriod.daysUntilDue < 0
+                        ? `vencido`
+                        : `${closedPeriod.daysUntilDue}d`}
                   )
                 </span>
               )}
@@ -112,13 +105,8 @@ export function CreditCardPeriod({ type, period, onPayClick }: CreditCardPeriodP
       </div>
 
       {isClosed && !closedPeriod.isPaid && onPayClick && (
-        <Button
-          onClick={onPayClick}
-          disabled={closedPeriod.balance === 0}
-          className="w-full mt-3"
-        >
-          Pagar{' '}
-          {closedPeriod.balance > 0 && formatCurrency(closedPeriod.balance)}
+        <Button onClick={onPayClick} disabled={closedPeriod.balance === 0} className="w-full mt-3">
+          Pagar {closedPeriod.balance > 0 && formatCurrency(closedPeriod.balance)}
         </Button>
       )}
     </div>

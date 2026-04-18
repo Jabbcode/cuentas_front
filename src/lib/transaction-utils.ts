@@ -9,9 +9,7 @@ export interface GroupedTransaction {
 /**
  * Agrupa transacciones por categoría y calcula totales
  */
-export function groupTransactionsByCategory(
-  transactions: Transaction[]
-): GroupedTransaction[] {
+export function groupTransactionsByCategory(transactions: Transaction[]): GroupedTransaction[] {
   const groups = new Map<string, GroupedTransaction>();
 
   transactions.forEach((tx) => {
@@ -38,11 +36,7 @@ export function groupTransactionsByCategory(
 /**
  * Calcula información de paginación
  */
-export function calculatePaginationInfo(
-  currentPage: number,
-  total: number,
-  itemsPerPage: number
-) {
+export function calculatePaginationInfo(currentPage: number, total: number, itemsPerPage: number) {
   const totalPages = Math.ceil(total / itemsPerPage);
   const startItem = total === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, total);
@@ -69,7 +63,14 @@ export function buildTransactionFilters(params: {
 }) {
   const { currentPage, itemsPerPage, startDate, endDate, categoryId, type } = params;
 
-  const filters: any = {
+  const filters: {
+    limit: number;
+    offset: number;
+    startDate?: string;
+    endDate?: string;
+    categoryId?: string;
+    type?: 'expense' | 'income';
+  } = {
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
   };

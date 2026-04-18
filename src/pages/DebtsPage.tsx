@@ -15,7 +15,12 @@ import type { Debt, RecurringDebtPayment } from '../types';
 
 export function DebtsPage() {
   const { debts, loading, reload, deleteDebt, payDebt } = useDebts();
-  const { recurringPayments, reload: reloadRecurring, deleteRecurringPayment, toggleActive } = useRecurringDebtPayments();
+  const {
+    recurringPayments,
+    reload: reloadRecurring,
+    deleteRecurringPayment,
+    toggleActive,
+  } = useRecurringDebtPayments();
   const [showForm, setShowForm] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | undefined>();
   const [payingDebt, setPayingDebt] = useState<Debt | undefined>();
@@ -32,7 +37,8 @@ export function DebtsPage() {
     try {
       await deleteDebt(deleteId);
       setDeleteId(null);
-    } catch (error) {
+    } catch (err) {
+      console.error('Error deleting debt:', err);
     } finally {
       setDeleting(false);
     }
@@ -49,7 +55,8 @@ export function DebtsPage() {
     try {
       await deleteRecurringPayment(deleteRecurringId);
       setDeleteRecurringId(null);
-    } catch (error) {
+    } catch (err) {
+      console.error('Error deleting recurring payment:', err);
     } finally {
       setDeleting(false);
     }
@@ -59,9 +66,9 @@ export function DebtsPage() {
     return recurringPayments.filter((rp) => rp.debtId === debtId);
   };
 
-  const activeDebts = debts.filter(d => d.status === 'active');
-  const overdueDebts = debts.filter(d => d.status === 'overdue');
-  const paidDebts = debts.filter(d => d.status === 'paid');
+  const activeDebts = debts.filter((d) => d.status === 'active');
+  const overdueDebts = debts.filter((d) => d.status === 'overdue');
+  const paidDebts = debts.filter((d) => d.status === 'paid');
 
   const totalActiveDebt = activeDebts.reduce((sum, d) => sum + Number(d.remainingAmount), 0);
   const totalOverdueDebt = overdueDebts.reduce((sum, d) => sum + Number(d.remainingAmount), 0);
@@ -79,9 +86,7 @@ export function DebtsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Deudas</h1>
-          <p className="text-gray-500">
-            Gestiona tus deudas y realiza pagos
-          </p>
+          <p className="text-gray-500">Gestiona tus deudas y realiza pagos</p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" /> Nueva Deuda
@@ -129,7 +134,10 @@ export function DebtsPage() {
                   <div key={debt.id} className="space-y-3">
                     <DebtCard
                       debt={debt}
-                      onEdit={(d) => { setEditingDebt(d); setShowForm(true); }}
+                      onEdit={(d) => {
+                        setEditingDebt(d);
+                        setShowForm(true);
+                      }}
                       onDelete={setDeleteId}
                       onPay={setPayingDebt}
                       onViewHistory={setViewingHistory}
@@ -145,7 +153,10 @@ export function DebtsPage() {
                     </Button>
                     <RecurringPaymentsList
                       recurringPayments={getDebtRecurringPayments(debt.id)}
-                      onEdit={(rp) => { setEditingRecurring(rp); setConfiguringRecurring(debt); }}
+                      onEdit={(rp) => {
+                        setEditingRecurring(rp);
+                        setConfiguringRecurring(debt);
+                      }}
                       onDelete={setDeleteRecurringId}
                       onToggleActive={toggleActive}
                     />
@@ -164,7 +175,10 @@ export function DebtsPage() {
                   <div key={debt.id} className="space-y-3">
                     <DebtCard
                       debt={debt}
-                      onEdit={(d) => { setEditingDebt(d); setShowForm(true); }}
+                      onEdit={(d) => {
+                        setEditingDebt(d);
+                        setShowForm(true);
+                      }}
                       onDelete={setDeleteId}
                       onPay={setPayingDebt}
                       onViewHistory={setViewingHistory}
@@ -180,7 +194,10 @@ export function DebtsPage() {
                     </Button>
                     <RecurringPaymentsList
                       recurringPayments={getDebtRecurringPayments(debt.id)}
-                      onEdit={(rp) => { setEditingRecurring(rp); setConfiguringRecurring(debt); }}
+                      onEdit={(rp) => {
+                        setEditingRecurring(rp);
+                        setConfiguringRecurring(debt);
+                      }}
                       onDelete={setDeleteRecurringId}
                       onToggleActive={toggleActive}
                     />
@@ -199,7 +216,10 @@ export function DebtsPage() {
                   <div key={debt.id} className="space-y-3">
                     <DebtCard
                       debt={debt}
-                      onEdit={(d) => { setEditingDebt(d); setShowForm(true); }}
+                      onEdit={(d) => {
+                        setEditingDebt(d);
+                        setShowForm(true);
+                      }}
                       onDelete={setDeleteId}
                       onPay={setPayingDebt}
                       onViewHistory={setViewingHistory}
@@ -239,10 +259,7 @@ export function DebtsPage() {
 
       {/* Payment History Modal */}
       {viewingHistory && (
-        <PaymentHistoryModal
-          debt={viewingHistory}
-          onClose={() => setViewingHistory(undefined)}
-        />
+        <PaymentHistoryModal debt={viewingHistory} onClose={() => setViewingHistory(undefined)} />
       )}
 
       {/* Recurring Payment Modal */}

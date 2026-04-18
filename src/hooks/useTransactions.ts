@@ -36,9 +36,12 @@ export function useTransactions(params: UseTransactionsParams) {
       setTotal(txData.total);
       setAccounts(accData);
       setCategories(catData);
+    } catch (err) {
+      console.error('Error loading transactions:', err);
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     params.currentPage,
     params.itemsPerPage,

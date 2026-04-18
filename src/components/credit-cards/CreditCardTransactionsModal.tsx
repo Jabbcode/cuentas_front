@@ -33,6 +33,7 @@ export function CreditCardTransactionsModal({
     if (open && statement) {
       loadTransactions();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, statement]);
 
   const loadTransactions = async () => {
@@ -47,7 +48,8 @@ export function CreditCardTransactionsModal({
       });
 
       setAllTransactions(response.transactions);
-    } catch (error) {
+    } catch (err) {
+      console.error('Error loading transactions:', err);
     } finally {
       setLoading(false);
     }
@@ -55,8 +57,11 @@ export function CreditCardTransactionsModal({
 
   // Get unique categories from transactions
   const categories = useMemo(() => {
-    const uniqueCategories = new Map<string, { id: string; name: string; icon?: string; color?: string }>();
-    allTransactions.forEach(tx => {
+    const uniqueCategories = new Map<
+      string,
+      { id: string; name: string; icon?: string; color?: string }
+    >();
+    allTransactions.forEach((tx) => {
       if (tx.category && !uniqueCategories.has(tx.category.id)) {
         uniqueCategories.set(tx.category.id, tx.category);
       }
@@ -72,22 +77,26 @@ export function CreditCardTransactionsModal({
 
     // Filter by period
     if (periodFilter === 'current') {
-      filtered = filtered.filter(tx => {
+      filtered = filtered.filter((tx) => {
         const txDate = new Date(tx.date);
-        return txDate >= new Date(statement.currentPeriod.startDate) &&
-               txDate <= new Date(statement.currentPeriod.endDate);
+        return (
+          txDate >= new Date(statement.currentPeriod.startDate) &&
+          txDate <= new Date(statement.currentPeriod.endDate)
+        );
       });
     } else if (periodFilter === 'closed') {
-      filtered = filtered.filter(tx => {
+      filtered = filtered.filter((tx) => {
         const txDate = new Date(tx.date);
-        return txDate >= new Date(statement.closedPeriod.startDate) &&
-               txDate <= new Date(statement.closedPeriod.endDate);
+        return (
+          txDate >= new Date(statement.closedPeriod.startDate) &&
+          txDate <= new Date(statement.closedPeriod.endDate)
+        );
       });
     }
 
     // Filter by category
     if (categoryFilter !== 'all') {
-      filtered = filtered.filter(tx => tx.categoryId === categoryFilter);
+      filtered = filtered.filter((tx) => tx.categoryId === categoryFilter);
     }
 
     return filtered;
@@ -195,13 +204,12 @@ export function CreditCardTransactionsModal({
         <div className="bg-gray-50 rounded-lg p-4 mb-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">
-              {filteredTransactions.length} transacción{filteredTransactions.length !== 1 ? 'es' : ''}
+              {filteredTransactions.length} transacción
+              {filteredTransactions.length !== 1 ? 'es' : ''}
             </span>
             <div className="text-right">
               <span className="text-xs text-gray-500 block">Total gastado</span>
-              <span className="text-lg font-bold text-red-600">
-                {formatCurrency(totalAmount)}
-              </span>
+              <span className="text-lg font-bold text-red-600">{formatCurrency(totalAmount)}</span>
             </div>
           </div>
         </div>
@@ -236,11 +244,10 @@ export function CreditCardTransactionsModal({
                       size="md"
                     />
                     <div>
-                      <h4 className="font-medium text-gray-900">
-                        {group.category.name}
-                      </h4>
+                      <h4 className="font-medium text-gray-900">{group.category.name}</h4>
                       <p className="text-xs text-gray-500">
-                        {group.transactions.length} transacción{group.transactions.length !== 1 ? 'es' : ''}
+                        {group.transactions.length} transacción
+                        {group.transactions.length !== 1 ? 'es' : ''}
                       </p>
                     </div>
                   </div>
@@ -312,9 +319,7 @@ export function CreditCardTransactionsModal({
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <p className="text-xs text-gray-500">
-                      {transaction.category?.name}
-                    </p>
+                    <p className="text-xs text-gray-500">{transaction.category?.name}</p>
                     <span className="text-xs text-gray-400">•</span>
                     <p className="text-xs text-gray-500">
                       {format(new Date(transaction.date), "d 'de' MMMM, yyyy", { locale: es })}
@@ -324,9 +329,7 @@ export function CreditCardTransactionsModal({
 
                 {/* Amount */}
                 <div className="flex-shrink-0 text-right">
-                  <p className="font-semibold text-red-600">
-                    {formatCurrency(transaction.amount)}
-                  </p>
+                  <p className="font-semibold text-red-600">{formatCurrency(transaction.amount)}</p>
                 </div>
               </div>
             ))}
