@@ -39,6 +39,16 @@ export interface CategorySpending {
   isOverLimit: boolean;
 }
 
+export interface ReceiptItem {
+  id: string;
+  transactionId: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  createdAt: string;
+}
+
 export interface Transaction {
   id: string;
   amount: number;
@@ -51,6 +61,7 @@ export interface Transaction {
   imageHash?: string; // For receipt duplicate detection
   account?: Pick<Account, 'id' | 'name' | 'color'>;
   category?: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;
+  receiptItems?: ReceiptItem[];
   createdAt: string;
   updatedAt: string;
 }

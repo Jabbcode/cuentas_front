@@ -11,6 +11,7 @@ interface TransactionGroupedViewProps {
   accounts: Account[];
   onDelete: (id: string) => void;
   onEdit: (transaction: Transaction) => void;
+  onViewItems?: (transaction: Transaction) => void;
   onCreateClick: () => void;
 }
 
@@ -19,6 +20,7 @@ export function TransactionGroupedView({
   accounts,
   onDelete,
   onEdit,
+  onViewItems,
   onCreateClick,
 }: TransactionGroupedViewProps) {
   if (groupedTransactions.length === 0) {
@@ -65,6 +67,7 @@ export function TransactionGroupedView({
                   accounts={accounts}
                   onDelete={onDelete}
                   onEdit={onEdit}
+                  onViewItems={onViewItems}
                 />
               ))}
             </div>

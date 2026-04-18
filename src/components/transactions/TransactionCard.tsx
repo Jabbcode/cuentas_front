@@ -1,4 +1,4 @@
-import { Trash2, CreditCard, Pencil } from 'lucide-react';
+import { Trash2, CreditCard, Pencil, Receipt } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -12,6 +12,7 @@ interface TransactionCardProps {
   accounts: Account[];
   onDelete: (id: string) => void;
   onEdit: (transaction: Transaction) => void;
+  onViewItems?: (transaction: Transaction) => void;
 }
 
 export function TransactionCard({
@@ -19,6 +20,7 @@ export function TransactionCard({
   accounts,
   onDelete,
   onEdit,
+  onViewItems,
 }: TransactionCardProps) {
   const creditCardPeriod = getCreditCardPeriod(
     tx,
@@ -66,6 +68,17 @@ export function TransactionCard({
             {tx.type === 'income' ? '+' : '-'}
             {formatCurrency(Number(tx.amount))}
           </span>
+          {tx.receiptItems && tx.receiptItems.length > 0 && onViewItems && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onViewItems(tx)}
+              className="h-8 w-8 text-gray-400 hover:text-purple-600"
+              title={`Ver detalle (${tx.receiptItems.length} items)`}
+            >
+              <Receipt className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
