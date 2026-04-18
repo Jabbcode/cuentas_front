@@ -66,7 +66,8 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
             setFormData((prev) => ({ ...prev, categoryId: defaultCategory.id }));
           }
         }
-      } catch (error) {
+      } catch (err) {
+        console.error('Error loading form data:', err);
       } finally {
         setLoadingData(false);
       }
@@ -107,7 +108,8 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
       }
 
       onSuccess();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error saving fixed expense:', err);
     } finally {
       setLoading(false);
     }
@@ -126,9 +128,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
   return (
     <Dialog open onClose={onClose}>
       <DialogHeader>
-        <DialogTitle>
-          {editId ? 'Editar Gasto Fijo' : 'Nuevo Gasto Fijo'}
-        </DialogTitle>
+        <DialogTitle>{editId ? 'Editar Gasto Fijo' : 'Nuevo Gasto Fijo'}</DialogTitle>
       </DialogHeader>
 
       <form onSubmit={handleSubmit}>
@@ -218,32 +218,34 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
               ))}
             </Select>
             {/* Credit Card Info */}
-            {formData.accountId && accounts.find((a) => a.id === formData.accountId)?.type === 'credit_card' && (
-              <div className="mt-2 rounded-lg border border-purple-200 bg-purple-50 p-3">
-                <div className="flex items-start gap-2">
-                  <CreditCard className="h-4 w-4 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-xs text-purple-800">
-                    <p className="font-medium mb-1">Cargo a Tarjeta de Crédito</p>
-                    {accounts.find((a) => a.id === formData.accountId)?.cutoffDay ? (
-                      <p>
-                        Este gasto se cargará al período que cierra el día{' '}
-                        <span className="font-medium">
-                          {accounts.find((a) => a.id === formData.accountId)?.cutoffDay}
-                        </span>{' '}
-                        de cada mes.
-                      </p>
-                    ) : (
-                      <div className="flex items-start gap-1">
-                        <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+            {formData.accountId &&
+              accounts.find((a) => a.id === formData.accountId)?.type === 'credit_card' && (
+                <div className="mt-2 rounded-lg border border-purple-200 bg-purple-50 p-3">
+                  <div className="flex items-start gap-2">
+                    <CreditCard className="h-4 w-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-xs text-purple-800">
+                      <p className="font-medium mb-1">Cargo a Tarjeta de Crédito</p>
+                      {accounts.find((a) => a.id === formData.accountId)?.cutoffDay ? (
                         <p>
-                          Configura las fechas de corte y pago en la cuenta para habilitar el seguimiento de períodos.
+                          Este gasto se cargará al período que cierra el día{' '}
+                          <span className="font-medium">
+                            {accounts.find((a) => a.id === formData.accountId)?.cutoffDay}
+                          </span>{' '}
+                          de cada mes.
                         </p>
-                      </div>
-                    )}
+                      ) : (
+                        <div className="flex items-start gap-1">
+                          <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                          <p>
+                            Configura las fechas de corte y pago en la cuenta para habilitar el
+                            seguimiento de períodos.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           {/* Category */}

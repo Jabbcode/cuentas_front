@@ -15,10 +15,10 @@ const editTransactionSchema = z.object({
   description: z.string().optional(),
   categoryId: z.string().min(1, 'Selecciona una categoría'),
   date: z.string().min(1, 'La fecha es requerida'),
-  amount: z.string().min(1, 'El monto es requerido').refine(
-    (val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0,
-    'El monto debe ser mayor a 0'
-  ),
+  amount: z
+    .string()
+    .min(1, 'El monto es requerido')
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, 'El monto debe ser mayor a 0'),
 });
 
 type EditTransactionInput = z.infer<typeof editTransactionSchema>;
@@ -85,7 +85,8 @@ export function EditTransactionModal({
     try {
       await onSave(transaction.id, data);
       onClose();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error saving transaction:', err);
     } finally {
       setSaving(false);
     }
@@ -93,9 +94,7 @@ export function EditTransactionModal({
 
   if (!transaction) return null;
 
-  const filteredCategories = categories.filter(
-    (cat) => cat.type === transaction.type
-  );
+  const filteredCategories = categories.filter((cat) => cat.type === transaction.type);
 
   const originalAmount = parseFloat(transaction.amount.toString());
   const newAmount = watchedAmount ? parseFloat(watchedAmount) : originalAmount;
@@ -141,28 +140,15 @@ export function EditTransactionModal({
           {/* Date */}
           <div>
             <Label htmlFor="date">Fecha *</Label>
-            <Input
-              id="date"
-              type="date"
-              {...register('date')}
-            />
-            {errors.date && (
-              <p className="text-sm text-red-600 mt-1">{errors.date.message}</p>
-            )}
+            <Input id="date" type="date" {...register('date')} />
+            {errors.date && <p className="text-sm text-red-600 mt-1">{errors.date.message}</p>}
           </div>
 
           {/* Amount with warning */}
           <div>
             <Label htmlFor="amount">Monto *</Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              {...register('amount')}
-            />
-            {errors.amount && (
-              <p className="text-sm text-red-600 mt-1">{errors.amount.message}</p>
-            )}
+            <Input id="amount" type="number" step="0.01" {...register('amount')} />
+            {errors.amount && <p className="text-sm text-red-600 mt-1">{errors.amount.message}</p>}
 
             {/* Amount change warning */}
             {showAmountWarning && account && (
@@ -190,9 +176,7 @@ export function EditTransactionModal({
                         </span>
                       </p>
                       <div className="pt-2 mt-2 border-t border-orange-300">
-                        <p className="font-medium">
-                          Balance de {account.name}:
-                        </p>
+                        <p className="font-medium">Balance de {account.name}:</p>
                         <p>
                           {formatCurrency(Number(account.balance))} → {formatCurrency(newBalance)}
                         </p>
@@ -207,7 +191,10 @@ export function EditTransactionModal({
           {/* Transaction info */}
           <div className="pt-3 border-t">
             <p className="text-xs text-gray-500">
-              Tipo: <span className="font-medium">{transaction.type === 'income' ? 'Ingreso' : 'Gasto'}</span>
+              Tipo:{' '}
+              <span className="font-medium">
+                {transaction.type === 'income' ? 'Ingreso' : 'Gasto'}
+              </span>
             </p>
             <p className="text-xs text-gray-500">
               Cuenta: <span className="font-medium">{transaction.account?.name}</span>

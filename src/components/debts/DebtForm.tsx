@@ -58,7 +58,8 @@ export function DebtForm({ debt, onClose, onSuccess }: DebtFormProps) {
       }
 
       onSuccess();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error saving debt:', err);
     } finally {
       setLoading(false);
     }
@@ -146,7 +147,12 @@ export function DebtForm({ debt, onClose, onSuccess }: DebtFormProps) {
                 <Select
                   id="interestType"
                   value={formData.interestType}
-                  onChange={(e) => setFormData({ ...formData, interestType: e.target.value as any })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      interestType: e.target.value as 'fixed' | 'percentage' | '',
+                    })
+                  }
                 >
                   <option value="">Seleccionar</option>
                   <option value="percentage">Porcentaje (%)</option>

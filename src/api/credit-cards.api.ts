@@ -1,5 +1,9 @@
 import { api } from './client';
-import type { CreditCardStatement, CreditCardsSummary, PayCreditCardStatementInput } from '../types';
+import type {
+  CreditCardStatement,
+  CreditCardsSummary,
+  PayCreditCardStatementInput,
+} from '../types';
 
 export const creditCardsApi = {
   getSummary: async (): Promise<CreditCardsSummary> => {
@@ -12,7 +16,10 @@ export const creditCardsApi = {
     return response.data;
   },
 
-  payStatement: async (accountId: string, data: PayCreditCardStatementInput): Promise<any> => {
+  payStatement: async (
+    accountId: string,
+    data: PayCreditCardStatementInput
+  ): Promise<{ message: string }> => {
     const response = await api.post(`/credit-cards/${accountId}/pay`, data);
     return response.data;
   },

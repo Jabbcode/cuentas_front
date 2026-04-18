@@ -2,7 +2,13 @@ import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../components/ui/dialog';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../components/ui/dialog';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -88,7 +94,8 @@ export function CategoriesPage() {
 
       setShowForm(false);
       loadCategories();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error saving category:', err);
     }
   };
 
@@ -176,9 +183,7 @@ export function CategoriesPage() {
               </div>
             </div>
           ))}
-          {items.length === 0 && (
-            <p className="py-8 text-center text-gray-500">Sin categorías</p>
-          )}
+          {items.length === 0 && <p className="py-8 text-center text-gray-500">Sin categorías</p>}
         </div>
       </CardContent>
     </Card>
@@ -204,17 +209,11 @@ export function CategoriesPage() {
       {/* Form Dialog */}
       <Dialog open={showForm} onClose={() => setShowForm(false)}>
         <DialogHeader>
-          <DialogTitle>
-            {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
-          </DialogTitle>
+          <DialogTitle>{editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <DialogContent className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
-                {error}
-              </div>
-            )}
+            {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>}
 
             <div>
               <Label htmlFor="name">Nombre</Label>
@@ -251,12 +250,23 @@ export function CategoriesPage() {
                 />
                 <div className="flex-1">
                   <div className="flex gap-2">
-                    {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'].map((color) => (
+                    {[
+                      '#3B82F6',
+                      '#10B981',
+                      '#F59E0B',
+                      '#EF4444',
+                      '#8B5CF6',
+                      '#EC4899',
+                      '#06B6D4',
+                      '#84CC16',
+                    ].map((color) => (
                       <button
                         key={color}
                         type="button"
                         className={`h-8 w-8 rounded-full transition-transform ${
-                          formData.color === color ? 'ring-2 ring-offset-2 ring-gray-400 scale-110' : ''
+                          formData.color === color
+                            ? 'ring-2 ring-offset-2 ring-gray-400 scale-110'
+                            : ''
                         }`}
                         style={{ backgroundColor: color }}
                         onClick={() => setFormData({ ...formData, color })}
@@ -288,14 +298,25 @@ export function CategoriesPage() {
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       title="Quitar límite"
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   )}
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
-                  Establece un límite mensual de gasto para esta categoría. Puedes dejarlo vacío para quitar el límite.
+                  Establece un límite mensual de gasto para esta categoría. Puedes dejarlo vacío
+                  para quitar el límite.
                 </p>
               </div>
             )}

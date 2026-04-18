@@ -32,7 +32,7 @@ export const recurringDebtPaymentsApi = {
     return data;
   },
 
-  async processPending(): Promise<any> {
+  async processPending(): Promise<{ message: string; processed: number }> {
     const { data } = await api.post('/recurring-debt-payments/process');
     return data;
   },

@@ -4,7 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '../components/ui/card';
 import { Wallet } from 'lucide-react';
 
 export function RegisterPage() {
@@ -35,8 +42,10 @@ export function RegisterPage() {
     try {
       await register(email, password, name);
       // If successful, navigation will happen automatically
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.error || 'Error al registrar. El email puede estar en uso.';
+    } catch (err: unknown) {
+      const errorMessage =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        'Error al registrar. El email puede estar en uso.';
       setError(errorMessage);
       setLoading(false);
     }
@@ -54,11 +63,7 @@ export function RegisterPage() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-                {error}
-              </div>
-            )}
+            {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
             <div className="space-y-2">
               <Label htmlFor="name">Nombre</Label>
               <Input

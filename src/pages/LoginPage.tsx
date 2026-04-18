@@ -4,7 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '../components/ui/card';
 import { Wallet } from 'lucide-react';
 
 export function LoginPage() {
@@ -34,8 +41,10 @@ export function LoginPage() {
     try {
       await login(email, password);
       // If successful, navigation will happen automatically
-    } catch (err: any) {
-      const errorMessage = err?.response?.data?.error || 'Email o contraseña incorrectos';
+    } catch (err: unknown) {
+      const errorMessage =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        'Email o contraseña incorrectos';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -54,11 +63,7 @@ export function LoginPage() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            {error && (
-              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-                {error}
-              </div>
-            )}
+            {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

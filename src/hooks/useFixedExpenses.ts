@@ -11,7 +11,8 @@ export function useFixedExpenses() {
     try {
       const data = await fixedExpensesApi.getSummary();
       setSummary(data);
-    } catch (error) {
+    } catch (err) {
+      console.error('Error loading fixed expenses:', err);
     } finally {
       setLoading(false);
     }
@@ -25,30 +26,37 @@ export function useFixedExpenses() {
     loadData();
   }, [loadData]);
 
-  const payExpense = useCallback(async (id: string, amount?: number) => {
-    try {
-      await fixedExpensesApi.pay(id, amount ? { amount } : undefined);
-      reload();
-    } catch (error) {
-    }
-  }, [reload]);
+  const payExpense = useCallback(
+    async (id: string, amount?: number) => {
+      try {
+        await fixedExpensesApi.pay(id, amount ? { amount } : undefined);
+        reload();
+      } catch (err) {
+        console.error('Error paying expense:', err);
+      }
+    },
+    [reload]
+  );
 
-  const deleteExpense = useCallback(async (id: string) => {
-    try {
+  const deleteExpense = useCallback(
+    async (id: string) => {
       await fixedExpensesApi.delete(id);
       reload();
-    } catch (error) {
-      throw error;
-    }
-  }, [reload]);
+    },
+    [reload]
+  );
 
-  const toggleActive = useCallback(async (id: string, isActive: boolean) => {
-    try {
-      await fixedExpensesApi.update(id, { isActive: !isActive });
-      reload();
-    } catch (error) {
-    }
-  }, [reload]);
+  const toggleActive = useCallback(
+    async (id: string, isActive: boolean) => {
+      try {
+        await fixedExpensesApi.update(id, { isActive: !isActive });
+        reload();
+      } catch (err) {
+        console.error('Error toggling active status:', err);
+      }
+    },
+    [reload]
+  );
 
   return {
     summary,

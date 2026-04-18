@@ -33,7 +33,8 @@ export function FixedExpensesPage() {
     try {
       await deleteExpense(deleteId);
       setDeleteId(null);
-    } catch (error) {
+    } catch (err) {
+      console.error('Error deleting fixed expense:', err);
     } finally {
       setDeleting(false);
     }
@@ -41,17 +42,13 @@ export function FixedExpensesPage() {
 
   const toggleExpenseCategory = (categoryId: string) => {
     setSelectedExpenseCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
+      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
     );
   };
 
   const toggleIncomeCategory = (categoryId: string) => {
     setSelectedIncomeCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
+      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
     );
   };
 
@@ -62,11 +59,12 @@ export function FixedExpensesPage() {
   const expenseCategories = useMemo(() => {
     const categories = new Map<string, CategoryInfo>();
     summary?.items
-      .filter((item) =>
-        item.type === 'expense' &&
-        item.category &&
-        !item.creditCardAccountId &&
-        !item.recurringDebtPaymentId
+      .filter(
+        (item) =>
+          item.type === 'expense' &&
+          item.category &&
+          !item.creditCardAccountId &&
+          !item.recurringDebtPaymentId
       )
       .forEach((item) => {
         if (item.category && !categories.has(item.category.id)) {
@@ -90,14 +88,17 @@ export function FixedExpensesPage() {
 
   // Filtrar items por categorías seleccionadas y ordenar por fecha de pago
   const expenseItems = useMemo(() => {
-    const items = summary?.items.filter((item) =>
-      item.type === 'expense' &&
-      !item.creditCardAccountId &&
-      !item.recurringDebtPaymentId
-    ) || [];
-    const filtered = selectedExpenseCategories.length === 0
-      ? items
-      : items.filter((item) => item.category && selectedExpenseCategories.includes(item.category.id));
+    const items =
+      summary?.items.filter(
+        (item) =>
+          item.type === 'expense' && !item.creditCardAccountId && !item.recurringDebtPaymentId
+      ) || [];
+    const filtered =
+      selectedExpenseCategories.length === 0
+        ? items
+        : items.filter(
+            (item) => item.category && selectedExpenseCategories.includes(item.category.id)
+          );
 
     // Ordenar por fecha de pago (dueDay)
     return filtered.sort((a, b) => a.dueDay - b.dueDay);
@@ -105,9 +106,12 @@ export function FixedExpensesPage() {
 
   const incomeItems = useMemo(() => {
     const items = summary?.items.filter((item) => item.type === 'income') || [];
-    const filtered = selectedIncomeCategories.length === 0
-      ? items
-      : items.filter((item) => item.category && selectedIncomeCategories.includes(item.category.id));
+    const filtered =
+      selectedIncomeCategories.length === 0
+        ? items
+        : items.filter(
+            (item) => item.category && selectedIncomeCategories.includes(item.category.id)
+          );
 
     // Ordenar por fecha de pago (dueDay)
     return filtered.sort((a, b) => a.dueDay - b.dueDay);
@@ -121,7 +125,8 @@ export function FixedExpensesPage() {
 
   // Recurring Debt Payment items (separate from regular expenses)
   const debtPaymentItems = useMemo(() => {
-    const items = summary?.items.filter((item) => item.recurringDebtPaymentId && item.isActive) || [];
+    const items =
+      summary?.items.filter((item) => item.recurringDebtPaymentId && item.isActive) || [];
     return items.sort((a, b) => a.dueDay - b.dueDay);
   }, [summary]);
 
@@ -151,9 +156,7 @@ export function FixedExpensesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Gastos Fijos</h1>
-          <p className="text-gray-500">
-            Gestiona tus gastos e ingresos recurrentes mensuales
-          </p>
+          <p className="text-gray-500">Gestiona tus gastos e ingresos recurrentes mensuales</p>
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" /> Nuevo Gasto Fijo
@@ -172,7 +175,8 @@ export function FixedExpensesPage() {
                 Tienes {summary.pendingCount} pago(s) pendiente(s) este mes
               </p>
               <p className="text-sm text-orange-600">
-                Total pendiente: {formatCurrency(
+                Total pendiente:{' '}
+                {formatCurrency(
                   expenseItems
                     .filter((item) => !item.isPaidThisMonth && item.isActive)
                     .reduce((sum, item) => sum + Number(item.amount), 0)
@@ -190,8 +194,12 @@ export function FixedExpensesPage() {
             <div className="flex items-center gap-2">
               <div className="rounded-full bg-purple-100 p-1.5">
                 <svg className="h-4 w-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
-                  <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                  <path
+                    fillRule="evenodd"
+                    d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div>
@@ -213,8 +221,12 @@ export function FixedExpensesPage() {
             icon={
               <div className="rounded-full bg-purple-100 p-1.5">
                 <svg className="h-4 w-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
-                  <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd"/>
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                  <path
+                    fillRule="evenodd"
+                    d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
             }
@@ -236,9 +248,7 @@ export function FixedExpensesPage() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-orange-900">Pagos de Deudas</h3>
-                <p className="text-xs text-orange-700">
-                  Pagos recurrentes mensuales de tus deudas
-                </p>
+                <p className="text-xs text-orange-700">Pagos recurrentes mensuales de tus deudas</p>
               </div>
             </div>
           </div>
@@ -307,20 +317,20 @@ export function FixedExpensesPage() {
           )}
 
           <FixedExpenseTable
-          title="Gastos Fijos"
-          items={expenseItems}
-          type="expense"
-          totalAmount={filteredExpenseTotal}
-          icon={
-            <div className="rounded-full bg-red-100 p-1.5">
-              <TrendingDown className="h-4 w-4 text-red-600" />
-            </div>
-          }
-          onPay={payExpense}
-          onEdit={(id) => setEditingId(id)}
-          onDelete={(id) => setDeleteId(id)}
-          onToggleActive={toggleActive}
-        />
+            title="Gastos Fijos"
+            items={expenseItems}
+            type="expense"
+            totalAmount={filteredExpenseTotal}
+            icon={
+              <div className="rounded-full bg-red-100 p-1.5">
+                <TrendingDown className="h-4 w-4 text-red-600" />
+              </div>
+            }
+            onPay={payExpense}
+            onEdit={(id) => setEditingId(id)}
+            onDelete={(id) => setDeleteId(id)}
+            onToggleActive={toggleActive}
+          />
         </div>
 
         {/* Ingresos Table */}
@@ -365,20 +375,20 @@ export function FixedExpensesPage() {
           )}
 
           <FixedExpenseTable
-          title="Ingresos Fijos"
-          items={incomeItems}
-          type="income"
-          totalAmount={filteredIncomeTotal}
-          icon={
-            <div className="rounded-full bg-green-100 p-1.5">
-              <TrendingUp className="h-4 w-4 text-green-600" />
-            </div>
-          }
-          onPay={payExpense}
-          onEdit={(id) => setEditingId(id)}
-          onDelete={(id) => setDeleteId(id)}
-          onToggleActive={toggleActive}
-        />
+            title="Ingresos Fijos"
+            items={incomeItems}
+            type="income"
+            totalAmount={filteredIncomeTotal}
+            icon={
+              <div className="rounded-full bg-green-100 p-1.5">
+                <TrendingUp className="h-4 w-4 text-green-600" />
+              </div>
+            }
+            onPay={payExpense}
+            onEdit={(id) => setEditingId(id)}
+            onDelete={(id) => setDeleteId(id)}
+            onToggleActive={toggleActive}
+          />
         </div>
       </div>
 

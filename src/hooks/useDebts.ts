@@ -11,7 +11,8 @@ export function useDebts(status?: string) {
     try {
       const data = await debtsApi.getAll(status);
       setDebts(data);
-    } catch (error) {
+    } catch (err) {
+      console.error('Error loading debts:', err);
     } finally {
       setLoading(false);
     }
@@ -25,23 +26,21 @@ export function useDebts(status?: string) {
     loadDebts();
   }, [loadDebts]);
 
-  const deleteDebt = useCallback(async (id: string) => {
-    try {
+  const deleteDebt = useCallback(
+    async (id: string) => {
       await debtsApi.delete(id);
       reload();
-    } catch (error) {
-      throw error;
-    }
-  }, [reload]);
+    },
+    [reload]
+  );
 
-  const payDebt = useCallback(async (id: string, amount: number, accountId: string, notes?: string) => {
-    try {
+  const payDebt = useCallback(
+    async (id: string, amount: number, accountId: string, notes?: string) => {
       await debtsApi.pay(id, { amount, accountId, notes });
       reload();
-    } catch (error) {
-      throw error;
-    }
-  }, [reload]);
+    },
+    [reload]
+  );
 
   return {
     debts,

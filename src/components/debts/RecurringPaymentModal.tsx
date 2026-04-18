@@ -96,7 +96,8 @@ export function RecurringPaymentModal({
       }
 
       onSuccess();
-    } catch (error) {
+    } catch (err) {
+      console.error('Error saving recurring payment:', err);
     } finally {
       setLoading(false);
     }
@@ -141,7 +142,12 @@ export function RecurringPaymentModal({
               <p className="text-xs text-gray-600 mt-1">
                 Tiempo estimado de pago:{' '}
                 <span className="font-medium">
-                  {monthsToPayOff} {formData.frequency === 'monthly' ? 'meses' : formData.frequency === 'biweekly' ? 'quincenas' : 'semanas'}
+                  {monthsToPayOff}{' '}
+                  {formData.frequency === 'monthly'
+                    ? 'meses'
+                    : formData.frequency === 'biweekly'
+                      ? 'quincenas'
+                      : 'semanas'}
                 </span>
               </p>
             )}
@@ -154,7 +160,10 @@ export function RecurringPaymentModal({
               id="frequency"
               value={formData.frequency}
               onChange={(e) =>
-                setFormData({ ...formData, frequency: e.target.value as any })
+                setFormData({
+                  ...formData,
+                  frequency: e.target.value as 'monthly' | 'biweekly' | 'weekly',
+                })
               }
               required
             >
