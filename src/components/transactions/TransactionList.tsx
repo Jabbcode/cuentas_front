@@ -8,6 +8,7 @@ interface TransactionListProps {
   onDelete: (id: string) => void;
   onEdit: (transaction: Transaction) => void;
   onViewItems?: (transaction: Transaction) => void;
+  loadingItemsId?: string | null;
   onCreateClick: () => void;
 }
 
@@ -17,6 +18,7 @@ export function TransactionList({
   onDelete,
   onEdit,
   onViewItems,
+  loadingItemsId,
   onCreateClick,
 }: TransactionListProps) {
   if (transactions.length === 0) {
@@ -33,6 +35,7 @@ export function TransactionList({
           onDelete={onDelete}
           onEdit={onEdit}
           onViewItems={onViewItems}
+          isLoadingItems={loadingItemsId === tx.id}
         />
       ))}
     </div>

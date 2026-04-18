@@ -15,7 +15,7 @@ export function ReceiptItemsModal({ open, onClose, items, transactionAmount }: R
     return null;
   }
 
-  const itemsTotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
+  const itemsTotal = items.reduce((sum, item) => sum + Number(item.totalPrice), 0);
   const matchesTransaction = Math.abs(itemsTotal - transactionAmount) < 0.01;
 
   return (
@@ -46,8 +46,8 @@ export function ReceiptItemsModal({ open, onClose, items, transactionAmount }: R
                       </div>
                     </td>
                     <td className="p-2 text-right text-gray-600">{item.quantity}</td>
-                    <td className="p-2 text-right text-gray-600">{formatCurrency(item.unitPrice)}</td>
-                    <td className="p-2 text-right font-medium text-gray-900">{formatCurrency(item.totalPrice)}</td>
+                    <td className="p-2 text-right text-gray-600">{formatCurrency(Number(item.unitPrice))}</td>
+                    <td className="p-2 text-right font-medium text-gray-900">{formatCurrency(Number(item.totalPrice))}</td>
                   </tr>
                 ))}
               </tbody>

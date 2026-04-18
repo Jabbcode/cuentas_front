@@ -1,4 +1,4 @@
-import { Trash2, CreditCard, Pencil, Receipt } from 'lucide-react';
+import { Trash2, CreditCard, Pencil, Receipt, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { formatCurrency, formatDate, cn } from '../../lib/utils';
@@ -11,6 +11,7 @@ interface TransactionRowProps {
   onDelete: (id: string) => void;
   onEdit: (transaction: Transaction) => void;
   onViewItems?: (transaction: Transaction) => void;
+  isLoadingItems?: boolean;
 }
 
 export function TransactionRow({
@@ -19,6 +20,7 @@ export function TransactionRow({
   onDelete,
   onEdit,
   onViewItems,
+  isLoadingItems = false,
 }: TransactionRowProps) {
   const creditCardPeriod = getCreditCardPeriod(
     tx,
@@ -26,6 +28,10 @@ export function TransactionRow({
   );
   const isCreditCard =
     accounts.find((acc) => acc.id === tx.accountId)?.type === 'credit_card';
+
+  // Check if transaction has receipt items - explicit check
+  const itemsLength = tx.receiptItems?.length ?? tx._count?.receiptItems ?? 0;
+  const hasReceiptItems = itemsLength > 0;
 
   return (
     <div className="flex items-center justify-between py-2 hover:bg-gray-50 rounded px-2">
@@ -58,15 +64,20 @@ export function TransactionRow({
           {tx.type === 'income' ? '+' : '-'}
           {formatCurrency(Number(tx.amount))}
         </span>
-        {tx.receiptItems && tx.receiptItems.length > 0 && onViewItems && (
+        {hasReceiptItems && onViewItems && (
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onViewItems(tx)}
+            disabled={isLoadingItems}
             className="h-6 w-6 text-gray-400 hover:text-purple-600"
-            title={`Ver detalle (${tx.receiptItems.length} items)`}
+            title={isLoadingItems ? 'Cargando items...' : `Ver detalle (${itemsLength} items)`}
           >
-            <Receipt className="h-3 w-3" />
+            {isLoadingItems ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Receipt className="h-3 w-3" />
+            )}
           </Button>
         )}
         <Button

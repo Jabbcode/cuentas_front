@@ -29,7 +29,7 @@ export function TransactionsPage() {
   const [deleting, setDeleting] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [viewingItems, setViewingItems] = useState<Transaction | null>(null);
-  const [loadingItems, setLoadingItems] = useState(false);
+  const [loadingItemsId, setLoadingItemsId] = useState<string | null>(null);
 
   // Paginación
   const pagination = usePagination(20);
@@ -166,14 +166,14 @@ export function TransactionsPage() {
     }
 
     // Otherwise, load items from API
-    setLoadingItems(true);
+    setLoadingItemsId(transaction.id);
     try {
       const items = await transactionsApi.getReceiptItems(transaction.id);
       setViewingItems({ ...transaction, receiptItems: items });
     } catch (error) {
       console.error('Error loading receipt items:', error);
     } finally {
-      setLoadingItems(false);
+      setLoadingItemsId(null);
     }
   };
 
@@ -262,6 +262,7 @@ export function TransactionsPage() {
           onDelete={setDeleteId}
           onEdit={handleEdit}
           onViewItems={handleViewItems}
+          loadingItemsId={loadingItemsId}
           onCreateClick={handleOpenForm}
         />
       ) : (
@@ -272,6 +273,7 @@ export function TransactionsPage() {
             onDelete={setDeleteId}
             onEdit={handleEdit}
             onViewItems={handleViewItems}
+            loadingItemsId={loadingItemsId}
             onCreateClick={handleOpenForm}
           />
         )
@@ -448,7 +450,7 @@ export function TransactionsPage() {
       {/* Receipt Items Modal */}
       {viewingItems && viewingItems.receiptItems && (
         <ReceiptItemsModal
-          open={!loadingItems}
+          open={!loadingItemsId}
           onClose={() => setViewingItems(null)}
           items={viewingItems.receiptItems}
           transactionAmount={Number(viewingItems.amount)}

@@ -62,6 +62,9 @@ export interface Transaction {
   account?: Pick<Account, 'id' | 'name' | 'color'>;
   category?: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;
   receiptItems?: ReceiptItem[];
+  _count?: {
+    receiptItems: number;
+  };
   createdAt: string;
   updatedAt: string;
 }
