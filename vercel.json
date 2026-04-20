@@ -11,8 +11,7 @@
     }
   },
   "github": {
-    "silent": true,
-    "autoAlias": false
+    "silent": true
   },
   "ignoreCommand": "[ \"$VERCEL_GIT_COMMIT_REF\" != \"main\" ]"
 }
