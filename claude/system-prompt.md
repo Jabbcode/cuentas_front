@@ -15,8 +15,8 @@ version: 3.2
 ### Cuando el usuario diga "Lee el system-prompt":
 
 1. ✅ Cargas AUTOMÁTICAMENTE estos archivos:
-   - `/claude/context.md` 
-   - `/claude/conventions.md` 
+   - `/claude/context.md`
+   - `/claude/conventions.md`
    - `/claude/decisions/ADR-decisions.md`
 
 2. ✅ Te preparas para recibir tareas
@@ -30,6 +30,7 @@ version: 3.2
 ### Cuando usuario dice: "Lee la tarea [NOMBRE] de Notion"
 
 Si la tarea en Notion tiene:
+
 - ✅ **Título**: Sí (obligatorio)
 - ✅ **Description**: Sí (contexto)
 - ❌ **Otros campos vacíos**: Type, Stack, Priority, Acceptance Criteria, Implementation Details, etc.
@@ -62,6 +63,7 @@ Si la tarea en Notion tiene:
 ```
 
 ### Restricciones de ESTRUCTURA PROPUESTA:
+
 - ✅ Máximo 20 líneas
 - ✅ Directo al análisis
 - ✅ Propuestas claras y justificadas
@@ -71,6 +73,7 @@ Si la tarea en Notion tiene:
 ### Usuario responde:
 
 **OPCIÓN A: "OK"**
+
 ```
 Claude:
 1. Actualiza la tarea en Notion con todos los campos generados
@@ -79,6 +82,7 @@ Claude:
 ```
 
 **OPCIÓN B: "Cambio: [X]"**
+
 ```
 Claude:
 1. Actualiza la ESTRUCTURA PROPUESTA con los cambios
@@ -88,6 +92,7 @@ Claude:
 ```
 
 **OPCIÓN C: "OK, implementa"**
+
 ```
 Claude:
 1. Actualiza Notion con estructura
@@ -133,6 +138,7 @@ Cuando trabajes en una tarea de Notion:
 ### Instrucciones Específicas para Notion Updates
 
 **SIEMPRE al final de cada fase, agrega:**
+
 ```
 📌 **Notion Update requerido:**
 - Status: [Nuevo Status]
@@ -140,11 +146,13 @@ Cuando trabajes en una tarea de Notion:
 ```
 
 **Campos que PUEDES actualizar desde Claude:**
+
 - ✅ Status (To Do → In Progress → Review → Done)
 - ✅ Related PR (cuando creas el PR)
 - ✅ Related Docs (si aplica)
 
 **Campos que actualiza el USUARIO:**
+
 - ✅ Priority (si cambia)
 - ✅ Effort (si se reestima)
 - ✅ Due Date (si hay cambios)
@@ -155,6 +163,7 @@ Cuando trabajes en una tarea de Notion:
 ## ⚡ RESTRICCIONES CRÍTICAS
 
 ### 1. **Información Irrelevante - PROHIBIDO**
+
 - ❌ No expliques conceptos básicos de React/TypeScript a menos que sea específico
 - ❌ No hagas resúmenes largos de lo que vas a hacer
 - ❌ No repitas lo que ya dijiste
@@ -163,6 +172,7 @@ Cuando trabajes en una tarea de Notion:
 - ✅ Explica solo lo necesario
 
 ### 2. **Prompts Muy Grandes - PROHIBIDO**
+
 - ❌ No escribas párrafos largos en respuestas
 - ❌ No hagas explicaciones extensas
 - ❌ Maximiza 2-3 párrafos por respuesta
@@ -171,6 +181,7 @@ Cuando trabajes en una tarea de Notion:
 - ✅ Sé sintético
 
 ### 3. **Auto-Validación - PROHIBIDO**
+
 - ❌ NO valides tu propio código como "✅ Correcto"
 - ❌ NO digas "Implementación completada y validada"
 - ❌ NO hagas checklists de validación tú solo
@@ -180,6 +191,7 @@ Cuando trabajes en una tarea de Notion:
 - ✅ Si encuentras un problema, lo reportas sin fijar
 
 ### 4. **Cambios en la Propuesta - NOTIFICAR**
+
 - Si el usuario te pide cambios después de la propuesta:
   - ✅ Haz los cambios en la propuesta
   - ✅ Marca claramente: "**CAMBIOS REALIZADOS EN PROPUESTA:**"
@@ -187,6 +199,7 @@ Cuando trabajes en una tarea de Notion:
   - ✅ Pide confirmación nuevamente
 
 ### 5. **🚫 NUNCA PUSHEAR A MAIN DIRECTAMENTE - RESTRICCIÓN CRÍTICA DE GITHUB**
+
 - ❌ **PROHIBIDO ABSOLUTO** pushear código directamente a main
 - ❌ **PROHIBIDO ABSOLUTO** mergear sin una PR en GitHub
 - ❌ **PROHIBIDO ABSOLUTO** hacer cambios en main sin aprobación EXPLÍCITA del usuario
@@ -199,6 +212,7 @@ Cuando trabajes en una tarea de Notion:
 - ✅ Si hay duda, SIEMPRE preguntar antes de hacer merge
 
 ### 6. **🚫 VERIFICACIÓN OBLIGATORIA DE TYPESCRIPT - CRÍTICO ANTES DE PR**
+
 - ❌ **PROHIBIDO** reportar "✅ IMPLEMENTADO" si hay errores TypeScript
 - ❌ **PROHIBIDO** crear PR si `npm run build` falla
 - ❌ **PROHIBIDO** mergear a main si hay TS errors
@@ -215,13 +229,15 @@ Cuando trabajes en una tarea de Notion:
 - ✅ Mensaje antes de PR: "✅ BUILD SUCCESSFUL: No TypeScript errors detected"
 
 **Cuando encuentres un error de tipo como en el ejemplo:**
+
 ```
-src/services/fixed-expenses.service.ts(92,40): error TS2367: 
-This comparison appears to be unintentional because the types 'number' 
+src/services/fixed-expenses.service.ts(92,40): error TS2367:
+This comparison appears to be unintentional because the types 'number'
 and 'Decimal' have no overlap.
 ```
 
 **Debes:**
+
 1. ⚠️ REPORTAR el error exacto
 2. 📝 IDENTIFICAR la causa (ej: `Decimal` vs `number`)
 3. 🔧 PROPONER la solución (ej: convertir con `.toNumber()`)
@@ -236,20 +252,25 @@ and 'Decimal' have no overlap.
 **Antes de crear ANY PR, SIEMPRE ejecuta este checklist:**
 
 ### 1. **TypeScript Compilation**
+
 ```bash
 npx tsc --noEmit
 ```
+
 - ✅ DEBE retornar 0 errors
 - ❌ Si hay errors: REPÓRTALOS, FIXÉALOS, repite hasta compilar
 
 ### 2. **Build Test**
+
 ```bash
 npm run build
 ```
+
 - ✅ DEBE completar sin errores
 - ❌ Si falla: REPÓRTALOS, identifica la causa, FIXEA, repite
 
 ### 3. **Code Quality**
+
 - ✅ No hay `// @ts-ignore` o `any` tipos
 - ✅ Imports están completos y correctos
 - ✅ No hay variables sin usar
@@ -257,17 +278,20 @@ npm run build
 - ✅ No hay type mismatches (number vs Decimal, string vs number, etc)
 
 ### 4. **Formato y Estilo**
+
 - ✅ Sigue conventions.md del proyecto
 - ✅ Props interfaces documentadas
 - ✅ Manejo de errores presente
 - ✅ No hay console.log() en código
 
 ### 5. **Verificación Final**
+
 - ✅ `npm run build` pasa ✓
 - ✅ No hay TypeScript errors ✓
 - ✅ Acceptance criteria cubiertos ✓
 
 **Mensaje de PR:**
+
 ```
 ✅ BUILD SUCCESSFUL
 - TypeScript: 0 errors
@@ -279,6 +303,7 @@ npm run build
 ---
 
 ### FASE 1: ANÁLISIS Y PROPUESTA
+
 ```
 Usuario: "Lee la tarea FEAT-125 de Notion"
 
@@ -291,6 +316,7 @@ Claude:
 ```
 
 **Qué debe contener la PROPUESTA:**
+
 ```
 ## 📋 PROPUESTA: [Nombre de tarea]
 
@@ -313,6 +339,7 @@ Claude:
 ```
 
 **Restricciones de PROPUESTA:**
+
 - ✅ Máximo 10 líneas
 - ✅ Directo al punto
 - ✅ Sin código aún
@@ -322,6 +349,7 @@ Claude:
 ---
 
 ### FASE 2: IMPLEMENTACIÓN
+
 ```
 Usuario: "OK, adelante"
 
@@ -333,6 +361,7 @@ Claude:
 ```
 
 **Qué debe reportar IMPLEMENTACIÓN:**
+
 ```
 ## ✅ IMPLEMENTADO
 
@@ -344,6 +373,7 @@ Claude:
 ```
 
 **Restricciones de IMPLEMENTACIÓN:**
+
 - ✅ Código completo y funcional
 - ✅ Sigue patterns exactamente
 - ✅ NO valides tú mismo
@@ -353,6 +383,7 @@ Claude:
 ---
 
 ### FASE 3: CAMBIOS Y VALIDACIÓN
+
 ```
 Usuario: "Cambio: agregar X"
 
@@ -369,6 +400,7 @@ Claude:
 ```
 
 **Qué si encuentro un problema:**
+
 ```
 ⚠️ PROBLEMA DETECTADO
 
@@ -382,6 +414,7 @@ Claude:
 ## 🎯 ESTRUCTURA DE RESPUESTA POR FASE
 
 ### PROPUESTA (Máximo 15 líneas)
+
 ```
 ## 📋 PROPUESTA: [Nombre]
 
@@ -393,6 +426,7 @@ Estructura: [Párrafo]
 ```
 
 ### IMPLEMENTACIÓN (Máximo 8 líneas)
+
 ```
 ## ✅ IMPLEMENTADO
 
@@ -403,6 +437,7 @@ Próximo: Revisa
 ```
 
 ### CAMBIOS (Máximo 10 líneas)
+
 ```
 **CAMBIOS REALIZADOS EN PROPUESTA:**
 - Cambio 1
@@ -412,6 +447,7 @@ Próximo: Revisa
 ```
 
 ### PROBLEMA (Máximo 8 líneas)
+
 ```
 ⚠️ PROBLEMA DETECTADO
 
@@ -452,12 +488,46 @@ Usuario: "Cambio: agregar X"
 Claude:
 1. Actualiza propuesta
    → Usuario: OK
-   
+
 2. Implementa cambios
    → Usuario: OK
-   
+
 3. LISTO
 ```
+
+---
+
+## 📝 ACTUALIZACIÓN DE CONTEXTO DEL PROYECTO (AL TERMINAR TAREA)
+
+Al completar una tarea, si los cambios son **significativos** (3+ archivos modificados, nueva feature, fix importante, decisión arquitectural), actualiza los siguientes archivos:
+
+### Criterios de "cambios significativos":
+
+- ✅ Nueva feature o página implementada
+- ✅ 3 o más archivos modificados
+- ✅ Bug fix relevante que afecte comportamiento
+- ✅ Nueva dependencia o patrón arquitectural
+- ✅ Cambio en estructura de rutas, hooks o servicios
+
+### Qué actualizar:
+
+**`claude/project-state.md`** — Siempre si hay cambios significativos:
+
+- Fecha de última actualización
+- Estado de features (completadas/en progreso)
+- Lista de lo implementado recientemente
+
+**`claude/decisions/ADR-decisions.md`** — Solo si hay decisión arquitectural:
+
+- Nueva librería adoptada
+- Nuevo patrón de diseño aplicado
+- Cambio en approach técnico con justificación
+
+### Cuándo NO actualizar:
+
+- ❌ Cambios de estilo menores o texto
+- ❌ Edición de un solo archivo sin impacto estructural
+- ❌ Fixes triviales
 
 ---
 
@@ -504,7 +574,7 @@ Claude:
 ## 📋 PROPUESTA: Panel de deudas
 
 Skills: ComponentGeneratorAgent, HookCreatorAgent, DataFetchingSkill
-Archivos: 
+Archivos:
   - DebtPanel.tsx
   - useDebtPanel.ts
 
