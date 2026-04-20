@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, ArrowLeftRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import {
   Dialog,
@@ -14,6 +14,7 @@ import { Label } from '../components/ui/label';
 import { Select } from '../components/ui/select';
 import { AccountCard } from '../components/accounts/AccountCard';
 import { AccountEmpty } from '../components/accounts/AccountEmpty';
+import { TransferModal } from '../components/accounts/TransferModal';
 import { useAccounts } from '../hooks/useAccounts';
 import { accountsApi } from '../api/accounts.api';
 import { formatCurrency, cn } from '../lib/utils';
@@ -25,6 +26,7 @@ export function AccountsPage() {
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<Account['type'], boolean>>({
     bank: true,
     credit_card: true,
@@ -187,9 +189,16 @@ export function AccountsPage() {
             <span className="font-semibold text-gray-900">{formatCurrency(totalBalance)}</span>
           </p>
         </div>
-        <Button onClick={() => openForm()}>
-          <Plus className="mr-2 h-4 w-4" /> Nueva Cuenta
-        </Button>
+        <div className="flex gap-2">
+          {accounts.length >= 2 && (
+            <Button variant="outline" onClick={() => setShowTransfer(true)}>
+              <ArrowLeftRight className="mr-2 h-4 w-4" /> Transferir
+            </Button>
+          )}
+          <Button onClick={() => openForm()}>
+            <Plus className="mr-2 h-4 w-4" /> Nueva Cuenta
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-8">
@@ -408,6 +417,17 @@ export function AccountsPage() {
         confirmText="Eliminar"
         loading={deleting}
       />
+
+      {showTransfer && (
+        <TransferModal
+          accounts={accounts}
+          onClose={() => setShowTransfer(false)}
+          onSuccess={() => {
+            setShowTransfer(false);
+            reload();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -20,6 +20,18 @@ export interface Account {
   paymentAccountId?: string | null;
 }
 
+export interface Transfer {
+  id: string;
+  fromAccountId: string;
+  toAccountId: string;
+  fromAccount: Pick<Account, 'id' | 'name' | 'color'>;
+  toAccount: Pick<Account, 'id' | 'name' | 'color'>;
+  amount: number;
+  note?: string;
+  date: string;
+  createdAt: string;
+}
+
 export interface Category {
   id: string;
   name: string;

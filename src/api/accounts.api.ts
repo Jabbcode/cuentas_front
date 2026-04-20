@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Account } from '../types';
+import type { Account, Transfer } from '../types';
 
 export const accountsApi = {
   getAll: async (): Promise<Account[]> => {
@@ -24,5 +24,20 @@ export const accountsApi = {
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/accounts/${id}`);
+  },
+
+  transfer: async (data: {
+    fromAccountId: string;
+    toAccountId: string;
+    amount: number;
+    note?: string;
+  }): Promise<Transfer> => {
+    const response = await api.post('/accounts/transfer', data);
+    return response.data;
+  },
+
+  getTransfers: async (accountId: string): Promise<Transfer[]> => {
+    const response = await api.get(`/accounts/${accountId}/transfers`);
+    return response.data;
   },
 };
