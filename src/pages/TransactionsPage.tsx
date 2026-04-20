@@ -49,7 +49,10 @@ export function TransactionsPage() {
     itemsPerPage: pagination.itemsPerPage,
     startDate: transactionFilters.filters.startDate,
     endDate: transactionFilters.filters.endDate,
-    categoryId: transactionFilters.filters.categoryId,
+    accountId:
+      transactionFilters.filters.accountId !== 'all'
+        ? transactionFilters.filters.accountId
+        : undefined,
     type: transactionFilters.filters.type,
   });
 
@@ -91,11 +94,38 @@ export function TransactionsPage() {
 
   const filteredCategories = categories.filter((c) => c.type === formData.type);
 
+  // Client-side filtering for categoryIds and amount range
+  const filteredTransactions = useMemo(() => {
+    let result = transactions;
+
+    if (transactionFilters.filters.categoryIds.length > 0) {
+      result = result.filter(
+        (tx) => tx.category && transactionFilters.filters.categoryIds.includes(tx.category.id)
+      );
+    }
+
+    const min = parseFloat(transactionFilters.filters.minAmount);
+    const max = parseFloat(transactionFilters.filters.maxAmount);
+    if (!isNaN(min)) {
+      result = result.filter((tx) => Number(tx.amount) >= min);
+    }
+    if (!isNaN(max)) {
+      result = result.filter((tx) => Number(tx.amount) <= max);
+    }
+
+    return result;
+  }, [
+    transactions,
+    transactionFilters.filters.categoryIds,
+    transactionFilters.filters.minAmount,
+    transactionFilters.filters.maxAmount,
+  ]);
+
   // Grouped transactions
   const groupedTransactions = useMemo(() => {
     if (!transactionFilters.filters.groupByCategory) return null;
-    return groupTransactionsByCategory(transactions);
-  }, [transactions, transactionFilters.filters.groupByCategory]);
+    return groupTransactionsByCategory(filteredTransactions);
+  }, [filteredTransactions, transactionFilters.filters.groupByCategory]);
 
   // Pagination info
   const paginationInfo = pagination.getPaginationInfo(total);
@@ -269,14 +299,22 @@ export function TransactionsPage() {
       <TransactionFilters
         startDate={transactionFilters.filters.startDate}
         endDate={transactionFilters.filters.endDate}
-        categoryId={transactionFilters.filters.categoryId}
+        categoryIds={transactionFilters.filters.categoryIds}
+        accountId={transactionFilters.filters.accountId}
+        minAmount={transactionFilters.filters.minAmount}
+        maxAmount={transactionFilters.filters.maxAmount}
         type={transactionFilters.filters.type}
         groupByCategory={transactionFilters.filters.groupByCategory}
         categories={categories}
+        accounts={accounts}
         hasActiveFilters={transactionFilters.hasActiveFilters}
         onStartDateChange={transactionFilters.setStartDate}
         onEndDateChange={transactionFilters.setEndDate}
-        onCategoryChange={transactionFilters.setCategoryId}
+        onToggleCategory={transactionFilters.toggleCategory}
+        onRemoveCategory={transactionFilters.removeCategory}
+        onAccountChange={transactionFilters.setAccountId}
+        onMinAmountChange={transactionFilters.setMinAmount}
+        onMaxAmountChange={transactionFilters.setMaxAmount}
         onTypeChange={transactionFilters.setType}
         onGroupByCategoryChange={transactionFilters.setGroupByCategory}
         onClearFilters={transactionFilters.clearFilters}
@@ -285,7 +323,7 @@ export function TransactionsPage() {
       {/* Transactions - List or Grouped View */}
       {!transactionFilters.filters.groupByCategory ? (
         <TransactionList
-          transactions={transactions}
+          transactions={filteredTransactions}
           accounts={accounts}
           onDelete={setDeleteId}
           onEdit={handleEdit}
@@ -308,19 +346,20 @@ export function TransactionsPage() {
       )}
 
       {/* Pagination */}
-      {total > pagination.itemsPerPage && (
-        <TransactionPagination
-          currentPage={pagination.currentPage}
-          totalPages={paginationInfo.totalPages}
-          startItem={paginationInfo.startItem}
-          endItem={paginationInfo.endItem}
-          total={total}
-          onPreviousPage={pagination.previousPage}
-          onNextPage={pagination.nextPage}
-          hasNextPage={paginationInfo.hasNextPage}
-          hasPreviousPage={paginationInfo.hasPreviousPage}
-        />
-      )}
+      {total > pagination.itemsPerPage &&
+        (filteredTransactions.length >= pagination.itemsPerPage || pagination.currentPage > 1) && (
+          <TransactionPagination
+            currentPage={pagination.currentPage}
+            totalPages={paginationInfo.totalPages}
+            startItem={paginationInfo.startItem}
+            endItem={paginationInfo.endItem}
+            total={total}
+            onPreviousPage={pagination.previousPage}
+            onNextPage={pagination.nextPage}
+            hasNextPage={paginationInfo.hasNextPage}
+            hasPreviousPage={paginationInfo.hasPreviousPage}
+          />
+        )}
 
       {/* Form Dialog */}
       <Dialog open={showForm} onClose={handleCloseForm}>

@@ -58,17 +58,17 @@ export function buildTransactionFilters(params: {
   itemsPerPage: number;
   startDate?: string;
   endDate?: string;
-  categoryId?: string;
+  accountId?: string;
   type?: 'all' | 'expense' | 'income';
 }) {
-  const { currentPage, itemsPerPage, startDate, endDate, categoryId, type } = params;
+  const { currentPage, itemsPerPage, startDate, endDate, accountId, type } = params;
 
   const filters: {
     limit: number;
     offset: number;
     startDate?: string;
     endDate?: string;
-    categoryId?: string;
+    accountId?: string;
     type?: 'expense' | 'income';
   } = {
     limit: itemsPerPage,
@@ -95,9 +95,9 @@ export function buildTransactionFilters(params: {
     filters.endDate = end.toISOString();
   }
 
-  // Category filter
-  if (categoryId && categoryId !== 'all') {
-    filters.categoryId = categoryId;
+  // Account filter
+  if (accountId && accountId !== 'all') {
+    filters.accountId = accountId;
   }
 
   // Type filter
