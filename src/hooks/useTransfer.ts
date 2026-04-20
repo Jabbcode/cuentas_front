@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from 'axios';
 import { accountsApi } from '../api/accounts.api';
 
 interface TransferData {
@@ -19,9 +20,10 @@ export function useTransfer(onSuccess?: () => void) {
       await accountsApi.transfer(data);
       onSuccess?.();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error al realizar la transferencia';
+      const message = axios.isAxiosError(err)
+        ? (err.response?.data?.error ?? 'Error al realizar la transferencia')
+        : 'Error al realizar la transferencia';
       setError(message);
-      throw err;
     } finally {
       setLoading(false);
     }
