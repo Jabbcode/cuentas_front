@@ -10,7 +10,7 @@ export interface UseTransactionsParams {
   itemsPerPage: number;
   startDate?: string;
   endDate?: string;
-  categoryId?: string;
+  accountId?: string;
   type?: 'all' | 'expense' | 'income';
 }
 
@@ -47,7 +47,7 @@ export function useTransactions(params: UseTransactionsParams) {
     params.itemsPerPage,
     params.startDate,
     params.endDate,
-    params.categoryId,
+    params.accountId,
     params.type,
   ]);
 
