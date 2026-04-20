@@ -74,9 +74,12 @@ export function CategoriesPage() {
     setShowForm(true);
   };
 
+  const [saving, setSaving] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSaving(true);
     try {
       const data = {
         name: formData.name,
@@ -96,6 +99,8 @@ export function CategoriesPage() {
       loadCategories();
     } catch (err) {
       console.error('Error saving category:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -326,7 +331,9 @@ export function CategoriesPage() {
             <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
               Cancelar
             </Button>
-            <Button type="submit">{editingCategory ? 'Guardar' : 'Crear'}</Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? 'Guardando...' : editingCategory ? 'Guardar' : 'Crear'}
+            </Button>
           </DialogFooter>
         </form>
       </Dialog>

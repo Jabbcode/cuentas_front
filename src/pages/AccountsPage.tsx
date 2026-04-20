@@ -107,8 +107,11 @@ export function AccountsPage() {
     setShowForm(true);
   };
 
+  const [saving, setSaving] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       const data: {
         name: string;
@@ -145,6 +148,8 @@ export function AccountsPage() {
       reload();
     } catch (err) {
       console.error('Error saving account:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -386,7 +391,9 @@ export function AccountsPage() {
             <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
               Cancelar
             </Button>
-            <Button type="submit">{editingAccount ? 'Guardar' : 'Crear'}</Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? 'Guardando...' : editingAccount ? 'Guardar' : 'Crear'}
+            </Button>
           </DialogFooter>
         </form>
       </Dialog>

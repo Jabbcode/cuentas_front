@@ -157,8 +157,11 @@ export function TransactionsPage() {
     setShowForm(true);
   };
 
+  const [saving, setSaving] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       await transactionsApi.create({
         amount: parseFloat(formData.amount),
@@ -174,6 +177,8 @@ export function TransactionsPage() {
       reload();
     } catch (err) {
       console.error('Error creating transaction:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -437,7 +442,9 @@ export function TransactionsPage() {
             <Button type="button" variant="outline" onClick={handleCloseForm}>
               Cancelar
             </Button>
-            <Button type="submit">Crear</Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? 'Guardando...' : 'Crear'}
+            </Button>
           </DialogFooter>
         </form>
       </Dialog>
