@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
+import { NotificationBell } from './NotificationBell';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
@@ -54,12 +55,17 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       >
         <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4 lg:h-16 lg:px-6">
           <h1 className="text-xl font-bold text-blue-600">MisCuentas</h1>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 lg:hidden"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <span className="hidden lg:block">
+              <NotificationBell />
+            </span>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 lg:hidden"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         <nav className="flex-1 space-y-1 p-3 lg:p-4">

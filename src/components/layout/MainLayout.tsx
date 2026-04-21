@@ -3,6 +3,7 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Sidebar } from './Sidebar';
+import { NotificationBell } from './NotificationBell';
 
 export function MainLayout() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -35,7 +36,8 @@ export function MainLayout() {
           >
             <Menu className="h-6 w-6" />
           </button>
-          <h1 className="text-lg font-bold text-blue-600">MisCuentas</h1>
+          <h1 className="flex-1 text-lg font-bold text-blue-600">MisCuentas</h1>
+          <NotificationBell />
         </header>
 
         {/* Main content */}
