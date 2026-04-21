@@ -26,6 +26,7 @@ Aplicación en desarrollo activo con funcionalidades core implementadas.
 - [x] Gráficos con Recharts
 - [x] Validación con Zod
 - [x] **Presupuestos mensuales por categoría** (FEAT-011 — 2026-04-21)
+- [x] **Sistema de notificaciones y alertas** (FEAT-013 — 2026-04-21) — campana en navbar/sidebar, panel dropdown responsive, toasts globales con Sonner, preferencias en Settings
 
 ### 🔄 En Progreso
 
@@ -114,6 +115,7 @@ Aplicación en desarrollo activo con funcionalidades core implementadas.
 - Vite: 8
 - TailwindCSS: 4.2
 - Axios: 1.13.6
+- Sonner: (toast notifications)
 
 ### Vulnerabilidades Conocidas
 
