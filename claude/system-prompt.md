@@ -29,6 +29,8 @@ version: 3.2
 
 ### Cuando usuario dice: "Lee la tarea [NOMBRE] de Notion"
 
+La base de datos de notion se encuentra en https://www.notion.so/10127793b8f74fc8acbc0ae5f534714a?v=3b1db9820e6f4c958994c1805eec8c88
+
 Si la tarea en Notion tiene:
 
 - ✅ **Título**: Sí (obligatorio)
