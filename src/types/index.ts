@@ -356,6 +356,32 @@ export interface CreateRecurringDebtPaymentInput {
   notes?: string;
 }
 
+// Budgets
+export interface Budget {
+  id: string;
+  categoryId: string;
+  category: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;
+  amount: number;
+  month: number;
+  year: number;
+  alertAt: number | null;
+  spent: number;
+  remaining: number;
+  percentage: number;
+  isOverBudget: boolean;
+  isNearLimit: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateBudgetInput {
+  categoryId: string;
+  amount: number;
+  month: number;
+  year: number;
+  alertAt?: number;
+}
+
 export interface UpdateRecurringDebtPaymentInput {
   amount?: number;
   accountId?: string;
