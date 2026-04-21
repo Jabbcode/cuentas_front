@@ -8,9 +8,20 @@ import { FixedVsVariableChart } from '../components/dashboard/FixedVsVariableCha
 import { NextMonthProjection } from '../components/dashboard/NextMonthProjection';
 import { CreditCardsSummaryCard } from '../components/dashboard/CreditCardsSummary';
 import { DebtsSummaryCard } from '../components/dashboard/DebtsSummaryCard';
+import { BudgetDashboardWidget } from '../components/budgets/BudgetDashboardWidget';
 
 export function DashboardPage() {
-  const { summary, byCategory, fixedSummary, fixedVsVariable, projection, creditCardsSummary, debtsSummary, loading, reload } = useDashboard();
+  const {
+    summary,
+    byCategory,
+    fixedSummary,
+    fixedVsVariable,
+    projection,
+    creditCardsSummary,
+    debtsSummary,
+    loading,
+    reload,
+  } = useDashboard();
 
   if (loading) {
     return (
@@ -46,6 +57,8 @@ export function DashboardPage() {
       {creditCardsSummary && <CreditCardsSummaryCard summary={creditCardsSummary} />}
 
       {debtsSummary && <DebtsSummaryCard summary={debtsSummary} />}
+
+      <BudgetDashboardWidget />
 
       {projection && <NextMonthProjection projection={projection} />}
 

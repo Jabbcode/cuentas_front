@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   X,
+  Target,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
@@ -21,6 +22,7 @@ const navItems = [
   { to: '/fixed-expenses', icon: CalendarClock, label: 'Gastos Fijos' },
   { to: '/credit-cards', icon: CreditCard, label: 'Tarjetas de Crédito' },
   { to: '/debts', icon: Receipt, label: 'Deudas' },
+  { to: '/budgets', icon: Target, label: 'Presupuestos' },
   { to: '/categories', icon: Tags, label: 'Categorías' },
   { to: '/settings', icon: Settings, label: 'Configuración' },
 ];
@@ -41,12 +43,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <>
       {/* Overlay para móvil */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={onClose}
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={onClose} />}
 
       {/* Sidebar */}
       <aside
