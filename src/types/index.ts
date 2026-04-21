@@ -392,3 +392,26 @@ export interface UpdateRecurringDebtPaymentInput {
   isActive?: boolean;
   notes?: string;
 }
+
+// Notifications
+export interface Notification {
+  id: string;
+  userId: string;
+  type: 'category_limit' | 'debt_due' | 'monthly_summary';
+  title: string;
+  message: string;
+  read: boolean;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface NotificationPreferences {
+  categoryLimit: boolean;
+  debtDue: boolean;
+  monthlyEmail: boolean;
+}
+
+export interface NotificationsResponse {
+  notifications: Notification[];
+  unreadCount: number;
+}

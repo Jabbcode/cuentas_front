@@ -6,14 +6,18 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { User, Lock, Trash2, TrendingUp, Calendar } from 'lucide-react';
+import { User, Lock, Trash2, TrendingUp, Calendar, Bell } from 'lucide-react';
+import { useNotificationPreferences } from '../hooks/useNotifications';
 
 export function SettingsPage() {
   const { logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [statistics, setStatistics] = useState<AccountStatistics | null>(null);
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'account'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'account' | 'notifications'>(
+    'profile'
+  );
+  const { preferences: notifPrefs, update: updateNotifPrefs } = useNotificationPreferences();
 
   // Profile form state
   const [name, setName] = useState('');
@@ -238,6 +242,17 @@ export function SettingsPage() {
         </button>
         <button
           className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'notifications'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+          onClick={() => setActiveTab('notifications')}
+        >
+          <Bell className="inline h-4 w-4 mr-2" />
+          Notificaciones
+        </button>
+        <button
+          className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'account'
               ? 'border-b-2 border-red-600 text-red-600'
               : 'text-gray-500 hover:text-gray-700'
@@ -325,6 +340,59 @@ export function SettingsPage() {
               {loading ? 'Cambiando...' : 'Cambiar Contraseña'}
             </Button>
           </form>
+        </Card>
+      )}
+
+      {/* Notifications Tab */}
+      {activeTab === 'notifications' && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-1">Preferencias de Notificaciones</h2>
+          <p className="text-sm text-gray-500 mb-6">Elige qué notificaciones quieres recibir.</p>
+          {notifPrefs ? (
+            <div className="space-y-4">
+              {(
+                [
+                  {
+                    key: 'categoryLimit',
+                    label: 'Límite de categoría superado',
+                    desc: 'Alerta cuando un gasto mensual supera el límite configurado.',
+                  },
+                  {
+                    key: 'debtDue',
+                    label: 'Deudas próximas a vencer',
+                    desc: 'Notificación cuando una deuda vence en los próximos 3 días.',
+                  },
+                  {
+                    key: 'monthlyEmail',
+                    label: 'Resumen mensual por email',
+                    desc: 'Recibe un correo con tus gastos al inicio de cada mes.',
+                  },
+                ] as const
+              ).map(({ key, label, desc }) => (
+                <div
+                  key={key}
+                  className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{label}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+                  </div>
+                  <button
+                    role="switch"
+                    aria-checked={notifPrefs[key]}
+                    onClick={() => updateNotifPrefs({ [key]: !notifPrefs[key] })}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${notifPrefs[key] ? 'bg-blue-600' : 'bg-gray-200'}`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${notifPrefs[key] ? 'translate-x-6' : 'translate-x-1'}`}
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mx-auto" />
+          )}
         </Card>
       )}
 
