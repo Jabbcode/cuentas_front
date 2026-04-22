@@ -1,46 +1,76 @@
 ---
 name: data-fetching-skill
-description: Obtener datos del backend con Axios y JWT
+description: Obtener datos del backend con Axios y JWT — cliente API, interceptor y hooks de fetching
 type: skill
 ---
 
-## Propósito
+## Cuándo Usar
 
-Obtener datos del backend con Axios y JWT
+- Al crear un nuevo cliente API en `src/api/`
+- Al entender cómo funciona el interceptor JWT
+- Al implementar el patrón hook + API client
 
-## Cuándo Usar Este Skill
+## Cliente API — Patrón Estándar
 
-- ✅ Cuando necesitas implementar este patrón
-- ✅ Para código relacionado con obtener datos del backend con axios y jwt
-- ✅ Siguiendo las mejores prácticas del proyecto
+```typescript
+// src/api/accounts.api.ts
+import { api } from './client';
+import type { Account, CreateAccountInput, UpdateAccountInput } from '../types';
 
-## Lo Que Sabe Hacer
+export const accountsApi = {
+  getAll: () => api.get<Account[]>('/accounts').then((r) => r.data),
+  getById: (id: string) => api.get<Account>(`/accounts/${id}`).then((r) => r.data),
+  create: (data: CreateAccountInput) => api.post<Account>('/accounts', data).then((r) => r.data),
+  update: (id: string, data: UpdateAccountInput) =>
+    api.put<Account>(`/accounts/${id}`, data).then((r) => r.data),
+  delete: (id: string) => api.delete(`/accounts/${id}`),
+};
+```
 
-- Axios con interceptores
-- JWT token handling
-- Error handling
-- Loading states
+## Interceptor JWT (src/api/client.ts)
 
-## Patrones Clave
+El token se añade **automáticamente** en cada request. No añadirlo manualmente en los API clients.
 
-Ver `examples.md` para código real del proyecto.
+- Si el servidor retorna 401 → elimina token de localStorage → redirige a `/login`
+- La URL base viene de `VITE_API_URL` (`.env`)
 
-## Best Practices
+## Hook de Fetching — Patrón Estándar
 
-1. Sigue los patrones documentados
-2. Consulta `conventions.md` para convenciones
-3. Usa TypeScript types explícitos
-4. Maneja errores apropiadamente
-5. Escribe código reutilizable
+```typescript
+// src/hooks/useAccounts.ts
+import { useState, useCallback, useEffect } from 'react';
+import { accountsApi } from '../api/accounts.api';
+import type { Account } from '../types';
 
-## Anti-Patterns
+export function useAccounts() {
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-- No seguir patrones documentados
-- Código hardcodeado
-- Sin TypeScript types
-- Sin manejo de errores
-- Duplicación de código
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await accountsApi.getAll();
+      setAccounts(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-## Ejemplos
+  useEffect(() => {
+    load();
+  }, [load]);
 
-Ver `examples.md`
+  return { accounts, loading, error, reload: load };
+}
+```
+
+## Anti-patterns
+
+- ❌ Añadir `Authorization` header manualmente en el cliente API — ya lo hace el interceptor
+- ❌ `fetch()` directo — usar siempre el `api` de Axios con interceptor
+- ❌ Guardar datos del backend en localStorage — solo en estado React
+- ❌ `useEffect` con `load` sin `useCallback` — loop infinito

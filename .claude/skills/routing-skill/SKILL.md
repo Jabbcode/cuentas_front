@@ -1,46 +1,71 @@
 ---
 name: routing-skill
-description: Navegación con React Router y protección de rutas
+description: Navegación con React Router DOM v7 — rutas, protección y navegación programática
 type: skill
 ---
 
-## Propósito
+## Cuándo Usar
 
-Navegación con React Router y protección de rutas
+- Al añadir una nueva página/ruta al proyecto
+- Al implementar navegación programática
+- Al proteger rutas que requieren autenticación
 
-## Cuándo Usar Este Skill
+## Rutas del Proyecto (src/App.tsx)
 
-- ✅ Cuando necesitas implementar este patrón
-- ✅ Para código relacionado con navegación con react router y protección de rutas
-- ✅ Siguiendo las mejores prácticas del proyecto
+| Ruta              | Página            | Protegida |
+| ----------------- | ----------------- | --------- |
+| `/login`          | LoginPage         | No        |
+| `/register`       | RegisterPage      | No        |
+| `/`               | DashboardPage     | Sí        |
+| `/accounts`       | AccountsPage      | Sí        |
+| `/transactions`   | TransactionsPage  | Sí        |
+| `/fixed-expenses` | FixedExpensesPage | Sí        |
+| `/categories`     | CategoriesPage    | Sí        |
+| `/credit-cards`   | CreditCardsPage   | Sí        |
+| `/debts`          | DebtsPage         | Sí        |
+| `/settings`       | SettingsPage      | Sí        |
 
-## Lo Que Sabe Hacer
+## Añadir Nueva Ruta
 
-- React Router v7
-- Parámetros dinámicos
-- Rutas protegidas
-- Lazy loading
+```typescript
+// En App.tsx — añadir dentro del bloque de rutas protegidas
+import { NewPage } from './pages/NewPage';
 
-## Patrones Clave
+// Dentro del router:
+<Route path="/new-resource" element={<ProtectedRoute><NewPage /></ProtectedRoute>} />
+```
 
-Ver `examples.md` para código real del proyecto.
+## Navegación Programática
 
-## Best Practices
+```typescript
+import { useNavigate } from 'react-router-dom';
 
-1. Sigue los patrones documentados
-2. Consulta `conventions.md` para convenciones
-3. Usa TypeScript types explícitos
-4. Maneja errores apropiadamente
-5. Escribe código reutilizable
+export function SomeComponent() {
+  const navigate = useNavigate();
 
-## Anti-Patterns
+  const handleSuccess = useCallback(() => {
+    navigate('/accounts'); // navegar tras acción exitosa
+  }, [navigate]);
 
-- No seguir patrones documentados
-- Código hardcodeado
-- Sin TypeScript types
-- Sin manejo de errores
-- Duplicación de código
+  const handleBack = useCallback(() => {
+    navigate(-1); // volver atrás
+  }, [navigate]);
+}
+```
 
-## Ejemplos
+## Links en UI
 
-Ver `examples.md`
+```typescript
+import { Link } from 'react-router-dom';
+
+// En JSX:
+<Link to="/accounts" className="text-blue-600 hover:underline">
+  Ver cuentas
+</Link>
+```
+
+## Anti-patterns
+
+- ❌ `window.location.href` para navegar — usar `useNavigate`
+- ❌ Rutas nuevas sin `ProtectedRoute` wrapper si requieren auth
+- ❌ `<a href="/ruta">` en lugar de `<Link to="/ruta">` — recarga la página

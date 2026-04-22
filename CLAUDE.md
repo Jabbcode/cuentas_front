@@ -8,6 +8,7 @@ Al comenzar cualquier conversación en este proyecto, carga automáticamente:
 2. `.claude/context.md` — stack, estructura y flujo del proyecto
 3. `.claude/conventions.md` — patrones de código y convenciones
 4. `.claude/decisions/ADR-decisions.md` — decisiones arquitectónicas
+5. `.claude/project-state.md` — estado actual del proyecto
 
 Luego espera instrucciones del usuario.
 
@@ -38,6 +39,15 @@ Claude:  → LISTO — pide revisión, no auto-valida
 ## Stack
 
 React 19 + TypeScript 5.9 + Vite 8 + TailwindCSS 4 + Axios + Zod + React Hook Form
+
+## Agents disponibles
+
+| Agent                       | Cuándo usarlo                                   |
+| --------------------------- | ----------------------------------------------- |
+| `component-generator-agent` | Componente React nuevo con props tipadas        |
+| `hook-creator-agent`        | Custom hook con fetching y estado               |
+| `api-integration-agent`     | Cliente API + hook para un endpoint del backend |
+| `validation-schema-agent`   | Schema Zod para formulario                      |
 
 ## Estado actual
 

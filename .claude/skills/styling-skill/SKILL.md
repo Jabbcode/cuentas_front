@@ -1,46 +1,71 @@
 ---
 name: styling-skill
-description: Estilizar con TailwindCSS
+description: Estilizar con TailwindCSS 4 — clases utilitarias, clsx para condicionales y diseño responsivo
 type: skill
 ---
 
-## Propósito
+## Cuándo Usar
 
-Estilizar con TailwindCSS
+- Al escribir JSX con clases TailwindCSS
+- Al aplicar estilos condicionales
+- Al construir layouts responsivos
 
-## Cuándo Usar Este Skill
+## TailwindCSS 4 — Diferencias Clave
 
-- ✅ Cuando necesitas implementar este patrón
-- ✅ Para código relacionado con estilizar con tailwindcss
-- ✅ Siguiendo las mejores prácticas del proyecto
+- Sin `tailwind.config.js` — configuración en `index.css` con `@theme`
+- Sin purge manual — detección automática
+- Clases utilitarias directas igual que v3
 
-## Lo Que Sabe Hacer
+## clsx para Clases Condicionales
 
-- Utility classes
-- Responsive design
-- Composición de clases
-- Dark mode
+```typescript
+import { clsx } from 'clsx';
 
-## Patrones Clave
+// Condicional simple
+<div className={clsx('p-4 rounded', isActive && 'bg-blue-500 text-white')} />
 
-Ver `examples.md` para código real del proyecto.
+// Múltiples condiciones
+<div className={clsx(
+  'p-4 rounded-lg border-2 cursor-pointer transition-all',
+  isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300',
+  isDisabled && 'opacity-50 cursor-not-allowed'
+)} />
+```
 
-## Best Practices
+## Patrones de Layout Comunes
 
-1. Sigue los patrones documentados
-2. Consulta `conventions.md` para convenciones
-3. Usa TypeScript types explícitos
-4. Maneja errores apropiadamente
-5. Escribe código reutilizable
+```typescript
+// Flex row centrado
+<div className="flex items-center gap-3" />
 
-## Anti-Patterns
+// Grid responsivo
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" />
 
-- No seguir patrones documentados
-- Código hardcodeado
-- Sin TypeScript types
-- Sin manejo de errores
-- Duplicación de código
+// Card base
+<div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6" />
 
-## Ejemplos
+// Botón primario
+<button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50" />
 
-Ver `examples.md`
+// Input base
+<input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+// Error text
+<p className="text-red-500 text-sm mt-1" />
+```
+
+## Orden de Clases (convención)
+
+1. Layout: `flex`, `grid`, `block`
+2. Dimensiones: `w-`, `h-`, `max-w-`
+3. Espaciado: `p-`, `m-`, `gap-`
+4. Visual: `bg-`, `border-`, `rounded-`, `shadow-`
+5. Texto: `text-`, `font-`
+6. Estado: `hover:`, `focus:`, `disabled:`
+
+## Anti-patterns
+
+- ❌ Estilos inline `style={{ color: 'red' }}` — usar clases Tailwind
+- ❌ Clases arbitrarias sin necesidad `text-[#1a1a1a]` — usar escala de colores de Tailwind
+- ❌ Copiar bloques de clases 3+ veces — extraer a componente
+- ❌ Dark mode — no está configurado en el proyecto actualmente

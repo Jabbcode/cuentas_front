@@ -1,46 +1,77 @@
 ---
 name: state-management-skill
-description: Gestionar estado con React hooks y Context
+description: Gestionar estado con React hooks y Context API — useState, useCallback, useEffect
 type: skill
 ---
 
-## Propósito
+## Cuándo Usar
 
-Gestionar estado con React hooks y Context
+- Al definir estado local de un componente o hook
+- Al usar Context para estado global (auth, tema)
+- Al evitar re-renders innecesarios con useCallback/useMemo
 
-## Cuándo Usar Este Skill
+## Estado Local en Hooks
 
-- ✅ Cuando necesitas implementar este patrón
-- ✅ Para código relacionado con gestionar estado con react hooks y context
-- ✅ Siguiendo las mejores prácticas del proyecto
+```typescript
+// Patrón estándar: datos + loading + error
+const [items, setItems] = useState<Item[]>([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState<string | null>(null);
 
-## Lo Que Sabe Hacer
+// Booleanos para modales / UI state
+const [isOpen, setIsOpen] = useState(false);
+const [isSubmitting, setIsSubmitting] = useState(false);
+```
 
-- useState
-- useCallback
-- Context API
-- useEffect
+## useCallback — Cuándo Aplicarlo
 
-## Patrones Clave
+```typescript
+// ✅ Handler pasado como prop a un hijo (evita re-renders del hijo)
+const handleEdit = useCallback((item: Item) => {
+  setSelected(item);
+  setIsOpen(true);
+}, []); // dependencias vacías si no usa estado externo
 
-Ver `examples.md` para código real del proyecto.
+// ✅ Función de carga usada en useEffect
+const load = useCallback(async () => {
+  const data = await api.getAll();
+  setItems(data);
+}, []); // sin deps si no depende de estado
 
-## Best Practices
+useEffect(() => {
+  load();
+}, [load]); // [load] es estable gracias a useCallback
+```
 
-1. Sigue los patrones documentados
-2. Consulta `conventions.md` para convenciones
-3. Usa TypeScript types explícitos
-4. Maneja errores apropiadamente
-5. Escribe código reutilizable
+## Context API — Estado Global
 
-## Anti-Patterns
+```typescript
+// Solo para estado verdaderamente global: auth, preferencias de usuario
+// NO usar para estado de página o componente individual
 
-- No seguir patrones documentados
-- Código hardcodeado
-- Sin TypeScript types
-- Sin manejo de errores
-- Duplicación de código
+interface AuthContextType {
+  user: User | null;
+  logout: () => void;
+}
 
-## Ejemplos
+export const AuthContext = createContext<AuthContextType | null>(null);
 
-Ver `examples.md`
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth debe usarse dentro de AuthProvider');
+  return ctx;
+}
+```
+
+## Jerarquía de Estado
+
+1. **useState local** — estado de un componente o hook (la mayoría de los casos)
+2. **Context API** — estado compartido entre múltiples páginas (auth, tema)
+3. **No usar** — localStorage para datos del servidor
+
+## Anti-patterns
+
+- ❌ Context para estado que solo usa un componente — prop drilling con props es más simple
+- ❌ `useEffect` sin `useCallback` en la función del efecto — loop infinito
+- ❌ Guardar respuestas del backend en localStorage
+- ❌ Estado en el componente que debería estar en el hook

@@ -1,110 +1,95 @@
 ---
 name: form-management-skill
-description: Manejar formularios complejos con React Hook Form y validación Zod
+description: Manejar formularios con React Hook Form + Zod — schema, useForm, validación y estados
 type: skill
 ---
 
-## Propósito
+## Cuándo Usar
 
-Encapsula todo el conocimiento para crear y validar formularios en el proyecto con React Hook Form y Zod.
+- Al crear formularios con validación
+- Al integrar un formulario con un endpoint de la API
+- Al manejar estados loading/error en submit
 
-## Cuándo Usar Este Skill
-
-- ✅ Crear nuevo formulario
-- ✅ Validar inputs de usuario
-- ✅ Manejar errores de validación
-- ✅ Integrar formulario con API
-- ✅ Manejar estados de carga y error
-
-## Lo Que Sabe Hacer
-
-- Crear formularios con React Hook Form
-- Validación type-safe con Zod
-- Manejo de errores claros
-- Estados: loading, success, error
-- Integración con API
-- Memoización de callbacks
-- Field arrays para inputs dinámicos
-
-## Cuándo NO Usar Este Skill
-
-- ❌ Para búsquedas simples (usar input normal)
-- ❌ Para filtros sin validación compleja
-- ❌ Para componentes sin estado de formulario
-
-## Patrones Clave
-
-### 1. Schema Zod Primero
+## Patrón Completo
 
 ```typescript
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useCallback } from 'react';
+
+// 1. Schema primero
 const schema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(8, 'Mínimo 8 caracteres'),
+  name: z.string().min(1, 'El nombre es requerido'),
+  amount: z.coerce.number().positive('Debe ser positivo'),
+  type: z.enum(['income', 'expense'], { errorMap: () => ({ message: 'Tipo inválido' }) }),
+  description: z.string().optional(),
 });
+
+type FormData = z.infer<typeof schema>;
+
+// 2. Componente
+interface Props {
+  onSuccess: () => void;
+}
+
+export function TransactionForm({ onSuccess }: Props) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({ resolver: zodResolver(schema) });
+
+  const onSubmit = useCallback(async (data: FormData) => {
+    await transactionsApi.create(data);
+    reset();
+    onSuccess();
+  }, [reset, onSuccess]);
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div>
+        <input
+          {...register('name')}
+          placeholder="Nombre"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        />
+        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+      </div>
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full bg-blue-600 text-white py-2 rounded-lg disabled:opacity-50"
+      >
+        {isSubmitting ? 'Guardando...' : 'Guardar'}
+      </button>
+    </form>
+  );
+}
 ```
 
-### 2. Hook + Form Hook
+## Campos Numéricos desde Input HTML
 
 ```typescript
-const {
-  register,
-  handleSubmit,
-  formState: { errors, isLoading },
-} = useForm({
-  resolver: zodResolver(schema),
-  defaultValues: { email: '', password: '' },
-});
+// Los inputs siempre retornan string — usar z.coerce.number() para convertir
+amount: z.coerce.number().positive('Debe ser positivo');
 ```
 
-### 3. Manejo de Errores
+## Reglas Críticas
 
-```typescript
-{errors.email && (
-  <span className="text-red-500">{errors.email.message}</span>
-)}
-```
+- Schema Zod definido **antes** del componente
+- `z.infer<typeof schema>` para el tipo — nunca definir el tipo a mano
+- `z.coerce.number()` para campos numéricos de inputs HTML
+- `reset()` después de submit exitoso
+- `isSubmitting` de formState para deshabilitar el botón durante envío
+- Mensajes de error en español y específicos
+- `type="submit"` en el botón de envío — nunca `type="button"`
 
-### 4. Estados Correctos
+## Anti-patterns
 
-```typescript
-<button disabled={isLoading} type="submit">
-  {isLoading ? 'Enviando...' : 'Enviar'}
-</button>
-```
-
-## Best Practices
-
-1. **Schema siempre primero**: Define Zod schema antes de usar en formulario
-2. **TypeScript types**: Infiere tipos del schema con `z.infer<typeof schema>`
-3. **Error messages claros**: Mensajes en español y específicos
-4. **Loading state**: Siempre muestra estado durante envío
-5. **Memoización**: useCallback para handlers pasados a children
-6. **No hardcodear valores**: Todos los campos dinámicos
-7. **Reset después de envío**: `reset()` en success
-8. **Validación en tiempo real**: Modo onChange si es necesario
-
-## Anti-Patterns
-
-❌ Validación manual en handlers (usa Zod)
-❌ Props sin tipado de Zod
-❌ Handlers sin useCallback
-❌ Errores genéricos ("Error")
-❌ Formularios sin loading state
-❌ type="button" en submit (siempre type="submit")
-❌ Estilos inline (usa TailwindCSS)
-
-## Dependencias
-
-- react-hook-form (^7.71.0)
-- zod (^4.3.0)
-- @hookform/resolvers (para zodResolver)
-
-## Ejemplos
-
-Ver `examples.md`
-
-## Referencias
-
-- [React Hook Form Docs](https://react-hook-form.com/)
-- [Zod Validation](https://zod.dev/)
-- `conventions.md` para patrones del proyecto
+- ❌ Validación manual con `if (!value)` — usar Zod
+- ❌ `useState` para cada campo del formulario — usar React Hook Form
+- ❌ `z.number()` para inputs HTML (llega como string) — usar `z.coerce.number()`
+- ❌ Botón de submit sin `disabled={isSubmitting}` — doble submit posible
