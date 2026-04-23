@@ -1,6 +1,7 @@
 import { RefreshCw } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useDashboard } from '../hooks/useDashboard';
+import { useMonthComparison } from '../hooks/useMonthComparison';
 import { DashboardSummaryCards } from '../components/dashboard/DashboardSummaryCards';
 import { FixedExpensesSummaryCard } from '../components/dashboard/FixedExpensesSummaryCard';
 import { ExpensesByCategoryChart } from '../components/dashboard/ExpensesByCategoryChart';
@@ -9,6 +10,8 @@ import { NextMonthProjection } from '../components/dashboard/NextMonthProjection
 import { CreditCardsSummaryCard } from '../components/dashboard/CreditCardsSummary';
 import { DebtsSummaryCard } from '../components/dashboard/DebtsSummaryCard';
 import { BudgetDashboardWidget } from '../components/budgets/BudgetDashboardWidget';
+import { MonthComparisonCard } from '../components/dashboard/MonthComparisonCard';
+import { CategoryComparisonChart } from '../components/dashboard/CategoryComparisonChart';
 
 export function DashboardPage() {
   const {
@@ -22,6 +25,16 @@ export function DashboardPage() {
     loading,
     reload,
   } = useDashboard();
+
+  const {
+    comparison,
+    loading: compLoading,
+    selectedMonth,
+    selectedYear,
+    goToPrevMonth,
+    goToNextMonth,
+    isCurrentMonth,
+  } = useMonthComparison();
 
   if (loading) {
     return (
@@ -66,6 +79,26 @@ export function DashboardPage() {
         <ExpensesByCategoryChart categories={byCategory} />
         <FixedVsVariableChart data={fixedVsVariable} />
       </div>
+
+      {!compLoading && comparison && (
+        <>
+          <MonthComparisonCard
+            comparison={comparison}
+            selectedMonth={selectedMonth}
+            selectedYear={selectedYear}
+            onPrev={goToPrevMonth}
+            onNext={goToNextMonth}
+            isCurrentMonth={isCurrentMonth}
+          />
+          <CategoryComparisonChart
+            categories={comparison.categories}
+            previousMonth={comparison.previousMonth.month}
+            previousYear={comparison.previousMonth.year}
+            currentMonth={comparison.currentMonth.month}
+            currentYear={comparison.currentMonth.year}
+          />
+        </>
+      )}
     </div>
   );
 }
