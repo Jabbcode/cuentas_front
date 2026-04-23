@@ -12,6 +12,36 @@ export function formatCurrency(amount: number, currency = 'EUR'): string {
   }).format(amount);
 }
 
+export const MONTHS_LONG = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
+];
+
+export const MONTHS_SHORT = [
+  'Ene',
+  'Feb',
+  'Mar',
+  'Abr',
+  'May',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dic',
+];
+
 export function formatDate(date: string | Date): string {
   return new Intl.DateTimeFormat('es-ES', {
     day: '2-digit',
@@ -55,7 +85,11 @@ export function getOrdinalDay(day: number): string {
   return `${day}`;
 }
 
-export function getDaysUntilDue(dueDay: number, isPaidThisMonth = true, isCreditCard = false): number {
+export function getDaysUntilDue(
+  dueDay: number,
+  isPaidThisMonth = true,
+  isCreditCard = false
+): number {
   const today = new Date();
   const currentDay = today.getDate();
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
@@ -78,7 +112,12 @@ export function getDaysUntilDue(dueDay: number, isPaidThisMonth = true, isCredit
   return daysInMonth - currentDay + dueDay;
 }
 
-export function isDueSoon(dueDay: number, isPaidThisMonth = true, isCreditCard = false, days = 3): boolean {
+export function isDueSoon(
+  dueDay: number,
+  isPaidThisMonth = true,
+  isCreditCard = false,
+  days = 3
+): boolean {
   const daysUntil = getDaysUntilDue(dueDay, isPaidThisMonth, isCreditCard);
   return daysUntil >= 0 && daysUntil <= days;
 }

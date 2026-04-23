@@ -154,6 +154,47 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface MonthlySummaryCategory {
+  id: string;
+  name: string;
+  icon?: string | null;
+  color?: string | null;
+  total: number;
+  percentage: number;
+}
+
+export interface MonthlySummary {
+  month: number;
+  year: number;
+  totalExpenses: number;
+  totalIncome: number;
+  net: number;
+  categories: MonthlySummaryCategory[];
+}
+
+export interface CategoryComparison {
+  id: string;
+  name: string;
+  icon?: string | null;
+  color?: string | null;
+  current: number;
+  previous: number;
+  diff: number;
+  diffPercentage: number | null;
+  trend: 'up' | 'down' | 'same';
+}
+
+export interface MonthComparison {
+  currentMonth: MonthlySummary;
+  previousMonth: MonthlySummary;
+  expensesDiff: number;
+  expensesDiffPercentage: number | null;
+  incomeDiff: number;
+  incomeDiffPercentage: number | null;
+  netDiff: number;
+  categories: CategoryComparison[];
+}
+
 export interface CategoryProjection {
   categoryId: string;
   categoryName: string;
