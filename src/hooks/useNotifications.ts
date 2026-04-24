@@ -21,8 +21,17 @@ export function useNotifications() {
 
   useEffect(() => {
     load();
-    const interval = setInterval(load, 60_000);
-    return () => clearInterval(interval);
+    const interval = setInterval(load, 30_000);
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') load();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [load]);
 
   const markAsRead = useCallback(async (id: string) => {
