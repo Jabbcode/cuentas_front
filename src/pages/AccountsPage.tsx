@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, ChevronDown, ChevronRight, ArrowLeftRight } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Plus, ChevronDown, ChevronRight, ArrowLeftRight, Info } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import {
   Dialog,
@@ -17,11 +17,13 @@ import { AccountEmpty } from '../components/accounts/AccountEmpty';
 import { TransferModal } from '../components/accounts/TransferModal';
 import { useAccounts } from '../hooks/useAccounts';
 import { accountsApi } from '../api/accounts.api';
+import { creditCardsApi } from '../api/credit-cards.api';
 import { formatCurrency, cn } from '../lib/utils';
-import type { Account } from '../types';
+import type { Account, CreditCardStatement } from '../types';
 
 export function AccountsPage() {
-  const { accounts, loading, reload, totalBalance } = useAccounts();
+  const { accounts, loading, reload } = useAccounts();
+  const [statementsMap, setStatementsMap] = useState<Record<string, CreditCardStatement>>({});
   const [showForm, setShowForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -32,6 +34,43 @@ export function AccountsPage() {
     credit_card: true,
     cash: true,
   });
+
+  useEffect(() => {
+    const hasCreditCards = accounts.some((a) => a.type === 'credit_card');
+    if (!hasCreditCards) return;
+    creditCardsApi
+      .getSummary()
+      .then((summary) => {
+        const map: Record<string, CreditCardStatement> = {};
+        for (const card of summary.cards) {
+          map[card.account.id] = card;
+        }
+        setStatementsMap(map);
+      })
+      .catch(() => {});
+  }, [accounts]);
+
+  const { totalBalance, unpaidClosedTotal } = useMemo(() => {
+    let total = 0;
+    let unpaid = 0;
+    for (const acc of accounts) {
+      if (acc.type === 'credit_card' && acc.creditLimit) {
+        const stmt = statementsMap[acc.id];
+        if (stmt) {
+          total += stmt.creditLimit - stmt.currentPeriod.balance;
+          if (!stmt.closedPeriod.isPaid && stmt.closedPeriod.balance > 0) {
+            total -= stmt.closedPeriod.balance;
+            unpaid += stmt.closedPeriod.balance;
+          }
+        } else {
+          total += acc.creditLimit - Math.abs(Number(acc.balance));
+        }
+      } else {
+        total += Number(acc.balance);
+      }
+    }
+    return { totalBalance: total, unpaidClosedTotal: unpaid };
+  }, [accounts, statementsMap]);
 
   // Account type labels and order for grouping
   const accountTypeLabels: Record<Account['type'], string> = {
@@ -188,6 +227,13 @@ export function AccountsPage() {
             Balance total:{' '}
             <span className="font-semibold text-gray-900">{formatCurrency(totalBalance)}</span>
           </p>
+          {unpaidClosedTotal > 0 && (
+            <p className="flex items-center gap-1 text-xs text-amber-600 mt-0.5">
+              <Info className="h-3.5 w-3.5 shrink-0" />
+              Incluye descuento de {formatCurrency(unpaidClosedTotal)} por períodos vencidos sin
+              pagar en tarjetas de crédito
+            </p>
+          )}
         </div>
         <div className="flex gap-2">
           {accounts.length >= 2 && (
@@ -236,6 +282,7 @@ export function AccountsPage() {
                           account={account}
                           onEdit={openForm}
                           onDelete={setDeleteId}
+                          statement={statementsMap[account.id]}
                         />
                       ))}
                     </div>
