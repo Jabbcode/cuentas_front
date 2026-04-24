@@ -17,12 +17,14 @@ function NotificationItem({
     category_limit: 'bg-orange-100 text-orange-700',
     debt_due: 'bg-red-100 text-red-700',
     monthly_summary: 'bg-blue-100 text-blue-700',
+    auto_generated: 'bg-amber-100 text-amber-700',
   };
 
   const typeLabels: Record<string, string> = {
     category_limit: 'Límite',
     debt_due: 'Deuda',
     monthly_summary: 'Resumen',
+    auto_generated: 'Auto',
   };
 
   const timeAgo = (date: string) => {
@@ -57,7 +59,9 @@ function NotificationItem({
           <span className="text-xs text-gray-400 ml-auto">{timeAgo(notification.createdAt)}</span>
         </div>
         <p className="text-sm font-medium text-gray-900 truncate">{notification.title}</p>
-        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{notification.message}</p>
+        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2" title={notification.message}>
+          {notification.message}
+        </p>
       </div>
       <div className="flex flex-col gap-1 flex-shrink-0">
         {!notification.read && (

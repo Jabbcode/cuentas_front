@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CreditCard, Info } from 'lucide-react';
+import { CreditCard, Info, Zap } from 'lucide-react';
 import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -32,6 +32,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
     accountId: '',
     categoryId: '',
     creditCardAccountId: null as string | null,
+    autoGenerate: false,
   });
 
   useEffect(() => {
@@ -59,6 +60,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
             accountId: expense.accountId,
             categoryId: expense.categoryId,
             creditCardAccountId: expense.creditCardAccountId || null,
+            autoGenerate: expense.autoGenerate ?? false,
           });
         } else {
           const defaultCategory = categoriesData.find((c) => c.type === 'expense');
@@ -99,6 +101,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
         description: formData.description || undefined,
         accountId: formData.accountId,
         categoryId: formData.categoryId,
+        autoGenerate: formData.autoGenerate,
       };
 
       if (editId) {
@@ -257,6 +260,32 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
               onChange={(categoryId) => setFormData({ ...formData, categoryId })}
               required
             />
+          </div>
+
+          {/* Auto-generate toggle */}
+          <div className="flex items-start justify-between rounded-lg border border-gray-200 p-3">
+            <div className="flex items-start gap-2">
+              <Zap className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" />
+              <div>
+                <p className="text-sm font-medium text-gray-900">Auto-generar transacción</p>
+                <p className="text-xs text-gray-500">
+                  Se creará automáticamente en el día {formData.dueDay} de cada mes
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFormData((prev) => ({ ...prev, autoGenerate: !prev.autoGenerate }))}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                formData.autoGenerate ? 'bg-amber-500' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  formData.autoGenerate ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
           </div>
 
           {/* Description */}
