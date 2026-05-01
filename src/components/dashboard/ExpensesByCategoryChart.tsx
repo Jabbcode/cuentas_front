@@ -3,7 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { CategoryIcon } from '../ui/category-icon';
-import { CategoryLimitBadge } from '../categories/CategoryLimitBadge';
+import { CategoryLimitBadge } from '../../features/categories/components/CategoryLimitBadge';
 import { formatCurrency } from '../../lib/utils';
 import type { CategorySummary } from '../../types';
 

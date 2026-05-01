@@ -1,4 +1,4 @@
-import { formatCurrency } from '../../lib/utils';
+import { formatCurrency } from '../../../lib/utils';
 
 interface CategoryLimitBadgeProps {
   spent: number;
@@ -7,7 +7,12 @@ interface CategoryLimitBadgeProps {
   compact?: boolean;
 }
 
-export function CategoryLimitBadge({ spent, limit, percentage, compact = false }: CategoryLimitBadgeProps) {
+export function CategoryLimitBadge({
+  spent,
+  limit,
+  percentage,
+  compact = false,
+}: CategoryLimitBadgeProps) {
   if (!limit) return null;
 
   const getColorClasses = () => {
@@ -28,8 +33,12 @@ export function CategoryLimitBadge({ spent, limit, percentage, compact = false }
 
   if (compact) {
     return (
-      <div className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${getColorClasses()}`}>
-        <span>{formatCurrency(spent)}/{formatCurrency(limit)}</span>
+      <div
+        className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${getColorClasses()}`}
+      >
+        <span>
+          {formatCurrency(spent)}/{formatCurrency(limit)}
+        </span>
         <span className="opacity-75">({Math.round(percentage || 0)}%)</span>
       </div>
     );
@@ -41,7 +50,9 @@ export function CategoryLimitBadge({ spent, limit, percentage, compact = false }
         <span className="text-gray-600">
           {formatCurrency(spent)} de {formatCurrency(limit)}
         </span>
-        <span className={`font-medium ${percentage && percentage >= 90 ? 'text-red-600' : 'text-gray-700'}`}>
+        <span
+          className={`font-medium ${percentage && percentage >= 90 ? 'text-red-600' : 'text-gray-700'}`}
+        >
           {Math.round(percentage || 0)}%
         </span>
       </div>
@@ -52,9 +63,7 @@ export function CategoryLimitBadge({ spent, limit, percentage, compact = false }
         />
       </div>
       {percentage && percentage >= 100 && (
-        <p className="text-xs text-red-600">
-          Límite excedido por {formatCurrency(spent - limit)}
-        </p>
+        <p className="text-xs text-red-600">Límite excedido por {formatCurrency(spent - limit)}</p>
       )}
     </div>
   );
