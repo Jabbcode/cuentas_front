@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { creditCardsApi } from '../api/credit-cards.api';
-import { accountsApi } from '../features/accounts/api';
-import type { CreditCardStatement, Account } from '../types';
+import { creditCardsApi } from '../api';
+import { accountsApi } from '../../accounts/api';
+import type { CreditCardStatement, Account } from '../../../types';
+import type { UseCreditCardsReturn } from '../types';
 
-export function useCreditCards() {
+export function useCreditCards(): UseCreditCardsReturn {
   const [statements, setStatements] = useState<CreditCardStatement[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,10 +32,5 @@ export function useCreditCards() {
     loadData();
   }, [loadData]);
 
-  return {
-    statements,
-    accounts,
-    loading,
-    reload,
-  };
+  return { statements, accounts, loading, reload };
 }

@@ -1,82 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useCreditCardsPage } from '../features/credit-cards/hooks/useCreditCardsPage';
+import { CreditCardPaymentModal } from '../features/credit-cards/components/CreditCardPaymentModal';
 import { CreditCardEmpty } from '../components/credit-cards/CreditCardEmpty';
 import { CreditCardSummary } from '../components/credit-cards/CreditCardSummary';
 import { CreditCardItem } from '../components/credit-cards/CreditCardItem';
-import { CreditCardPaymentModal } from '../components/credit-cards/CreditCardPaymentModal';
 import { CreditCardTransactionsModal } from '../components/credit-cards/CreditCardTransactionsModal';
-import { useCreditCards } from '../hooks/useCreditCards';
-import { usePaymentModal } from '../hooks/usePaymentModal';
-import { creditCardsApi } from '../api/credit-cards.api';
-import type { CreditCardStatement } from '../types';
 
 export function CreditCardsPage() {
-  const { statements, accounts, loading, reload } = useCreditCards();
-  const [paying, setPaying] = useState(false);
-  const [transactionsModal, setTransactionsModal] = useState<{
-    open: boolean;
-    statement: CreditCardStatement | null;
-  }>({ open: false, statement: null });
-  const [collapsedCards, setCollapsedCards] = useState<Set<string>>(new Set());
-
-  const defaultAccountId = accounts.length > 0 ? accounts[0].id : '';
-  const paymentModal = usePaymentModal(defaultAccountId);
-
-  // Initialize all cards as collapsed by default
-  useEffect(() => {
-    if (statements.length > 0 && collapsedCards.size === 0) {
-      const allCardIds = statements.map((s) => s.account.id);
-      setCollapsedCards(new Set(allCardIds));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statements]);
-
-  const toggleCardCollapse = (accountId: string) => {
-    setCollapsedCards((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(accountId)) {
-        newSet.delete(accountId);
-      } else {
-        newSet.add(accountId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleOpenPayment = (statement: CreditCardStatement) => {
-    paymentModal.openModal(statement, defaultAccountId);
-  };
-
-  const handleClosePayment = () => {
-    paymentModal.closeModal(defaultAccountId);
-  };
-
-  const handleOpenTransactions = (statement: CreditCardStatement) => {
-    setTransactionsModal({ open: true, statement });
-  };
-
-  const handleCloseTransactions = () => {
-    setTransactionsModal({ open: false, statement: null });
-  };
-
-  const handlePay = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!paymentModal.modal.statement) return;
-
-    setPaying(true);
-    try {
-      await creditCardsApi.payStatement(paymentModal.modal.statement.account.id, {
-        amount: parseFloat(paymentModal.formData.amount),
-        paymentAccountId: paymentModal.formData.paymentAccountId,
-        paymentDate: paymentModal.formData.paymentDate,
-      });
-      handleClosePayment();
-      reload();
-    } catch (err) {
-      console.error('Error paying credit card:', err);
-    } finally {
-      setPaying(false);
-    }
-  };
+  const {
+    statements,
+    accounts,
+    loading,
+    paying,
+    collapsedCards,
+    paymentModal,
+    paymentFormData,
+    transactionsModal,
+    toggleCardCollapse,
+    handleOpenPayment,
+    handleClosePayment,
+    handleOpenTransactions,
+    handleCloseTransactions,
+    handlePay,
+    updatePaymentFormData,
+  } = useCreditCardsPage();
 
   if (loading) {
     return (
@@ -121,14 +67,14 @@ export function CreditCardsPage() {
       </div>
 
       <CreditCardPaymentModal
-        open={paymentModal.modal.open}
-        statement={paymentModal.modal.statement}
-        formData={paymentModal.formData}
+        open={paymentModal.open}
+        statement={paymentModal.statement}
+        formData={paymentFormData}
         accounts={accounts}
         paying={paying}
         onClose={handleClosePayment}
         onSubmit={handlePay}
-        onFormChange={paymentModal.updateFormData}
+        onFormChange={updatePaymentFormData}
       />
 
       <CreditCardTransactionsModal

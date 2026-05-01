@@ -1,13 +1,19 @@
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Select } from '../ui/select';
-import { formatCurrency } from '../../lib/utils';
-import type { CreditCardStatement, Account } from '../../types';
-import type { PaymentFormData } from '../../features/credit-cards/types';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Select } from '../../../components/ui/select';
+import { formatCurrency } from '../../../lib/utils';
+import type { CreditCardStatement, Account } from '../../../types';
+import type { PaymentFormData } from '../types';
 
-interface CreditCardPaymentModalProps {
+export interface CreditCardPaymentModalProps {
   open: boolean;
   statement: CreditCardStatement | null;
   formData: PaymentFormData;
