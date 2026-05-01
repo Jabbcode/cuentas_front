@@ -1,5 +1,5 @@
-import { api } from './client';
-import type { Account, Transfer } from '../types';
+import { api } from '../../api/client';
+import type { Account, Transfer } from '../../types';
 
 export const accountsApi = {
   getAll: async (): Promise<Account[]> => {

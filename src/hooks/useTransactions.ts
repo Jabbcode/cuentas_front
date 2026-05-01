@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { transactionsApi } from '../api/transactions.api';
-import { accountsApi } from '../api/accounts.api';
+import { accountsApi } from '../features/accounts/api';
 import { categoriesApi } from '../api/categories.api';
 import { buildTransactionFilters } from '../lib/transaction-utils';
 import type { Transaction, Account, Category } from '../types';
@@ -12,6 +12,7 @@ export interface UseTransactionsParams {
   endDate?: string;
   accountId?: string;
   type?: 'all' | 'expense' | 'income';
+  tag?: string;
 }
 
 export function useTransactions(params: UseTransactionsParams) {
@@ -24,7 +25,7 @@ export function useTransactions(params: UseTransactionsParams) {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const filters = buildTransactionFilters(params);
+      const filters = buildTransactionFilters({ ...params, tag: params.tag });
 
       const [txData, accData, catData] = await Promise.all([
         transactionsApi.getAll(filters),
@@ -49,6 +50,7 @@ export function useTransactions(params: UseTransactionsParams) {
     params.endDate,
     params.accountId,
     params.type,
+    params.tag,
   ]);
 
   useEffect(() => {

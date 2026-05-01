@@ -60,8 +60,9 @@ export function buildTransactionFilters(params: {
   endDate?: string;
   accountId?: string;
   type?: 'all' | 'expense' | 'income';
+  tag?: string;
 }) {
-  const { currentPage, itemsPerPage, startDate, endDate, accountId, type } = params;
+  const { currentPage, itemsPerPage, startDate, endDate, accountId, type, tag } = params;
 
   const filters: {
     limit: number;
@@ -70,6 +71,7 @@ export function buildTransactionFilters(params: {
     endDate?: string;
     accountId?: string;
     type?: 'expense' | 'income';
+    tag?: string;
   } = {
     limit: itemsPerPage,
     offset: (currentPage - 1) * itemsPerPage,
@@ -103,6 +105,11 @@ export function buildTransactionFilters(params: {
   // Type filter
   if (type && type !== 'all') {
     filters.type = type;
+  }
+
+  // Tag filter
+  if (tag) {
+    filters.tag = tag;
   }
 
   return filters;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { creditCardsApi } from '../api/credit-cards.api';
-import { accountsApi } from '../api/accounts.api';
+import { accountsApi } from '../features/accounts/api';
 import type { CreditCardStatement, Account } from '../types';
 
 export function useCreditCards() {

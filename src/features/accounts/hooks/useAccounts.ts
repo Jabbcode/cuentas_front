@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { accountsApi } from '../api/accounts.api';
-import type { Account } from '../types';
+import { accountsApi } from '../api';
+import type { Account } from '../../../types';
 
 export function useAccounts() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -24,21 +24,9 @@ export function useAccounts() {
     loadAccounts();
   }, [loadAccounts]);
 
-  const totalBalance = accounts.reduce((sum, acc) => {
-    // For credit cards, add available credit (limit - used)
-    if (acc.type === 'credit_card' && acc.creditLimit) {
-      const used = Math.abs(Number(acc.balance));
-      const available = acc.creditLimit - used;
-      return sum + available;
-    }
-    // For other accounts, add balance normally
-    return sum + Number(acc.balance);
-  }, 0);
-
   return {
     accounts,
     loading,
     reload,
-    totalBalance,
   };
 }

@@ -7,8 +7,9 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { CategorySelect } from '../ui/category-select';
+import { TagInput } from './TagInput';
 import { formatCurrency } from '../../lib/utils';
-import type { Transaction, Category, Account } from '../../types';
+import type { Transaction, Category, Account, Tag } from '../../types';
 import { AlertTriangle } from 'lucide-react';
 
 const editTransactionSchema = z.object({
@@ -28,8 +29,9 @@ interface EditTransactionModalProps {
   transaction: Transaction | null;
   categories: Category[];
   account: Account | null;
+  availableTags?: Tag[];
   onClose: () => void;
-  onSave: (id: string, data: EditTransactionInput) => Promise<void>;
+  onSave: (id: string, data: EditTransactionInput & { tagNames: string[] }) => Promise<void>;
 }
 
 export function EditTransactionModal({
@@ -37,11 +39,13 @@ export function EditTransactionModal({
   transaction,
   categories,
   account,
+  availableTags = [],
   onClose,
   onSave,
 }: EditTransactionModalProps) {
   const [saving, setSaving] = useState(false);
   const [showAmountWarning, setShowAmountWarning] = useState(false);
+  const [tagNames, setTagNames] = useState<string[]>([]);
 
   const {
     register,
@@ -65,6 +69,7 @@ export function EditTransactionModal({
         date: new Date(transaction.date).toISOString().split('T')[0],
         amount: transaction.amount.toString(),
       });
+      setTagNames(transaction.tags?.map((tt) => tt.tag.name) ?? []);
       setShowAmountWarning(false);
     }
   }, [transaction, reset]);
@@ -83,7 +88,7 @@ export function EditTransactionModal({
 
     setSaving(true);
     try {
-      await onSave(transaction.id, data);
+      await onSave(transaction.id, { ...data, tagNames });
       onClose();
     } catch (err) {
       console.error('Error saving transaction:', err);
@@ -186,6 +191,12 @@ export function EditTransactionModal({
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Tags */}
+          <div>
+            <Label>Etiquetas (opcional)</Label>
+            <TagInput value={tagNames} onChange={setTagNames} suggestions={availableTags} />
           </div>
 
           {/* Transaction info */}

@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select } from '../ui/select';
 import { formatCurrency } from '../../lib/utils';
-import { useAccounts } from '../../hooks/useAccounts';
+import { useAccounts } from '../../features/accounts/hooks/useAccounts';
 import type { Debt } from '../../types';
 
 interface DebtPaymentModalProps {

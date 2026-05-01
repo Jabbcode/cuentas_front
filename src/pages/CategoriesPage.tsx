@@ -1,128 +1,29 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
-import {
-  Dialog,
-  DialogHeader,
-  DialogTitle,
-  DialogContent,
-  DialogFooter,
-} from '../components/ui/dialog';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Select } from '../components/ui/select';
-import { IconPicker } from '../components/ui/icon-picker';
-import { CategoryIcon } from '../components/ui/category-icon';
-import { CategoryLimitDisplay } from '../components/categories/CategoryLimitDisplay';
-import { categoriesApi } from '../api/categories.api';
-import { DEFAULT_ICON } from '../lib/category-icons';
-import type { Category } from '../types';
+import { CategoryList } from '../features/categories/components/CategoryList';
+import { CategoryFormDialog } from '../features/categories/components/CategoryFormDialog';
+import { useCategoriesPage } from '../features/categories/hooks/useCategoriesPage';
 
 export function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [error, setError] = useState('');
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: '',
-    type: 'expense' as 'expense' | 'income',
-    icon: DEFAULT_ICON,
-    color: '#3B82F6',
-    monthlyLimit: '',
-  });
-
-  const loadCategories = useCallback(async () => {
-    try {
-      const data = await categoriesApi.getAll();
-      setCategories(data);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
-
-  const openForm = (category?: Category) => {
-    setError('');
-    if (category) {
-      setEditingCategory(category);
-      setFormData({
-        name: category.name,
-        type: category.type,
-        icon: category.icon || DEFAULT_ICON,
-        color: category.color || '#3B82F6',
-        monthlyLimit: category.monthlyLimit ? category.monthlyLimit.toString() : '',
-      });
-    } else {
-      setEditingCategory(null);
-      setFormData({
-        name: '',
-        type: 'expense',
-        icon: DEFAULT_ICON,
-        color: '#3B82F6',
-        monthlyLimit: '',
-      });
-    }
-    setShowForm(true);
-  };
-
-  const [saving, setSaving] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSaving(true);
-    try {
-      const data = {
-        name: formData.name,
-        type: formData.type,
-        icon: formData.icon,
-        color: formData.color,
-        monthlyLimit: formData.monthlyLimit ? parseFloat(formData.monthlyLimit) : null,
-      };
-
-      if (editingCategory) {
-        await categoriesApi.update(editingCategory.id, data);
-      } else {
-        await categoriesApi.create(data);
-      }
-
-      setShowForm(false);
-      loadCategories();
-    } catch (err) {
-      console.error('Error saving category:', err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    setDeleting(true);
-    try {
-      await categoriesApi.delete(deleteId);
-      setDeleteId(null);
-      loadCategories();
-    } catch (error: unknown) {
-      setDeleteId(null);
-      if (error instanceof Error && error.message.includes('transacciones')) {
-        setError('No se puede eliminar una categoría con transacciones asociadas');
-      }
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  const expenseCategories = categories.filter((c) => c.type === 'expense');
-  const incomeCategories = categories.filter((c) => c.type === 'income');
+  const {
+    expenseCategories,
+    incomeCategories,
+    loading,
+    saving,
+    deleting,
+    showForm,
+    editingCategory,
+    deleteId,
+    error,
+    formData,
+    openForm,
+    closeForm,
+    setFormData,
+    handleSubmit,
+    handleDelete,
+    setDeleteId,
+  } = useCategoriesPage();
 
   if (loading) {
     return (
@@ -131,68 +32,6 @@ export function CategoriesPage() {
       </div>
     );
   }
-
-  const CategoryList = ({ items, title }: { items: Category[]; title: string }) => (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {items.map((cat) => (
-            <div
-              key={cat.id}
-              className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3 transition-all hover:shadow-sm lg:flex-row lg:items-center lg:justify-between lg:gap-0"
-            >
-              <div className="flex items-center justify-between lg:flex-1">
-                <div className="flex items-center gap-3">
-                  <CategoryIcon icon={cat.icon} color={cat.color} size="lg" tooltip={cat.name} />
-                  <span className="font-medium text-gray-900">{cat.name}</span>
-                  {cat.monthlyLimit && (
-                    <div className="ml-2 hidden lg:block">
-                      <CategoryLimitDisplay categoryId={cat.id} />
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-1 lg:hidden">
-                  <Button variant="ghost" size="icon" onClick={() => openForm(cat)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setDeleteId(cat.id)}
-                    className="text-gray-400 hover:text-red-600"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              {cat.monthlyLimit && (
-                <div className="ml-11 lg:hidden">
-                  <CategoryLimitDisplay categoryId={cat.id} />
-                </div>
-              )}
-              <div className="hidden gap-1 lg:flex">
-                <Button variant="ghost" size="icon" onClick={() => openForm(cat)}>
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setDeleteId(cat.id)}
-                  className="text-gray-400 hover:text-red-600"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
-          {items.length === 0 && <p className="py-8 text-center text-gray-500">Sin categorías</p>}
-        </div>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <div className="space-y-6">
@@ -207,138 +46,31 @@ export function CategoriesPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <CategoryList items={expenseCategories} title="Gastos" />
-        <CategoryList items={incomeCategories} title="Ingresos" />
+        <CategoryList
+          items={expenseCategories}
+          title="Gastos"
+          onEdit={openForm}
+          onDelete={setDeleteId}
+        />
+        <CategoryList
+          items={incomeCategories}
+          title="Ingresos"
+          onEdit={openForm}
+          onDelete={setDeleteId}
+        />
       </div>
 
-      {/* Form Dialog */}
-      <Dialog open={showForm} onClose={() => setShowForm(false)}>
-        <DialogHeader>
-          <DialogTitle>{editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <DialogContent className="space-y-4">
-            {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">{error}</div>}
+      <CategoryFormDialog
+        open={showForm}
+        editingCategory={editingCategory}
+        formData={formData}
+        saving={saving}
+        error={error}
+        onClose={closeForm}
+        onSubmit={handleSubmit}
+        onFormDataChange={setFormData}
+      />
 
-            <div>
-              <Label htmlFor="name">Nombre</Label>
-              <Input
-                id="name"
-                placeholder="Ej: Alimentación, Transporte"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="type">Tipo</Label>
-              <Select
-                id="type"
-                value={formData.type}
-                onChange={(e) =>
-                  setFormData({ ...formData, type: e.target.value as 'expense' | 'income' })
-                }
-              >
-                <option value="expense">Gasto</option>
-                <option value="income">Ingreso</option>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Icono y Color</Label>
-              <div className="mt-1 flex items-center gap-4">
-                <IconPicker
-                  value={formData.icon}
-                  onChange={(icon) => setFormData({ ...formData, icon })}
-                  color={formData.color}
-                />
-                <div className="flex-1">
-                  <div className="flex gap-2">
-                    {[
-                      '#3B82F6',
-                      '#10B981',
-                      '#F59E0B',
-                      '#EF4444',
-                      '#8B5CF6',
-                      '#EC4899',
-                      '#06B6D4',
-                      '#84CC16',
-                    ].map((color) => (
-                      <button
-                        key={color}
-                        type="button"
-                        className={`h-8 w-8 rounded-full transition-transform ${
-                          formData.color === color
-                            ? 'ring-2 ring-offset-2 ring-gray-400 scale-110'
-                            : ''
-                        }`}
-                        style={{ backgroundColor: color }}
-                        onClick={() => setFormData({ ...formData, color })}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {formData.type === 'expense' && (
-              <div>
-                <Label htmlFor="monthlyLimit">Límite Mensual (opcional)</Label>
-                <div className="relative">
-                  <Input
-                    id="monthlyLimit"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Ej: 500"
-                    value={formData.monthlyLimit}
-                    onChange={(e) => setFormData({ ...formData, monthlyLimit: e.target.value })}
-                    className={formData.monthlyLimit ? 'pr-8' : ''}
-                  />
-                  {formData.monthlyLimit && (
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, monthlyLimit: '' })}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      title="Quitar límite"
-                    >
-                      <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Establece un límite mensual de gasto para esta categoría. Puedes dejarlo vacío
-                  para quitar el límite.
-                </p>
-              </div>
-            )}
-          </DialogContent>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={saving}>
-              {saving ? 'Guardando...' : editingCategory ? 'Guardar' : 'Crear'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </Dialog>
-
-      {/* Delete Confirmation */}
       <ConfirmDialog
         open={!!deleteId}
         onClose={() => setDeleteId(null)}

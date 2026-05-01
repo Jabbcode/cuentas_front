@@ -1,13 +1,19 @@
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Select } from '../ui/select';
-import { formatCurrency } from '../../lib/utils';
-import { useTransfer } from '../../hooks/useTransfer';
-import type { Account } from '../../types';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Select } from '../../../components/ui/select';
+import { formatCurrency } from '../../../lib/utils';
+import { useTransfer } from '../../../hooks/useTransfer';
+import type { Account } from '../../../types';
 
 interface Props {
   accounts: Account[];
