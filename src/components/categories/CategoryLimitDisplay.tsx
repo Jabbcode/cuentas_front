@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { categoriesApi } from '../../api/categories.api';
+import { categoriesApi } from '../../features/categories/api';
 import { CategoryLimitBadge } from './CategoryLimitBadge';
 import type { CategorySpending } from '../../types';
 
@@ -27,9 +27,7 @@ export function CategoryLimitDisplay({ categoryId }: CategoryLimitDisplayProps) 
   }, [categoryId]);
 
   if (loading) {
-    return (
-      <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
-    );
+    return <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />;
   }
 
   if (!spending) return null;

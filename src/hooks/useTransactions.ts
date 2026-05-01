@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { transactionsApi } from '../api/transactions.api';
 import { accountsApi } from '../features/accounts/api';
-import { categoriesApi } from '../api/categories.api';
+import { categoriesApi } from '../features/categories/api';
 import { buildTransactionFilters } from '../lib/transaction-utils';
 import type { Transaction, Account, Category } from '../types';
 

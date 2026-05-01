@@ -16,7 +16,7 @@ import { Select } from '../components/ui/select';
 import { BudgetProgressBar } from '../components/budgets/BudgetProgressBar';
 import { CategoryIcon } from '../components/ui/category-icon';
 import { budgetsApi } from '../api/budgets.api';
-import { categoriesApi } from '../api/categories.api';
+import { categoriesApi } from '../features/categories/api';
 import { useBudgets } from '../hooks/useBudgets';
 import { formatCurrency, cn } from '../lib/utils';
 import type { Budget, Category } from '../types';
