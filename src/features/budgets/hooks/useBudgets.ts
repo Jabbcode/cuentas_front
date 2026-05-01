@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { budgetsApi } from '../api/budgets.api';
-import type { Budget } from '../types';
+import { budgetsApi } from '../api';
+import type { Budget } from '../../../types';
+import type { UseBudgetsReturn } from '../types';
 
-export function useBudgets(month: number, year: number) {
+export function useBudgets(month: number, year: number): UseBudgetsReturn {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

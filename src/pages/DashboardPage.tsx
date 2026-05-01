@@ -9,7 +9,7 @@ import { FixedVsVariableChart } from '../components/dashboard/FixedVsVariableCha
 import { NextMonthProjection } from '../components/dashboard/NextMonthProjection';
 import { CreditCardsSummaryCard } from '../components/dashboard/CreditCardsSummary';
 import { DebtsSummaryCard } from '../components/dashboard/DebtsSummaryCard';
-import { BudgetDashboardWidget } from '../components/budgets/BudgetDashboardWidget';
+import { BudgetDashboardWidget } from '../features/budgets/components/BudgetDashboardWidget';
 import { MonthComparisonCard } from '../components/dashboard/MonthComparisonCard';
 import { CategoryComparisonChart } from '../components/dashboard/CategoryComparisonChart';
 

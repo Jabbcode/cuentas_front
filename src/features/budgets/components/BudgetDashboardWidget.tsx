@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Target } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
 import { BudgetProgressBar } from './BudgetProgressBar';
-import { CategoryIcon } from '../ui/category-icon';
-import { budgetsApi } from '../../api/budgets.api';
-import { cn } from '../../lib/utils';
-import type { Budget } from '../../types';
+import { CategoryIcon } from '../../../components/ui/category-icon';
+import { budgetsApi } from '../api';
+import { cn } from '../../../lib/utils';
+import type { Budget } from '../../../types';
 
 export function BudgetDashboardWidget() {
   const now = new Date();
