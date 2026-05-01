@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { dashboardApi } from '../api/dashboard.api';
 import { fixedExpensesApi } from '../api/fixed-expenses.api';
-import { creditCardsApi } from '../api/credit-cards.api';
+import { creditCardsApi } from '../features/credit-cards/api';
 import { debtsApi } from '../api/debts.api';
 import type {
   DashboardSummary,
@@ -10,7 +10,7 @@ import type {
   FixedVsVariable,
   ProjectionData,
   CreditCardsSummary,
-  DebtsSummary
+  DebtsSummary,
 } from '../types';
 
 export function useDashboard() {
@@ -36,7 +36,7 @@ export function useDashboard() {
           totalToPay: 0,
           upcomingPayments: [],
           alerts: [],
-          cards: []
+          cards: [],
         })),
         debtsApi.getSummary().catch(() => ({
           totalActiveDebts: 0,
@@ -44,7 +44,7 @@ export function useDashboard() {
           totalDebtAmount: 0,
           totalOverdueAmount: 0,
           debtsDueSoon: 0,
-          upcomingDebts: []
+          upcomingDebts: [],
         })),
       ]);
 

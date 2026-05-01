@@ -1,8 +1,8 @@
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { formatCurrency, formatDate } from '../../lib/utils';
-import { getDaysColor } from '../../lib/credit-card-utils';
-import type { Transaction } from '../../types';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { formatCurrency, formatDate } from '../../../lib/utils';
+import { getDaysColor } from '../../../lib/credit-card-utils';
+import type { Transaction } from '../../../types';
 
 interface ClosedPeriodData {
   startDate: string;

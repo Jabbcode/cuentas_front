@@ -2,7 +2,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
 import { CategoryIcon } from '../../../components/ui/category-icon';
-import { CategoryLimitDisplay } from '../../../components/categories/CategoryLimitDisplay';
+import { CategoryLimitDisplay } from './CategoryLimitDisplay';
 import type { Category } from '../../../types';
 
 export interface CategoryListProps {

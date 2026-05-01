@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { categoriesApi } from '../../features/categories/api';
+import { categoriesApi } from '../api';
 import { CategoryLimitBadge } from './CategoryLimitBadge';
-import type { CategorySpending } from '../../types';
+import type { CategorySpending } from '../../../types';
 
 interface CategoryLimitDisplayProps {
   categoryId: string;

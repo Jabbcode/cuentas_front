@@ -22,8 +22,8 @@ export function CreditCardAlerts({ alerts }: CreditCardAlertsProps) {
             alert.severity === 'error'
               ? 'border-red-200 bg-red-50 text-red-800'
               : alert.severity === 'warning'
-              ? 'border-orange-200 bg-orange-50 text-orange-800'
-              : 'border-blue-200 bg-blue-50 text-blue-800'
+                ? 'border-orange-200 bg-orange-50 text-orange-800'
+                : 'border-blue-200 bg-blue-50 text-blue-800'
           }`}
         >
           <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
