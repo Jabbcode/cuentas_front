@@ -9,6 +9,7 @@ export interface TransactionFilters {
   type?: 'expense' | 'income';
   limit?: number;
   offset?: number;
+  tag?: string;
 }
 
 export const transactionsApi = {
@@ -31,6 +32,7 @@ export const transactionsApi = {
     categoryId: string;
     fixedExpenseId?: string;
     imageHash?: string;
+    tagNames?: string[];
     receiptItems?: Array<{
       name: string;
       quantity: number;
@@ -42,7 +44,10 @@ export const transactionsApi = {
     return response.data;
   },
 
-  update: async (id: string, data: Partial<Transaction>): Promise<Transaction> => {
+  update: async (
+    id: string,
+    data: Partial<Transaction> & { tagNames?: string[] }
+  ): Promise<Transaction> => {
     const response = await api.patch(`/transactions/${id}`, data);
     return response.data;
   },

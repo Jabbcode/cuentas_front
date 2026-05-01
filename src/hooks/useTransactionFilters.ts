@@ -9,6 +9,7 @@ export interface TransactionFilters {
   maxAmount: string;
   type: 'all' | 'expense' | 'income';
   groupByCategory: boolean;
+  tag: string;
 }
 
 export function useTransactionFilters(onFilterChange?: () => void) {
@@ -21,6 +22,7 @@ export function useTransactionFilters(onFilterChange?: () => void) {
     maxAmount: '',
     type: 'all',
     groupByCategory: false,
+    tag: '',
   });
 
   const setStartDate = useCallback(
@@ -94,6 +96,14 @@ export function useTransactionFilters(onFilterChange?: () => void) {
     setFilters((prev) => ({ ...prev, groupByCategory }));
   }, []);
 
+  const setTag = useCallback(
+    (tag: string) => {
+      setFilters((prev) => ({ ...prev, tag }));
+      onFilterChange?.();
+    },
+    [onFilterChange]
+  );
+
   const clearFilters = useCallback(() => {
     setFilters({
       startDate: '',
@@ -104,6 +114,7 @@ export function useTransactionFilters(onFilterChange?: () => void) {
       maxAmount: '',
       type: 'all',
       groupByCategory: false,
+      tag: '',
     });
     onFilterChange?.();
   }, [onFilterChange]);
@@ -115,7 +126,8 @@ export function useTransactionFilters(onFilterChange?: () => void) {
     filters.accountId !== 'all' ||
     filters.minAmount !== '' ||
     filters.maxAmount !== '' ||
-    filters.type !== 'all';
+    filters.type !== 'all' ||
+    filters.tag !== '';
 
   return {
     filters,
@@ -128,6 +140,7 @@ export function useTransactionFilters(onFilterChange?: () => void) {
     setMaxAmount,
     setType,
     setGroupByCategory,
+    setTag,
     clearFilters,
     hasActiveFilters,
   };

@@ -1,6 +1,7 @@
 import { Trash2, CreditCard, Pencil, Receipt, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import { TagBadge } from './TagBadge';
 import { formatCurrency, formatDate, cn } from '../../lib/utils';
 import { getCreditCardPeriod } from '../../lib/credit-card-utils';
 import type { Transaction, Account } from '../../types';
@@ -36,7 +37,7 @@ export function TransactionRow({
   return (
     <div className="flex items-center justify-between py-2 hover:bg-gray-50 rounded px-2">
       <div className="flex-1">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-medium text-gray-900">
             {tx.description || tx.account?.name}
           </span>
@@ -52,6 +53,9 @@ export function TransactionRow({
               {creditCardPeriod.label}
             </Badge>
           )}
+          {tx.tags?.map((tt) => (
+            <TagBadge key={tt.tag.id} name={tt.tag.name} />
+          ))}
         </div>
         <p className="text-xs text-gray-500">{formatDate(tx.date)}</p>
       </div>

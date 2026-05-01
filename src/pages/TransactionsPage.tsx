@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Plus, ArrowUpCircle, ArrowDownCircle, AlertTriangle, Camera } from 'lucide-react';
+import { Plus, ArrowUpCircle, ArrowDownCircle, AlertTriangle, Camera, Tag } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { TagInput } from '../components/transactions/TagInput';
 import {
   Dialog,
   DialogHeader,
@@ -19,9 +20,11 @@ import { TransactionPagination } from '../components/transactions/TransactionPag
 import { EditTransactionModal } from '../components/transactions/EditTransactionModal';
 import { ReceiptScanner } from '../components/transactions/ReceiptScanner';
 import { ReceiptItemsModal } from '../components/receipts/ReceiptItemsModal';
+import { TagSummaryView } from '../components/transactions/TagSummaryView';
 import { useTransactions } from '../hooks/useTransactions';
 import { useTransactionFilters } from '../hooks/useTransactionFilters';
 import { usePagination } from '../hooks/usePagination';
+import { useTags, useTagsSummary } from '../hooks/useTags';
 import { groupTransactionsByCategory } from '../lib/transaction-utils';
 import { getClosedPeriodWarning } from '../lib/credit-card-utils';
 import { transactionsApi } from '../api/transactions.api';
@@ -31,6 +34,7 @@ import type { ScanReceiptData } from '../api/receipts.api';
 export function TransactionsPage() {
   const [showForm, setShowForm] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [showTagSummary, setShowTagSummary] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -43,6 +47,14 @@ export function TransactionsPage() {
   // Filtros
   const transactionFilters = useTransactionFilters(pagination.resetPage);
 
+  // Tags disponibles
+  const { tags: availableTags, reload: reloadTags } = useTags();
+  const {
+    summary: tagSummary,
+    loading: tagSummaryLoading,
+    reload: reloadTagSummary,
+  } = useTagsSummary();
+
   // Datos de transacciones
   const { transactions, total, accounts, categories, loading, reload } = useTransactions({
     currentPage: pagination.currentPage,
@@ -54,6 +66,7 @@ export function TransactionsPage() {
         ? transactionFilters.filters.accountId
         : undefined,
     type: transactionFilters.filters.type,
+    tag: transactionFilters.filters.tag || undefined,
   });
 
   // Form state
@@ -66,6 +79,7 @@ export function TransactionsPage() {
       accountId: accounts.length > 0 ? accounts[0].id : '',
       categoryId: categories.find((c) => c.type === 'expense')?.id || '',
       imageHash: undefined as string | undefined,
+      tagNames: [] as string[],
       receiptItems: [] as Array<{
         name: string;
         quantity: number;
@@ -84,6 +98,7 @@ export function TransactionsPage() {
     accountId: '',
     categoryId: '',
     imageHash: '' as string | undefined,
+    tagNames: [] as string[],
     receiptItems: [] as Array<{
       name: string;
       quantity: number;
@@ -201,9 +216,12 @@ export function TransactionsPage() {
         accountId: formData.accountId,
         categoryId: formData.categoryId,
         imageHash: formData.imageHash || undefined,
+        tagNames: formData.tagNames.length > 0 ? formData.tagNames : undefined,
         receiptItems: formData.receiptItems.length > 0 ? formData.receiptItems : undefined,
       });
       handleCloseForm();
+      reloadTags();
+      reloadTagSummary();
       reload();
     } catch (err) {
       console.error('Error creating transaction:', err);
@@ -251,15 +269,24 @@ export function TransactionsPage() {
 
   const handleSaveEdit = async (
     id: string,
-    data: { description?: string; categoryId: string; date: string; amount: string }
+    data: {
+      description?: string;
+      categoryId: string;
+      date: string;
+      amount: string;
+      tagNames: string[];
+    }
   ) => {
     await transactionsApi.update(id, {
       description: data.description || undefined,
       categoryId: data.categoryId,
       date: new Date(data.date).toISOString(),
       amount: parseFloat(data.amount),
+      tagNames: data.tagNames,
     });
     setEditingTransaction(null);
+    reloadTags();
+    reloadTagSummary();
     reload();
   };
 
@@ -283,6 +310,13 @@ export function TransactionsPage() {
         </div>
         <div className="flex flex-col gap-3 md:flex-row md:gap-4">
           <Button
+            variant={showTagSummary ? 'default' : 'outline'}
+            onClick={() => setShowTagSummary((prev) => !prev)}
+            className="w-full md:w-auto"
+          >
+            <Tag className="mr-2 h-4 w-4" /> {showTagSummary ? 'Ver lista' : 'Resumen por tags'}
+          </Button>
+          <Button
             variant="outline"
             onClick={() => setShowScanner(true)}
             className="w-full md:w-auto"
@@ -305,8 +339,10 @@ export function TransactionsPage() {
         maxAmount={transactionFilters.filters.maxAmount}
         type={transactionFilters.filters.type}
         groupByCategory={transactionFilters.filters.groupByCategory}
+        tag={transactionFilters.filters.tag}
         categories={categories}
         accounts={accounts}
+        availableTags={availableTags}
         hasActiveFilters={transactionFilters.hasActiveFilters}
         onStartDateChange={transactionFilters.setStartDate}
         onEndDateChange={transactionFilters.setEndDate}
@@ -317,11 +353,29 @@ export function TransactionsPage() {
         onMaxAmountChange={transactionFilters.setMaxAmount}
         onTypeChange={transactionFilters.setType}
         onGroupByCategoryChange={transactionFilters.setGroupByCategory}
+        onTagChange={transactionFilters.setTag}
         onClearFilters={transactionFilters.clearFilters}
       />
 
+      {/* Tag Summary View */}
+      {showTagSummary && (
+        <TagSummaryView
+          summary={tagSummary}
+          loading={tagSummaryLoading}
+          onTagClick={(tagName) => {
+            setShowTagSummary(false);
+            transactionFilters.setTag(tagName);
+          }}
+          onDeleted={() => {
+            reloadTags();
+            reloadTagSummary();
+            reload();
+          }}
+        />
+      )}
+
       {/* Transactions - List or Grouped View */}
-      {!transactionFilters.filters.groupByCategory ? (
+      {!showTagSummary && !transactionFilters.filters.groupByCategory ? (
         <TransactionList
           transactions={filteredTransactions}
           accounts={accounts}
@@ -331,7 +385,7 @@ export function TransactionsPage() {
           loadingItemsId={loadingItemsId}
           onCreateClick={handleOpenForm}
         />
-      ) : (
+      ) : !showTagSummary ? (
         groupedTransactions && (
           <TransactionGroupedView
             groupedTransactions={groupedTransactions}
@@ -343,10 +397,11 @@ export function TransactionsPage() {
             onCreateClick={handleOpenForm}
           />
         )
-      )}
+      ) : null}
 
       {/* Pagination */}
-      {total > pagination.itemsPerPage &&
+      {!showTagSummary &&
+        total > pagination.itemsPerPage &&
         (filteredTransactions.length >= pagination.itemsPerPage || pagination.currentPage > 1) && (
           <TransactionPagination
             currentPage={pagination.currentPage}
@@ -475,6 +530,15 @@ export function TransactionsPage() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
+
+            <div>
+              <Label>Etiquetas (opcional)</Label>
+              <TagInput
+                value={formData.tagNames}
+                onChange={(tagNames) => setFormData({ ...formData, tagNames })}
+                suggestions={availableTags}
+              />
+            </div>
           </DialogContent>
 
           <DialogFooter>
@@ -509,6 +573,7 @@ export function TransactionsPage() {
             ? accounts.find((a) => a.id === editingTransaction.accountId) || null
             : null
         }
+        availableTags={availableTags}
         onClose={() => setEditingTransaction(null)}
         onSave={handleSaveEdit}
       />
