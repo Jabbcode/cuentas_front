@@ -1,8 +1,12 @@
-import { api } from './client';
-import type { AuthResponse, User } from '../types';
+import { api } from '../../api/client';
+import type { AuthResponse, User } from '../../types';
 
 export const authApi = {
-  register: async (data: { email: string; password: string; name: string }): Promise<AuthResponse> => {
+  register: async (data: {
+    email: string;
+    password: string;
+    name: string;
+  }): Promise<AuthResponse> => {
     const response = await api.post('/auth/register', data);
     return response.data;
   },
