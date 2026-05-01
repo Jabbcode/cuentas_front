@@ -1,6 +1,6 @@
-import { formatCurrency, cn } from '../../lib/utils';
+import { formatCurrency, cn } from '../../../lib/utils';
 
-interface Props {
+export interface BudgetProgressBarProps {
   spent: number;
   amount: number;
   percentage: number;
@@ -8,7 +8,13 @@ interface Props {
   isNearLimit: boolean;
 }
 
-export function BudgetProgressBar({ spent, amount, percentage, isOverBudget, isNearLimit }: Props) {
+export function BudgetProgressBar({
+  spent,
+  amount,
+  percentage,
+  isOverBudget,
+  isNearLimit,
+}: BudgetProgressBarProps) {
   const barColor = isOverBudget ? 'bg-red-500' : isNearLimit ? 'bg-yellow-500' : 'bg-green-500';
   const clampedPct = Math.min(percentage, 100);
 
