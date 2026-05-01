@@ -7,7 +7,7 @@ import { Label } from '../ui/label';
 import { Select } from '../ui/select';
 import { CategorySelect } from '../ui/category-select';
 import { fixedExpensesApi } from '../../api/fixed-expenses.api';
-import { accountsApi } from '../../api/accounts.api';
+import { accountsApi } from '../../features/accounts/api';
 import { categoriesApi } from '../../api/categories.api';
 import type { Account, Category } from '../../types';
 

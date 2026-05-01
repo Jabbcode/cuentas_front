@@ -8,10 +8,10 @@ import {
   Trash2,
   AlertTriangle,
 } from 'lucide-react';
-import { Card, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { formatCurrency, cn } from '../../lib/utils';
-import type { Account, CreditCardStatement } from '../../types';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { formatCurrency, cn } from '../../../lib/utils';
+import type { Account, CreditCardStatement } from '../../../types';
 
 const accountTypeIcons = {
   cash: Banknote,

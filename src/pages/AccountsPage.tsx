@@ -1,214 +1,48 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Plus, ChevronDown, ChevronRight, ArrowLeftRight, Info } from 'lucide-react';
+import { Plus, ArrowLeftRight, Info } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import {
-  Dialog,
-  DialogHeader,
-  DialogTitle,
-  DialogContent,
-  DialogFooter,
-} from '../components/ui/dialog';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Select } from '../components/ui/select';
-import { AccountCard } from '../components/accounts/AccountCard';
-import { AccountEmpty } from '../components/accounts/AccountEmpty';
-import { TransferModal } from '../components/accounts/TransferModal';
-import { useAccounts } from '../hooks/useAccounts';
-import { accountsApi } from '../api/accounts.api';
-import { creditCardsApi } from '../api/credit-cards.api';
-import { formatCurrency, cn } from '../lib/utils';
-import type { Account, CreditCardStatement } from '../types';
+import { AccountEmpty } from '../features/accounts/components/AccountEmpty';
+import { AccountTypeSection } from '../features/accounts/components/AccountTypeSection';
+import { AccountFormDialog } from '../features/accounts/components/AccountFormDialog';
+import { TransferModal } from '../features/accounts/components/TransferModal';
+import { useAccountsPage } from '../features/accounts/hooks/useAccountsPage';
+import { formatCurrency } from '../lib/utils';
+import type { Account } from '../types';
+
+const ACCOUNT_TYPE_LABELS: Record<Account['type'], string> = {
+  cash: 'Efectivo',
+  bank: 'Bancos',
+  credit_card: 'Tarjetas de Crédito',
+};
+
+const ACCOUNT_TYPE_ORDER: Account['type'][] = ['bank', 'credit_card', 'cash'];
 
 export function AccountsPage() {
-  const { accounts, loading, reload } = useAccounts();
-  const [statementsMap, setStatementsMap] = useState<Record<string, CreditCardStatement>>({});
-  const [showForm, setShowForm] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [showTransfer, setShowTransfer] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<Record<Account['type'], boolean>>({
-    bank: true,
-    credit_card: true,
-    cash: true,
-  });
-
-  useEffect(() => {
-    const hasCreditCards = accounts.some((a) => a.type === 'credit_card');
-    if (!hasCreditCards) return;
-    creditCardsApi
-      .getSummary()
-      .then((summary) => {
-        const map: Record<string, CreditCardStatement> = {};
-        for (const card of summary.cards) {
-          map[card.account.id] = card;
-        }
-        setStatementsMap(map);
-      })
-      .catch(() => {});
-  }, [accounts]);
-
-  const { totalBalance, unpaidClosedTotal } = useMemo(() => {
-    let total = 0;
-    let unpaid = 0;
-    for (const acc of accounts) {
-      if (acc.type === 'credit_card' && acc.creditLimit) {
-        const stmt = statementsMap[acc.id];
-        if (stmt) {
-          total += stmt.creditLimit - stmt.currentPeriod.balance;
-          if (!stmt.closedPeriod.isPaid && stmt.closedPeriod.balance > 0) {
-            total -= stmt.closedPeriod.balance;
-            unpaid += stmt.closedPeriod.balance;
-          }
-        } else {
-          total += acc.creditLimit - Math.abs(Number(acc.balance));
-        }
-      } else {
-        total += Number(acc.balance);
-      }
-    }
-    return { totalBalance: total, unpaidClosedTotal: unpaid };
-  }, [accounts, statementsMap]);
-
-  // Account type labels and order for grouping
-  const accountTypeLabels: Record<Account['type'], string> = {
-    cash: 'Efectivo',
-    bank: 'Bancos',
-    credit_card: 'Tarjetas de Crédito',
-  };
-
-  const accountTypeOrder: Account['type'][] = ['bank', 'credit_card', 'cash'];
-
-  // Group accounts by type
-  const groupAccountsByType = (accounts: Account[]) => {
-    const grouped = accounts.reduce(
-      (acc, account) => {
-        if (!acc[account.type]) {
-          acc[account.type] = [];
-        }
-        acc[account.type].push(account);
-        return acc;
-      },
-      {} as Record<Account['type'], Account[]>
-    );
-
-    return grouped;
-  };
-
-  // Toggle section expansion
-  const toggleSection = (type: Account['type']) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [type]: !prev[type],
-    }));
-  };
-
-  const [formData, setFormData] = useState({
-    name: '',
-    type: 'bank' as 'cash' | 'bank' | 'credit_card',
-    balance: '0',
-    currency: 'EUR',
-    color: '#3B82F6',
-    creditLimit: '',
-    cutoffDay: '',
-    paymentDueDay: '',
-    paymentAccountId: '',
-  });
-
-  const openForm = (account?: Account) => {
-    if (account) {
-      setEditingAccount(account);
-      setFormData({
-        name: account.name,
-        type: account.type,
-        balance: account.balance.toString(),
-        currency: account.currency,
-        color: account.color || '#3B82F6',
-        creditLimit: account.creditLimit?.toString() || '',
-        cutoffDay: account.cutoffDay?.toString() || '',
-        paymentDueDay: account.paymentDueDay?.toString() || '',
-        paymentAccountId: account.paymentAccountId || '',
-      });
-    } else {
-      setEditingAccount(null);
-      setFormData({
-        name: '',
-        type: 'bank',
-        balance: '0',
-        currency: 'EUR',
-        color: '#3B82F6',
-        creditLimit: '',
-        cutoffDay: '',
-        paymentDueDay: '',
-        paymentAccountId: '',
-      });
-    }
-    setShowForm(true);
-  };
-
-  const [saving, setSaving] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      const data: {
-        name: string;
-        type: 'cash' | 'bank' | 'credit_card';
-        balance: number;
-        currency: string;
-        color: string;
-        creditLimit?: number;
-        cutoffDay?: number;
-        paymentDueDay?: number;
-        paymentAccountId?: string;
-      } = {
-        name: formData.name,
-        type: formData.type,
-        balance: parseFloat(formData.balance),
-        currency: formData.currency,
-        color: formData.color,
-      };
-
-      if (formData.type === 'credit_card') {
-        if (formData.creditLimit) data.creditLimit = parseFloat(formData.creditLimit);
-        if (formData.cutoffDay) data.cutoffDay = parseInt(formData.cutoffDay);
-        if (formData.paymentDueDay) data.paymentDueDay = parseInt(formData.paymentDueDay);
-        if (formData.paymentAccountId) data.paymentAccountId = formData.paymentAccountId;
-      }
-
-      if (editingAccount) {
-        await accountsApi.update(editingAccount.id, data);
-      } else {
-        await accountsApi.create(data);
-      }
-
-      setShowForm(false);
-      reload();
-    } catch (err) {
-      console.error('Error saving account:', err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    setDeleting(true);
-    try {
-      await accountsApi.delete(deleteId);
-      setDeleteId(null);
-      reload();
-    } catch (err) {
-      console.error('Error deleting account:', err);
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  const groupedAccounts = groupAccountsByType(accounts);
+  const {
+    accounts,
+    statementsMap,
+    groupedAccounts,
+    totalBalance,
+    unpaidClosedTotal,
+    loading,
+    saving,
+    deleting,
+    showForm,
+    editingAccount,
+    deleteId,
+    showTransfer,
+    expandedSections,
+    formData,
+    openForm,
+    closeForm,
+    setFormData,
+    handleSubmit,
+    handleDelete,
+    setDeleteId,
+    setShowTransfer,
+    toggleSection,
+    reload,
+  } = useAccountsPage();
 
   if (loading) {
     return (
@@ -220,6 +54,7 @@ export function AccountsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Cuentas</h1>
@@ -228,7 +63,7 @@ export function AccountsPage() {
             <span className="font-semibold text-gray-900">{formatCurrency(totalBalance)}</span>
           </p>
           {unpaidClosedTotal > 0 && (
-            <p className="flex items-center gap-1 text-xs text-amber-600 mt-0.5">
+            <p className="mt-0.5 flex items-center gap-1 text-xs text-amber-600">
               <Info className="h-3.5 w-3.5 shrink-0" />
               Incluye descuento de {formatCurrency(unpaidClosedTotal)} por períodos vencidos sin
               pagar en tarjetas de crédito
@@ -238,223 +73,54 @@ export function AccountsPage() {
         <div className="flex gap-2">
           {accounts.length >= 2 && (
             <Button variant="outline" onClick={() => setShowTransfer(true)}>
-              <ArrowLeftRight className="mr-2 h-4 w-4" /> Transferir
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
+              Transferir
             </Button>
           )}
           <Button onClick={() => openForm()}>
-            <Plus className="mr-2 h-4 w-4" /> Nueva Cuenta
+            <Plus className="mr-2 h-4 w-4" />
+            Nueva Cuenta
           </Button>
         </div>
       </div>
 
+      {/* Account list */}
       <div className="space-y-8">
         {accounts.length === 0 ? (
           <AccountEmpty onCreateClick={() => openForm()} />
         ) : (
-          <>
-            {accountTypeOrder.map((type) => {
-              const accountsOfType = groupedAccounts[type];
-              if (!accountsOfType || accountsOfType.length === 0) return null;
+          ACCOUNT_TYPE_ORDER.map((type) => {
+            const accountsOfType = groupedAccounts[type];
+            if (!accountsOfType || accountsOfType.length === 0) return null;
 
-              const isExpanded = expandedSections[type];
-
-              return (
-                <div key={type} className="space-y-4">
-                  <button
-                    onClick={() => toggleSection(type)}
-                    className="flex w-full items-center gap-2 text-left transition-colors hover:opacity-70"
-                  >
-                    {isExpanded ? (
-                      <ChevronDown className="h-5 w-5 text-gray-600" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-gray-600" />
-                    )}
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      {accountTypeLabels[type]}
-                    </h2>
-                    <span className="text-sm text-gray-500">({accountsOfType.length})</span>
-                  </button>
-                  {isExpanded && (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {accountsOfType.map((account) => (
-                        <AccountCard
-                          key={account.id}
-                          account={account}
-                          onEdit={openForm}
-                          onDelete={setDeleteId}
-                          statement={statementsMap[account.id]}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </>
+            return (
+              <AccountTypeSection
+                key={type}
+                type={type}
+                label={ACCOUNT_TYPE_LABELS[type]}
+                accounts={accountsOfType}
+                isExpanded={expandedSections[type]}
+                statementsMap={statementsMap}
+                onToggle={toggleSection}
+                onEdit={openForm}
+                onDelete={setDeleteId}
+              />
+            );
+          })
         )}
       </div>
 
-      {/* Form Dialog */}
-      <Dialog open={showForm} onClose={() => setShowForm(false)}>
-        <DialogHeader>
-          <DialogTitle>{editingAccount ? 'Editar Cuenta' : 'Nueva Cuenta'}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <DialogContent className="space-y-4">
-            <div>
-              <Label htmlFor="name">Nombre</Label>
-              <Input
-                id="name"
-                placeholder="Ej: Banco Santander, Efectivo"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
+      <AccountFormDialog
+        open={showForm}
+        editingAccount={editingAccount}
+        formData={formData}
+        saving={saving}
+        accounts={accounts}
+        onClose={closeForm}
+        onSubmit={handleSubmit}
+        onFormDataChange={setFormData}
+      />
 
-            <div>
-              <Label htmlFor="type">Tipo</Label>
-              <Select
-                id="type"
-                value={formData.type}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    type: e.target.value as 'cash' | 'bank' | 'credit_card',
-                  })
-                }
-              >
-                <option value="bank">Banco</option>
-                <option value="cash">Efectivo</option>
-                <option value="credit_card">Tarjeta de Crédito</option>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="balance">Balance inicial</Label>
-              <Input
-                id="balance"
-                type="number"
-                step="0.01"
-                value={formData.balance}
-                onChange={(e) => setFormData({ ...formData, balance: e.target.value })}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="color">Color</Label>
-              <div className="mt-1 flex gap-2">
-                {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'].map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    className={cn(
-                      'h-8 w-8 rounded-full transition-transform',
-                      formData.color === color && 'ring-2 ring-offset-2 ring-gray-400 scale-110'
-                    )}
-                    style={{ backgroundColor: color }}
-                    onClick={() => setFormData({ ...formData, color })}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Credit Card specific fields */}
-            {formData.type === 'credit_card' && (
-              <>
-                <div className="rounded-lg border border-purple-200 bg-purple-50 p-3">
-                  <p className="text-sm font-medium text-purple-900 mb-2">
-                    Configuración de Tarjeta de Crédito
-                  </p>
-                  <p className="text-xs text-purple-700">
-                    Completa estos campos para habilitar el seguimiento de períodos de corte y
-                    pagos.
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="creditLimit">Límite de Crédito</Label>
-                  <Input
-                    id="creditLimit"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Ej: 5000.00"
-                    value={formData.creditLimit}
-                    onChange={(e) => setFormData({ ...formData, creditLimit: e.target.value })}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Monto máximo disponible en la tarjeta
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="cutoffDay">Día de Corte</Label>
-                    <Input
-                      id="cutoffDay"
-                      type="number"
-                      min="1"
-                      max="31"
-                      placeholder="Ej: 15"
-                      value={formData.cutoffDay}
-                      onChange={(e) => setFormData({ ...formData, cutoffDay: e.target.value })}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Día que cierra el período (1-31)</p>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="paymentDueDay">Día de Pago</Label>
-                    <Input
-                      id="paymentDueDay"
-                      type="number"
-                      min="1"
-                      max="31"
-                      placeholder="Ej: 30"
-                      value={formData.paymentDueDay}
-                      onChange={(e) => setFormData({ ...formData, paymentDueDay: e.target.value })}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Día de vencimiento del pago (1-31)</p>
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="paymentAccountId">Cuenta de Débito para Pago</Label>
-                  <Select
-                    id="paymentAccountId"
-                    value={formData.paymentAccountId}
-                    onChange={(e) => setFormData({ ...formData, paymentAccountId: e.target.value })}
-                  >
-                    <option value="">Seleccionar cuenta...</option>
-                    {accounts
-                      .filter((acc) => acc.type !== 'credit_card' && acc.id !== editingAccount?.id)
-                      .map((acc) => (
-                        <option key={acc.id} value={acc.id}>
-                          {acc.name} ({acc.type === 'bank' ? 'Banco' : 'Efectivo'})
-                        </option>
-                      ))}
-                  </Select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Cuenta desde la cual se descontará el pago de la tarjeta
-                  </p>
-                </div>
-              </>
-            )}
-          </DialogContent>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={saving}>
-              {saving ? 'Guardando...' : editingAccount ? 'Guardar' : 'Crear'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </Dialog>
-
-      {/* Delete Confirmation */}
       <ConfirmDialog
         open={!!deleteId}
         onClose={() => setDeleteId(null)}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { accountsApi } from '../api/accounts.api';
+import { accountsApi } from '../features/accounts/api';
 
 interface TransferData {
   fromAccountId: string;

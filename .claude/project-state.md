@@ -4,7 +4,7 @@ Documento vivo del estado actual del proyecto. Actualizar regularmente.
 
 ## 📅 Fecha de Actualización
 
-**Última actualización:** 2026-04-24
+**Última actualización:** 2026-05-01
 
 ## 🚀 Estado General
 
@@ -28,6 +28,7 @@ Aplicación en desarrollo activo con funcionalidades core implementadas.
 - [x] **Presupuestos mensuales por categoría** (FEAT-011 — 2026-04-21)
 - [x] **Sistema de notificaciones y alertas** (FEAT-013 — 2026-04-21) — campana en navbar/sidebar, panel dropdown responsive, toasts globales con Sonner, preferencias en Settings
 - [x] **FIX-011 (2026-04-24):** AccountCard muestra disponible del período actual (no vencido), badge rojo si período vencido sin pagar; balance total en AccountsPage descuenta períodos vencidos y muestra nota informativa en amber
+- [x] **REFACTOR-accounts (2026-05-01):** AccountsPage refactorizado de 480 → 115 líneas siguiendo Pure UI Rule — nuevos archivos: `types/accounts.types.ts`, `lib/accounts.utils.ts`, `components/accounts/AccountFormDialog.tsx`, `components/accounts/AccountTypeSection.tsx`; `useAccountsPage.ts` limpio importando desde utils y types; `useAccounts.ts` simplificado (eliminado `totalBalance` sin consumidores)
 
 ### 🔄 En Progreso
 
