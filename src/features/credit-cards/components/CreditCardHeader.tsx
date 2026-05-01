@@ -14,12 +14,12 @@ export function CreditCardHeader({
   isCollapsed = false,
   onToggleCollapse,
 }: CreditCardHeaderProps) {
-  // Use backend calculated values for total usage
-  const totalUsed = statement.creditLimit - statement.available;
-  const usagePercentage = statement.usagePercentage;
+  const used = statement.currentPeriod.balance;
+  const available = statement.creditLimit - used;
+  const usagePercentage =
+    statement.creditLimit > 0 ? Math.min(100, Math.round((used / statement.creditLimit) * 100)) : 0;
   const availablePercentage = 100 - usagePercentage;
 
-  // Period balances are for display only (show expenses per period)
   const closedBalance = statement.closedPeriod.isPaid ? 0 : statement.closedPeriod.balance;
 
   return (
@@ -56,9 +56,7 @@ export function CreditCardHeader({
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-600">Crédito disponible</span>
           <div className="text-right">
-            <span className="text-xl font-bold text-green-600">
-              {formatCurrency(statement.available)}
-            </span>
+            <span className="text-xl font-bold text-green-600">{formatCurrency(available)}</span>
             <span className="text-sm text-gray-500 ml-2">({availablePercentage}%)</span>
           </div>
         </div>
@@ -69,7 +67,7 @@ export function CreditCardHeader({
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600">Uso del crédito</span>
           <span className="font-medium text-gray-900">
-            {formatCurrency(totalUsed)} / {formatCurrency(statement.creditLimit)}
+            {formatCurrency(used)} / {formatCurrency(statement.creditLimit)}
           </span>
         </div>
 
@@ -83,7 +81,7 @@ export function CreditCardHeader({
                   : 'bg-blue-500'
             }`}
             style={{ width: `${usagePercentage}%` }}
-            title={`Uso: ${formatCurrency(totalUsed)} (${usagePercentage}%)`}
+            title={`Uso: ${formatCurrency(used)} (${usagePercentage}%)`}
           />
         </div>
 
