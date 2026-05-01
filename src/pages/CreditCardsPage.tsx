@@ -1,9 +1,9 @@
 import { useCreditCardsPage } from '../features/credit-cards/hooks/useCreditCardsPage';
 import { CreditCardPaymentModal } from '../features/credit-cards/components/CreditCardPaymentModal';
-import { CreditCardEmpty } from '../components/credit-cards/CreditCardEmpty';
-import { CreditCardSummary } from '../components/credit-cards/CreditCardSummary';
-import { CreditCardItem } from '../components/credit-cards/CreditCardItem';
-import { CreditCardTransactionsModal } from '../components/credit-cards/CreditCardTransactionsModal';
+import { CreditCardEmpty } from '../features/credit-cards/components/CreditCardEmpty';
+import { CreditCardSummary } from '../features/credit-cards/components/CreditCardSummary';
+import { CreditCardItem } from '../features/credit-cards/components/CreditCardItem';
+import { CreditCardTransactionsModal } from '../features/credit-cards/components/CreditCardTransactionsModal';
 
 export function CreditCardsPage() {
   const {

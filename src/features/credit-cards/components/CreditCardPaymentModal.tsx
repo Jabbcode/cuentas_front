@@ -13,7 +13,7 @@ import { formatCurrency } from '../../../lib/utils';
 import type { CreditCardStatement, Account } from '../../../types';
 import type { PaymentFormData } from '../types';
 
-export interface CreditCardPaymentModalProps {
+interface CreditCardPaymentModalProps {
   open: boolean;
   statement: CreditCardStatement | null;
   formData: PaymentFormData;

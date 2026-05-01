@@ -1,10 +1,10 @@
-import { Card, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
 import { CreditCardHeader } from './CreditCardHeader';
 import { CreditCardAlerts } from './CreditCardAlerts';
 import { CreditCardPeriod } from './CreditCardPeriod';
 import { Receipt } from 'lucide-react';
-import type { CreditCardStatement } from '../../types';
+import type { CreditCardStatement } from '../../../types';
 
 interface CreditCardItemProps {
   statement: CreditCardStatement;
@@ -19,7 +19,7 @@ export function CreditCardItem({
   isCollapsed,
   onToggleCollapse,
   onPayClick,
-  onViewTransactions
+  onViewTransactions,
 }: CreditCardItemProps) {
   return (
     <Card className="overflow-hidden">

@@ -1,7 +1,7 @@
 import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
-import { CardHeader, CardTitle } from '../ui/card';
-import { formatCurrency } from '../../lib/utils';
-import type { CreditCardStatement } from '../../types';
+import { CardHeader, CardTitle } from '../../../components/ui/card';
+import { formatCurrency } from '../../../lib/utils';
+import type { CreditCardStatement } from '../../../types';
 
 interface CreditCardHeaderProps {
   statement: CreditCardStatement;
@@ -9,7 +9,11 @@ interface CreditCardHeaderProps {
   onToggleCollapse?: () => void;
 }
 
-export function CreditCardHeader({ statement, isCollapsed = false, onToggleCollapse }: CreditCardHeaderProps) {
+export function CreditCardHeader({
+  statement,
+  isCollapsed = false,
+  onToggleCollapse,
+}: CreditCardHeaderProps) {
   // Use backend calculated values for total usage
   const totalUsed = statement.creditLimit - statement.available;
   const usagePercentage = statement.usagePercentage;
@@ -27,9 +31,7 @@ export function CreditCardHeader({ statement, isCollapsed = false, onToggleColla
           </div>
           <div>
             <CardTitle className="text-lg">{statement.account.name}</CardTitle>
-            <p className="text-sm text-gray-600">
-              Límite: {formatCurrency(statement.creditLimit)}
-            </p>
+            <p className="text-sm text-gray-600">Límite: {formatCurrency(statement.creditLimit)}</p>
           </div>
         </div>
 
@@ -38,7 +40,7 @@ export function CreditCardHeader({ statement, isCollapsed = false, onToggleColla
           <button
             onClick={onToggleCollapse}
             className="p-2 hover:bg-purple-100 rounded-full transition-colors"
-            aria-label={isCollapsed ? "Expandir tarjeta" : "Colapsar tarjeta"}
+            aria-label={isCollapsed ? 'Expandir tarjeta' : 'Colapsar tarjeta'}
           >
             {isCollapsed ? (
               <ChevronDown className="h-5 w-5 text-purple-600" />
@@ -74,9 +76,11 @@ export function CreditCardHeader({ statement, isCollapsed = false, onToggleColla
         <div className="h-4 w-full rounded-full bg-gray-200 overflow-hidden flex">
           <div
             className={`h-full transition-all ${
-              usagePercentage >= 90 ? 'bg-red-500' :
-              usagePercentage >= 80 ? 'bg-orange-500' :
-              'bg-blue-500'
+              usagePercentage >= 90
+                ? 'bg-red-500'
+                : usagePercentage >= 80
+                  ? 'bg-orange-500'
+                  : 'bg-blue-500'
             }`}
             style={{ width: `${usagePercentage}%` }}
             title={`Uso: ${formatCurrency(totalUsed)} (${usagePercentage}%)`}
