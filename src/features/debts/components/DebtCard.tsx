@@ -1,11 +1,25 @@
-import { AlertCircle, Calendar, TrendingUp, MoreVertical, Pencil, Trash2, DollarSign } from 'lucide-react';
-import { Card, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { formatCurrency, cn } from '../../lib/utils';
-import type { Debt } from '../../types';
 import { useState } from 'react';
+import {
+  AlertCircle,
+  Calendar,
+  TrendingUp,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  DollarSign,
+} from 'lucide-react';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { formatCurrency, cn } from '../../../lib/utils';
+import {
+  getStatusBadgeClasses,
+  getStatusText,
+  calcProgressPercentage,
+  formatShortDate,
+} from '../utils';
+import type { Debt } from '../../../types';
 
-interface DebtCardProps {
+export interface DebtCardProps {
   debt: Debt;
   onEdit: (debt: Debt) => void;
   onDelete: (id: string) => void;
@@ -18,30 +32,9 @@ export function DebtCard({ debt, onEdit, onDelete, onPay, onViewHistory }: DebtC
 
   const totalAmount = Number(debt.totalAmount);
   const remainingAmount = Number(debt.remainingAmount);
-  const progressPercentage = ((totalAmount - remainingAmount) / totalAmount) * 100;
+  const progressPercentage = calcProgressPercentage(totalAmount, remainingAmount);
   const isPaid = debt.status === 'paid';
   const isOverdue = debt.status === 'overdue';
-
-  const getStatusColor = () => {
-    if (isPaid) return 'bg-green-100 text-green-700 border-green-200';
-    if (isOverdue) return 'bg-red-100 text-red-700 border-red-200';
-    return 'bg-blue-100 text-blue-700 border-blue-200';
-  };
-
-  const getStatusText = () => {
-    if (isPaid) return 'Pagada';
-    if (isOverdue) return 'Vencida';
-    return 'Activa';
-  };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return null;
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
 
   return (
     <Card className={cn('transition-all hover:shadow-md', isOverdue && 'border-red-300')}>
@@ -50,8 +43,13 @@ export function DebtCard({ debt, onEdit, onDelete, onPay, onViewHistory }: DebtC
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-semibold text-gray-900">{debt.creditor}</h3>
-              <span className={cn('px-2 py-0.5 text-xs font-medium rounded-full border', getStatusColor())}>
-                {getStatusText()}
+              <span
+                className={cn(
+                  'px-2 py-0.5 text-xs font-medium rounded-full border',
+                  getStatusBadgeClasses(debt.status)
+                )}
+              >
+                {getStatusText(debt.status)}
               </span>
             </div>
             <p className="text-sm text-gray-600">{debt.description}</p>
@@ -68,10 +66,7 @@ export function DebtCard({ debt, onEdit, onDelete, onPay, onViewHistory }: DebtC
             </Button>
             {menuOpen && (
               <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setMenuOpen(false)}
-                />
+                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
                 <div className="absolute right-0 top-8 z-20 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
                   <button
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -132,14 +127,15 @@ export function DebtCard({ debt, onEdit, onDelete, onPay, onViewHistory }: DebtC
           {debt.dueDate && (
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              <span>Vence: {formatDate(debt.dueDate)}</span>
+              <span>Vence: {formatShortDate(debt.dueDate)}</span>
             </div>
           )}
           {debt.interestRate && debt.interestType && (
             <div className="flex items-center gap-1">
               <TrendingUp className="h-3 w-3" />
               <span>
-                Interés: {debt.interestRate}{debt.interestType === 'percentage' ? '%' : '€'}
+                Interés: {debt.interestRate}
+                {debt.interestType === 'percentage' ? '%' : '€'}
               </span>
             </div>
           )}
@@ -167,7 +163,8 @@ export function DebtCard({ debt, onEdit, onDelete, onPay, onViewHistory }: DebtC
             onClick={() => onViewHistory(debt)}
             className="text-xs text-blue-600 hover:text-blue-700 mt-2 text-center w-full underline"
           >
-            Ver {debt._count.payments} pago{debt._count.payments !== 1 ? 's' : ''} realizado{debt._count.payments !== 1 ? 's' : ''}
+            Ver {debt._count.payments} pago{debt._count.payments !== 1 ? 's' : ''} realizado
+            {debt._count.payments !== 1 ? 's' : ''}
           </button>
         )}
       </CardContent>

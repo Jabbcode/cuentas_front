@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { formatCurrency } from '../../lib/utils';
-import type { FixedExpenseSummary } from '../../types';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+import { formatCurrency } from '../../../lib/utils';
+import type { FixedExpenseSummary } from '../../../types';
 import { TrendingDown, TrendingUp, CheckCircle2, Clock, CalendarClock } from 'lucide-react';
 
 interface MonthlyFixedSummaryProps {
@@ -9,9 +9,8 @@ interface MonthlyFixedSummaryProps {
 
 export function MonthlyFixedSummary({ summary }: MonthlyFixedSummaryProps) {
   const netFixed = summary.totalMonthlyIncome - summary.totalMonthlyExpenses;
-  const progressPercentage = summary.totalCount > 0
-    ? Math.round((summary.paidCount / summary.totalCount) * 100)
-    : 0;
+  const progressPercentage =
+    summary.totalCount > 0 ? Math.round((summary.paidCount / summary.totalCount) * 100) : 0;
 
   return (
     <Card>
@@ -54,10 +53,14 @@ export function MonthlyFixedSummary({ summary }: MonthlyFixedSummaryProps) {
 
           {/* Balance Neto Fijo */}
           <div className={`rounded-xl p-4 ${netFixed >= 0 ? 'bg-blue-50' : 'bg-orange-50'}`}>
-            <span className={`text-sm font-medium ${netFixed >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
+            <span
+              className={`text-sm font-medium ${netFixed >= 0 ? 'text-blue-700' : 'text-orange-700'}`}
+            >
               Balance Fijo Neto
             </span>
-            <p className={`mt-2 text-2xl font-bold ${netFixed >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+            <p
+              className={`mt-2 text-2xl font-bold ${netFixed >= 0 ? 'text-blue-600' : 'text-orange-600'}`}
+            >
               {formatCurrency(netFixed)}
             </p>
             <p className={`text-xs ${netFixed >= 0 ? 'text-blue-500' : 'text-orange-500'}`}>

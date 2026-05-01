@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { dashboardApi } from '../api/dashboard.api';
-import { fixedExpensesApi } from '../api/fixed-expenses.api';
+import { fixedExpensesApi } from '../features/fixed-expenses';
 import { creditCardsApi } from '../features/credit-cards/api';
-import { debtsApi } from '../api/debts.api';
+import { debtsApi } from '../features/debts/api';
 import type {
   DashboardSummary,
   CategorySummary,

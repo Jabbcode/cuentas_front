@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Select } from '../ui/select';
-import { debtsApi } from '../../api/debts.api';
-import type { Debt, CreateDebtInput } from '../../types';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Select } from '../../../components/ui/select';
+import { debtsApi } from '../api';
+import type { Debt, CreateDebtInput } from '../../../types';
 
-interface DebtFormProps {
+export interface DebtFormProps {
   debt?: Debt;
   onClose: () => void;
   onSuccess: () => void;
@@ -106,7 +112,7 @@ export function DebtForm({ debt, onClose, onSuccess }: DebtFormProps) {
               value={formData.totalAmount}
               onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
               required
-              disabled={!!debt} // Can't change total amount when editing
+              disabled={!!debt}
             />
             {debt && (
               <p className="text-xs text-gray-500 mt-1">

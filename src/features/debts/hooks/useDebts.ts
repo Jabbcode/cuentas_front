@@ -1,8 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { debtsApi } from '../api/debts.api';
-import type { Debt } from '../types';
+import { debtsApi } from '../api';
+import type { Debt } from '../../../types';
 
-export function useDebts(status?: string) {
+export interface UseDebtsReturn {
+  debts: Debt[];
+  loading: boolean;
+  reload: () => void;
+  deleteDebt: (id: string) => Promise<void>;
+  payDebt: (id: string, amount: number, accountId: string, notes?: string) => Promise<void>;
+}
+
+export function useDebts(status?: string): UseDebtsReturn {
   const [debts, setDebts] = useState<Debt[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,11 +50,5 @@ export function useDebts(status?: string) {
     [reload]
   );
 
-  return {
-    debts,
-    loading,
-    reload,
-    deleteDebt,
-    payDebt,
-  };
+  return { debts, loading, reload, deleteDebt, payDebt };
 }

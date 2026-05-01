@@ -1,8 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
-import { recurringDebtPaymentsApi } from '../api/recurring-debt-payments.api';
-import type { RecurringDebtPayment } from '../types';
+import { recurringDebtPaymentsApi } from '../api';
+import type { RecurringDebtPayment } from '../../../types';
 
-export function useRecurringDebtPayments(debtId?: string) {
+export interface UseRecurringDebtPaymentsReturn {
+  recurringPayments: RecurringDebtPayment[];
+  loading: boolean;
+  reload: () => void;
+  deleteRecurringPayment: (id: string) => Promise<void>;
+  toggleActive: (id: string, isActive: boolean) => Promise<void>;
+}
+
+export function useRecurringDebtPayments(debtId?: string): UseRecurringDebtPaymentsReturn {
   const [recurringPayments, setRecurringPayments] = useState<RecurringDebtPayment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,11 +50,5 @@ export function useRecurringDebtPayments(debtId?: string) {
     [reload]
   );
 
-  return {
-    recurringPayments,
-    loading,
-    reload,
-    deleteRecurringPayment,
-    toggleActive,
-  };
+  return { recurringPayments, loading, reload, deleteRecurringPayment, toggleActive };
 }

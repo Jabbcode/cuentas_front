@@ -1,5 +1,5 @@
-import { api } from './client';
-import type { FixedExpense, FixedExpenseSummary, Transaction } from '../types';
+import { api } from '../../api/client';
+import type { FixedExpense, FixedExpenseSummary, Transaction } from '../../types';
 
 export const fixedExpensesApi = {
   getAll: async (activeOnly = false): Promise<FixedExpense[]> => {
@@ -22,6 +22,7 @@ export const fixedExpensesApi = {
     accountId: string;
     categoryId: string;
     isActive?: boolean;
+    autoGenerate?: boolean;
   }): Promise<FixedExpense> => {
     const response = await api.post('/fixed-expenses', data);
     return response.data;

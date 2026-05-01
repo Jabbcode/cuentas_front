@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Select } from '../ui/select';
-import { formatCurrency } from '../../lib/utils';
-import { useAccounts } from '../../features/accounts/hooks/useAccounts';
-import { recurringDebtPaymentsApi } from '../../api/recurring-debt-payments.api';
-import type { Debt, RecurringDebtPayment } from '../../types';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Select } from '../../../components/ui/select';
+import { formatCurrency } from '../../../lib/utils';
+import { useAccounts } from '../../accounts/hooks/useAccounts';
+import { recurringDebtPaymentsApi } from '../api';
+import { suggestMonthlyAmount, calcPeriodsToPayOff } from '../utils';
+import type { Debt, RecurringDebtPayment } from '../../../types';
 
-interface RecurringPaymentModalProps {
+export interface RecurringPaymentModalProps {
   debt: Debt;
   recurringPayment?: RecurringDebtPayment;
   onClose: () => void;
@@ -20,7 +27,7 @@ const FREQUENCY_OPTIONS = [
   { value: 'weekly', label: 'Semanal' },
   { value: 'biweekly', label: 'Quincenal' },
   { value: 'monthly', label: 'Mensual' },
-];
+] as const;
 
 const DAYS_OF_WEEK = [
   { value: 0, label: 'Domingo' },
@@ -30,7 +37,19 @@ const DAYS_OF_WEEK = [
   { value: 4, label: 'Jueves' },
   { value: 5, label: 'Viernes' },
   { value: 6, label: 'Sábado' },
-];
+] as const;
+
+type Frequency = 'monthly' | 'biweekly' | 'weekly';
+
+interface RecurringFormData {
+  amount: string;
+  accountId: string;
+  frequency: Frequency;
+  dayOfMonth: string;
+  dayOfWeek: string;
+  endDate: string;
+  notes: string;
+}
 
 export function RecurringPaymentModal({
   debt,
@@ -40,10 +59,10 @@ export function RecurringPaymentModal({
 }: RecurringPaymentModalProps) {
   const { accounts } = useAccounts();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RecurringFormData>({
     amount: '',
     accountId: '',
-    frequency: 'monthly' as 'monthly' | 'biweekly' | 'weekly',
+    frequency: 'monthly',
     dayOfMonth: '1',
     dayOfWeek: '1',
     endDate: '',
@@ -56,19 +75,17 @@ export function RecurringPaymentModal({
         amount: recurringPayment.amount.toString(),
         accountId: recurringPayment.accountId,
         frequency: recurringPayment.frequency,
-        dayOfMonth: recurringPayment.dayOfMonth?.toString() || '1',
-        dayOfWeek: recurringPayment.dayOfWeek?.toString() || '1',
+        dayOfMonth: recurringPayment.dayOfMonth?.toString() ?? '1',
+        dayOfWeek: recurringPayment.dayOfWeek?.toString() ?? '1',
         endDate: recurringPayment.endDate
           ? new Date(recurringPayment.endDate).toISOString().split('T')[0]
           : '',
-        notes: recurringPayment.notes || '',
+        notes: recurringPayment.notes ?? '',
       });
     } else {
-      // Set suggested amount for new recurring payment
-      const suggestedAmount = Number(debt.remainingAmount) / 12; // Suggest paying over 12 months
       setFormData((prev) => ({
         ...prev,
-        amount: suggestedAmount.toFixed(2),
+        amount: suggestMonthlyAmount(Number(debt.remainingAmount)).toFixed(2),
       }));
     }
   }, [recurringPayment, debt]);
@@ -78,7 +95,7 @@ export function RecurringPaymentModal({
     setLoading(true);
 
     try {
-      const data = {
+      const payload = {
         debtId: debt.id,
         amount: parseFloat(formData.amount),
         accountId: formData.accountId,
@@ -90,9 +107,9 @@ export function RecurringPaymentModal({
       };
 
       if (recurringPayment) {
-        await recurringDebtPaymentsApi.update(recurringPayment.id, data);
+        await recurringDebtPaymentsApi.update(recurringPayment.id, payload);
       } else {
-        await recurringDebtPaymentsApi.create(data);
+        await recurringDebtPaymentsApi.create(payload);
       }
 
       onSuccess();
@@ -105,7 +122,14 @@ export function RecurringPaymentModal({
 
   const paymentAmount = parseFloat(formData.amount) || 0;
   const remainingAmount = Number(debt.remainingAmount);
-  const monthsToPayOff = paymentAmount > 0 ? Math.ceil(remainingAmount / paymentAmount) : 0;
+  const periodsToPayOff = calcPeriodsToPayOff(remainingAmount, paymentAmount);
+
+  const periodLabel =
+    formData.frequency === 'monthly'
+      ? 'meses'
+      : formData.frequency === 'biweekly'
+        ? 'quincenas'
+        : 'semanas';
 
   return (
     <Dialog open onClose={onClose}>
@@ -142,12 +166,7 @@ export function RecurringPaymentModal({
               <p className="text-xs text-gray-600 mt-1">
                 Tiempo estimado de pago:{' '}
                 <span className="font-medium">
-                  {monthsToPayOff}{' '}
-                  {formData.frequency === 'monthly'
-                    ? 'meses'
-                    : formData.frequency === 'biweekly'
-                      ? 'quincenas'
-                      : 'semanas'}
+                  {periodsToPayOff} {periodLabel}
                 </span>
               </p>
             )}
@@ -159,12 +178,7 @@ export function RecurringPaymentModal({
             <Select
               id="frequency"
               value={formData.frequency}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  frequency: e.target.value as 'monthly' | 'biweekly' | 'weekly',
-                })
-              }
+              onChange={(e) => setFormData({ ...formData, frequency: e.target.value as Frequency })}
               required
             >
               {FREQUENCY_OPTIONS.map((option) => (
@@ -175,7 +189,7 @@ export function RecurringPaymentModal({
             </Select>
           </div>
 
-          {/* Day of Month (for monthly) */}
+          {/* Day of Month */}
           {formData.frequency === 'monthly' && (
             <div>
               <Label htmlFor="dayOfMonth">Día del Mes *</Label>
@@ -194,7 +208,7 @@ export function RecurringPaymentModal({
             </div>
           )}
 
-          {/* Day of Week (for weekly) */}
+          {/* Day of Week */}
           {formData.frequency === 'weekly' && (
             <div>
               <Label htmlFor="dayOfWeek">Día de la Semana *</Label>
@@ -231,7 +245,7 @@ export function RecurringPaymentModal({
             </Select>
           </div>
 
-          {/* End Date (optional) */}
+          {/* End Date */}
           <div>
             <Label htmlFor="endDate">Fecha de Finalización (Opcional)</Label>
             <Input
@@ -258,11 +272,11 @@ export function RecurringPaymentModal({
 
           {/* Info Box */}
           <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm">
-            <p className="font-medium text-green-900">ℹ️ Información importante</p>
+            <p className="font-medium text-green-900">Información importante</p>
             <ul className="mt-2 space-y-1 text-xs text-green-800">
-              <li>• Los pagos se procesarán automáticamente en las fechas programadas</li>
-              <li>• Asegúrate de tener saldo suficiente en la cuenta seleccionada</li>
-              <li>• Puedes pausar o editar los pagos automáticos en cualquier momento</li>
+              <li>Los pagos se procesarán automáticamente en las fechas programadas</li>
+              <li>Asegúrate de tener saldo suficiente en la cuenta seleccionada</li>
+              <li>Puedes pausar o editar los pagos automáticos en cualquier momento</li>
             </ul>
           </div>
         </DialogContent>

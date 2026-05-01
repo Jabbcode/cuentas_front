@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fixedExpensesApi } from '../api/fixed-expenses.api';
-import type { FixedExpenseSummary } from '../types';
+import { fixedExpensesApi } from '../api';
+import type { FixedExpenseSummary } from '../../../types';
+import type { UseFixedExpensesReturn } from '../types';
 
-export function useFixedExpenses() {
+export function useFixedExpenses(): UseFixedExpensesReturn {
   const [summary, setSummary] = useState<FixedExpenseSummary | null>(null);
   const [loading, setLoading] = useState(true);
 

@@ -1,27 +1,18 @@
-import { Dialog, DialogHeader, DialogTitle, DialogContent } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { formatCurrency } from '../../lib/utils';
-import type { Debt } from '../../types';
+import { Dialog, DialogHeader, DialogTitle, DialogContent } from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
+import { formatCurrency } from '../../../lib/utils';
+import { formatDateWithTime } from '../utils';
+import type { Debt } from '../../../types';
 
-interface PaymentHistoryModalProps {
+export interface PaymentHistoryModalProps {
   debt: Debt;
   onClose: () => void;
 }
 
 export function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const totalPaid = debt.payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
-  const totalPrincipal = debt.payments?.reduce((sum, p) => sum + Number(p.principal), 0) || 0;
-  const totalInterest = debt.payments?.reduce((sum, p) => sum + Number(p.interest), 0) || 0;
+  const totalPaid = debt.payments?.reduce((sum, p) => sum + Number(p.amount), 0) ?? 0;
+  const totalPrincipal = debt.payments?.reduce((sum, p) => sum + Number(p.principal), 0) ?? 0;
+  const totalInterest = debt.payments?.reduce((sum, p) => sum + Number(p.interest), 0) ?? 0;
 
   return (
     <Dialog open onClose={onClose}>
@@ -37,11 +28,15 @@ export function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps)
           <div className="grid grid-cols-2 gap-3 mt-3">
             <div>
               <p className="text-xs text-blue-700">Monto original</p>
-              <p className="text-sm font-bold text-blue-900">{formatCurrency(Number(debt.totalAmount))}</p>
+              <p className="text-sm font-bold text-blue-900">
+                {formatCurrency(Number(debt.totalAmount))}
+              </p>
             </div>
             <div>
               <p className="text-xs text-blue-700">Restante</p>
-              <p className="text-sm font-bold text-blue-900">{formatCurrency(Number(debt.remainingAmount))}</p>
+              <p className="text-sm font-bold text-blue-900">
+                {formatCurrency(Number(debt.remainingAmount))}
+              </p>
             </div>
           </div>
         </div>
@@ -70,8 +65,10 @@ export function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps)
         {/* Payments List */}
         {debt.payments && debt.payments.length > 0 ? (
           <div className="space-y-3">
-            <p className="text-sm font-medium text-gray-900">Pagos Realizados ({debt.payments.length})</p>
-            {debt.payments?.map((payment, index) => (
+            <p className="text-sm font-medium text-gray-900">
+              Pagos Realizados ({debt.payments.length})
+            </p>
+            {debt.payments.map((payment, index) => (
               <div
                 key={payment.id}
                 className="rounded-lg border border-gray-200 bg-white p-3 hover:border-blue-300 transition-colors"
@@ -80,17 +77,15 @@ export function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps)
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-medium text-gray-500">
-                        Pago #{(debt.payments?.length || 0) - index}
+                        Pago #{(debt.payments?.length ?? 0) - index}
                       </span>
-                      <span className="text-xs text-gray-400">•</span>
+                      <span className="text-xs text-gray-400">·</span>
                       <span className="text-xs text-gray-600">
-                        {formatDate(payment.paymentDate)}
+                        {formatDateWithTime(payment.paymentDate)}
                       </span>
                     </div>
                     {payment.account && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Cuenta: {payment.account.name}
-                      </p>
+                      <p className="text-xs text-gray-500 mt-1">Cuenta: {payment.account.name}</p>
                     )}
                   </div>
                   <div className="text-right">

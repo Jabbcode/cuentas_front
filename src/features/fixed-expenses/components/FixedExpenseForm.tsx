@@ -1,17 +1,23 @@
 import { useEffect, useState } from 'react';
 import { CreditCard, Info, Zap } from 'lucide-react';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Select } from '../ui/select';
-import { CategorySelect } from '../ui/category-select';
-import { fixedExpensesApi } from '../../api/fixed-expenses.api';
-import { accountsApi } from '../../features/accounts/api';
-import { categoriesApi } from '../../features/categories/api';
-import type { Account, Category } from '../../types';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Select } from '../../../components/ui/select';
+import { CategorySelect } from '../../../components/ui/category-select';
+import { fixedExpensesApi } from '../api';
+import { accountsApi } from '../../accounts/api';
+import { categoriesApi } from '../../categories/api';
+import type { Account, Category } from '../../../types';
 
-interface FixedExpenseFormProps {
+export interface FixedExpenseFormProps {
   editId?: string | null;
   onClose: () => void;
   onSuccess: () => void;
@@ -56,10 +62,10 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
             amount: expense.amount.toString(),
             type: expense.type as 'expense' | 'income',
             dueDay: expense.dueDay.toString(),
-            description: expense.description || '',
+            description: expense.description ?? '',
             accountId: expense.accountId,
             categoryId: expense.categoryId,
-            creditCardAccountId: expense.creditCardAccountId || null,
+            creditCardAccountId: expense.creditCardAccountId ?? null,
             autoGenerate: expense.autoGenerate ?? false,
           });
         } else {
@@ -84,7 +90,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
     setFormData((prev) => ({
       ...prev,
       type,
-      categoryId: categories.find((c) => c.type === type)?.id || '',
+      categoryId: categories.find((c) => c.type === type)?.id ?? '',
     }));
   };
 
@@ -186,10 +192,10 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
             />
           </div>
 
-          {/* Due Day - Hidden for credit card sync'd expenses */}
+          {/* Due Day - Hidden for credit card syncd expenses */}
           {!formData.creditCardAccountId && (
             <div>
-              <Label htmlFor="dueDay">Día del mes</Label>
+              <Label htmlFor="dueDay">Dia del mes</Label>
               <Select
                 id="dueDay"
                 value={formData.dueDay}
@@ -197,7 +203,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
               >
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
                   <option key={day} value={day}>
-                    Día {day}
+                    Dia {day}
                   </option>
                 ))}
               </Select>
@@ -225,12 +231,12 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
               accounts.find((a) => a.id === formData.accountId)?.type === 'credit_card' && (
                 <div className="mt-2 rounded-lg border border-purple-200 bg-purple-50 p-3">
                   <div className="flex items-start gap-2">
-                    <CreditCard className="h-4 w-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <CreditCard className="mt-0.5 h-4 w-4 flex-shrink-0 text-purple-600" />
                     <div className="text-xs text-purple-800">
-                      <p className="font-medium mb-1">Cargo a Tarjeta de Crédito</p>
+                      <p className="mb-1 font-medium">Cargo a Tarjeta de Credito</p>
                       {accounts.find((a) => a.id === formData.accountId)?.cutoffDay ? (
                         <p>
-                          Este gasto se cargará al período que cierra el día{' '}
+                          Este gasto se cargara al periodo que cierra el dia{' '}
                           <span className="font-medium">
                             {accounts.find((a) => a.id === formData.accountId)?.cutoffDay}
                           </span>{' '}
@@ -238,10 +244,10 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
                         </p>
                       ) : (
                         <div className="flex items-start gap-1">
-                          <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                          <Info className="mt-0.5 h-3 w-3 flex-shrink-0" />
                           <p>
                             Configura las fechas de corte y pago en la cuenta para habilitar el
-                            seguimiento de períodos.
+                            seguimiento de periodos.
                           </p>
                         </div>
                       )}
@@ -253,7 +259,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
 
           {/* Category */}
           <div>
-            <Label>Categoría</Label>
+            <Label>Categoria</Label>
             <CategorySelect
               categories={filteredCategories}
               value={formData.categoryId}
@@ -267,9 +273,9 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
             <div className="flex items-start gap-2">
               <Zap className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" />
               <div>
-                <p className="text-sm font-medium text-gray-900">Auto-generar transacción</p>
+                <p className="text-sm font-medium text-gray-900">Auto-generar transaccion</p>
                 <p className="text-xs text-gray-500">
-                  Se creará automáticamente en el día {formData.dueDay} de cada mes
+                  Se creara automaticamente en el dia {formData.dueDay} de cada mes
                 </p>
               </div>
             </div>
@@ -290,7 +296,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
 
           {/* Description */}
           <div>
-            <Label htmlFor="description">Descripción (opcional)</Label>
+            <Label htmlFor="description">Descripcion (opcional)</Label>
             <Input
               id="description"
               placeholder="Notas adicionales..."

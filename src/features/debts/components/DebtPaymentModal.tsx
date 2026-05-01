@@ -1,14 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Select } from '../ui/select';
-import { formatCurrency } from '../../lib/utils';
-import { useAccounts } from '../../features/accounts/hooks/useAccounts';
-import type { Debt } from '../../types';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Select } from '../../../components/ui/select';
+import { formatCurrency } from '../../../lib/utils';
+import { useAccounts } from '../../accounts/hooks/useAccounts';
+import { calcInterest } from '../utils';
+import type { Debt } from '../../../types';
 
-interface DebtPaymentModalProps {
+export interface DebtPaymentModalProps {
   debt: Debt;
   onClose: () => void;
   onPay: (amount: number, accountId: string, notes?: string) => Promise<void>;
@@ -22,32 +29,22 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
   const [notes, setNotes] = useState('');
   const [paymentMode, setPaymentMode] = useState<'full' | 'custom'>('full');
 
-  const calculateInterest = () => {
-    if (!debt.interestRate || !debt.interestType) return 0;
+  const interest = calcInterest(
+    Number(debt.remainingAmount),
+    debt.interestRate ? Number(debt.interestRate) : undefined,
+    debt.interestType
+  );
 
-    const remainingAmount = Number(debt.remainingAmount);
-    const interestRate = Number(debt.interestRate);
-
-    if (debt.interestType === 'percentage') {
-      return (remainingAmount * interestRate) / 100;
-    } else {
-      return interestRate;
-    }
-  };
-
-  const interest = calculateInterest();
   const paymentAmount = parseFloat(amount) || 0;
   const remainingAmount = Number(debt.remainingAmount);
   const principal = Math.min(Math.max(0, paymentAmount - interest), remainingAmount);
   const newRemaining = remainingAmount - principal;
 
   useEffect(() => {
-    // Set default amount based on payment mode
     if (paymentMode === 'full') {
       const fullAmount = Number(debt.remainingAmount) + interest;
       setAmount(fullAmount.toFixed(2));
     } else if (paymentMode === 'custom' && !amount) {
-      // Start with interest only for custom mode
       setAmount(interest > 0 ? interest.toFixed(2) : '');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,7 +53,6 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       await onPay(parseFloat(amount), accountId, notes || undefined);
       onClose();
@@ -67,7 +63,6 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
     }
   };
 
-  // Filter accounts with sufficient balance
   const availableAccounts = accounts.filter((acc) => Number(acc.balance) >= paymentAmount);
 
   return (
@@ -100,7 +95,7 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
                     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                 }`}
               >
-                💰 Pago Total
+                Pago Total
                 <p className="text-xs font-normal mt-1 text-gray-600">
                   {formatCurrency(Number(debt.remainingAmount) + interest)}
                 </p>
@@ -114,7 +109,7 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
                     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                 }`}
               >
-                ✏️ Monto Personalizado
+                Monto Personalizado
                 <p className="text-xs font-normal mt-1 text-gray-600">Elige el monto</p>
               </button>
             </div>
@@ -130,28 +125,26 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
                 </span>
               )}
             </Label>
-            <div className="relative">
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={amount}
-                onChange={(e) => {
-                  setAmount(e.target.value);
-                  if (
-                    paymentMode === 'full' &&
-                    e.target.value !== (Number(debt.remainingAmount) + interest).toFixed(2)
-                  ) {
-                    setPaymentMode('custom');
-                  }
-                }}
-                required
-                className={paymentMode === 'custom' ? 'border-blue-300' : ''}
-              />
-            </div>
+            <Input
+              id="amount"
+              type="number"
+              step="0.01"
+              min="0.01"
+              value={amount}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                if (
+                  paymentMode === 'full' &&
+                  e.target.value !== (Number(debt.remainingAmount) + interest).toFixed(2)
+                ) {
+                  setPaymentMode('custom');
+                }
+              }}
+              required
+              className={paymentMode === 'custom' ? 'border-blue-300' : ''}
+            />
 
-            {/* Quick Amount Buttons for Custom Mode */}
+            {/* Quick Amount Buttons */}
             {paymentMode === 'custom' && (
               <div className="flex gap-2 mt-2">
                 {interest > 0 && (
@@ -176,20 +169,19 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
             <div className="mt-2 space-y-1 text-xs">
               {interest > 0 && (
                 <p className="text-gray-600">
-                  • Interés calculado:{' '}
-                  <span className="font-medium">{formatCurrency(interest)}</span>
+                  Interés calculado: <span className="font-medium">{formatCurrency(interest)}</span>
                 </p>
               )}
               <p className="text-gray-600">
-                • Aplicado al principal:{' '}
+                Aplicado al principal:{' '}
                 <span className="font-medium text-blue-600">{formatCurrency(principal)}</span>
               </p>
               <p className="text-gray-900 font-medium">
-                • Nuevo saldo restante:{' '}
+                Nuevo saldo restante:{' '}
                 <span className={newRemaining <= 0 ? 'text-green-600' : 'text-orange-600'}>
                   {formatCurrency(Math.max(0, newRemaining))}
                 </span>
-                {newRemaining <= 0 && ' ✓ Deuda liquidada'}
+                {newRemaining <= 0 && ' Deuda liquidada'}
               </p>
             </div>
           </div>
@@ -232,7 +224,7 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
             />
           </div>
 
-          {/* Warning if paying more than remaining */}
+          {/* Overpayment Warning */}
           {paymentAmount > Number(debt.remainingAmount) + interest && (
             <div className="rounded-lg border border-orange-200 bg-orange-50 p-2 text-xs text-orange-700">
               El monto ingresado es mayor al monto restante + interés

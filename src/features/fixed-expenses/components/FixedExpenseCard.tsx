@@ -1,23 +1,20 @@
 import { useState } from 'react';
+import { Calendar, Check, MoreVertical, Pencil, Trash2, Power, CreditCard } from 'lucide-react';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { Input } from '../../../components/ui/input';
 import {
-  Calendar,
-  Check,
-  MoreVertical,
-  Pencil,
-  Trash2,
-  Power,
-  CreditCard,
-} from 'lucide-react';
-import { Card, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Input } from '../ui/input';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
-import { formatCurrency, getDaysUntilDue, isDueSoon, isOverdue } from '../../lib/utils';
-import type { FixedExpense } from '../../types';
-import { cn } from '../../lib/utils';
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
+import { formatCurrency, getDaysUntilDue, isDueSoon, isOverdue, cn } from '../../../lib/utils';
+import type { FixedExpense } from '../../../types';
 
-interface FixedExpenseCardProps {
+export interface FixedExpenseCardProps {
   item: FixedExpense & { isPaidThisMonth: boolean };
   onPay: (id: string, amount?: number) => void;
   onEdit: () => void;
@@ -68,23 +65,21 @@ export function FixedExpenseCard({
               {/* Category Icon */}
               <div
                 className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl"
-                style={{ backgroundColor: item.category?.color || '#e5e7eb' }}
+                style={{ backgroundColor: item.category?.color ?? '#e5e7eb' }}
               >
-                {item.category?.icon || '📋'}
+                {item.category?.icon ?? '📋'}
               </div>
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                  {!item.isActive && (
-                    <Badge variant="secondary">Pausado</Badge>
-                  )}
+                  {!item.isActive && <Badge variant="secondary">Pausado</Badge>}
                 </div>
 
                 <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500">
                   <span className="flex items-center gap-1">
                     <Calendar className="h-3.5 w-3.5" />
-                    Día {item.dueDay}
+                    Dia {item.dueDay}
                   </span>
                   <span className="flex items-center gap-1">
                     <CreditCard className="h-3.5 w-3.5" />
@@ -119,9 +114,9 @@ export function FixedExpenseCard({
                   ) : overdue ? (
                     <Badge variant="danger">Vencido</Badge>
                   ) : dueSoon ? (
-                    <Badge variant="warning">En {daysUntil} días</Badge>
+                    <Badge variant="warning">En {daysUntil} dias</Badge>
                   ) : (
-                    <Badge variant="outline">En {daysUntil} días</Badge>
+                    <Badge variant="outline">En {daysUntil} dias</Badge>
                   )}
                 </div>
               </div>
