@@ -195,6 +195,7 @@ export function TransactionsPage() {
       accountId: accounts.length > 0 ? accounts[0].id : '',
       categoryId,
       imageHash: scannedData.imageHash,
+      tagNames: [],
       receiptItems: scannedData.items || [],
     });
 
