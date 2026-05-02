@@ -10,9 +10,9 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp } from 'lucide-react';
-import type { CategoryComparison } from '../../types';
-import { CategoryIcon } from '../ui/category-icon';
-import { MONTHS_SHORT, formatCurrency } from '../../lib/utils';
+import type { CategoryComparison } from '../../../types';
+import { CategoryIcon } from '../../../components/ui/category-icon';
+import { MONTHS_SHORT, formatCurrency } from '../../../lib/utils';
 
 interface Props {
   categories: CategoryComparison[];

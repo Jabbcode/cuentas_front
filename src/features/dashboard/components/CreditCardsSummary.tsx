@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import { CreditCard, AlertCircle, AlertTriangle, Info, ArrowRight } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { formatCurrency } from '../../lib/utils';
-import type { CreditCardsSummary } from '../../types';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { formatCurrency } from '../../../lib/utils';
+import type { CreditCardsSummary } from '../../../types';
 
 interface CreditCardsSummaryProps {
   summary: CreditCardsSummary;
@@ -81,8 +81,8 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
                     payment.daysUntilDue <= 3
                       ? 'border-red-200 bg-red-50'
                       : payment.daysUntilDue <= 7
-                      ? 'border-orange-200 bg-orange-50'
-                      : 'border-gray-200 bg-white'
+                        ? 'border-orange-200 bg-orange-50'
+                        : 'border-gray-200 bg-white'
                   }`}
                 >
                   <div>
@@ -91,10 +91,10 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
                       {payment.daysUntilDue === 0
                         ? 'Vence hoy'
                         : payment.daysUntilDue === 1
-                        ? 'Vence mañana'
-                        : payment.daysUntilDue < 0
-                        ? `Vencido hace ${Math.abs(payment.daysUntilDue)} día${Math.abs(payment.daysUntilDue) !== 1 ? 's' : ''}`
-                        : `Vence en ${payment.daysUntilDue} días`}
+                          ? 'Vence mañana'
+                          : payment.daysUntilDue < 0
+                            ? `Vencido hace ${Math.abs(payment.daysUntilDue)} día${Math.abs(payment.daysUntilDue) !== 1 ? 's' : ''}`
+                            : `Vence en ${payment.daysUntilDue} días`}
                     </p>
                   </div>
                   <div className="text-right">
@@ -137,9 +137,7 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
         {/* Empty state */}
         {summary.totalToPay === 0 && summary.upcomingPayments.length === 0 && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
-            <p className="text-sm font-medium text-green-800">
-              ✓ No tienes pagos pendientes
-            </p>
+            <p className="text-sm font-medium text-green-800">No tienes pagos pendientes</p>
           </div>
         )}
       </CardContent>

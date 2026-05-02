@@ -1,9 +1,9 @@
 import { Receipt, AlertCircle, TrendingDown, Calendar } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { formatCurrency, cn } from '../../lib/utils';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { formatCurrency, cn } from '../../../lib/utils';
 import { Link } from 'react-router-dom';
-import type { DebtsSummary } from '../../types';
+import type { DebtsSummary } from '../../../types';
 
 interface DebtsSummaryCardProps {
   summary: DebtsSummary;
@@ -43,21 +43,17 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn(
-              'rounded-full p-2',
-              hasOverdue ? 'bg-red-100' : 'bg-orange-100'
-            )}>
-              <Receipt className={cn(
-                'h-5 w-5',
-                hasOverdue ? 'text-red-600' : 'text-orange-600'
-              )} />
+            <div className={cn('rounded-full p-2', hasOverdue ? 'bg-red-100' : 'bg-orange-100')}>
+              <Receipt className={cn('h-5 w-5', hasOverdue ? 'text-red-600' : 'text-orange-600')} />
             </div>
             <div>
               <CardTitle className="text-lg font-semibold text-gray-900">
                 Resumen de Deudas
               </CardTitle>
               <p className="text-sm text-gray-600 mt-0.5">
-                {summary.totalActiveDebts + summary.totalOverdueDebts} deuda{(summary.totalActiveDebts + summary.totalOverdueDebts) !== 1 ? 's' : ''} pendiente{(summary.totalActiveDebts + summary.totalOverdueDebts) !== 1 ? 's' : ''}
+                {summary.totalActiveDebts + summary.totalOverdueDebts} deuda
+                {summary.totalActiveDebts + summary.totalOverdueDebts !== 1 ? 's' : ''} pendiente
+                {summary.totalActiveDebts + summary.totalOverdueDebts !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
@@ -93,7 +89,8 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
               <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-red-900">
-                  {summary.totalOverdueDebts} deuda{summary.totalOverdueDebts !== 1 ? 's' : ''} vencida{summary.totalOverdueDebts !== 1 ? 's' : ''}
+                  {summary.totalOverdueDebts} deuda{summary.totalOverdueDebts !== 1 ? 's' : ''}{' '}
+                  vencida{summary.totalOverdueDebts !== 1 ? 's' : ''}
                 </p>
                 <p className="text-xs text-red-700 mt-0.5">
                   Monto vencido: {formatCurrency(Number(summary.totalOverdueAmount))}
@@ -108,11 +105,10 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
               <Calendar className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-yellow-900">
-                  {summary.debtsDueSoon} deuda{summary.debtsDueSoon !== 1 ? 's' : ''} próxima{summary.debtsDueSoon !== 1 ? 's' : ''} a vencer
+                  {summary.debtsDueSoon} deuda{summary.debtsDueSoon !== 1 ? 's' : ''} próxima
+                  {summary.debtsDueSoon !== 1 ? 's' : ''} a vencer
                 </p>
-                <p className="text-xs text-yellow-700 mt-0.5">
-                  Vencen en los próximos 7 días
-                </p>
+                <p className="text-xs text-yellow-700 mt-0.5">Vencen en los próximos 7 días</p>
               </div>
             </div>
           )}
@@ -123,7 +119,8 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
               <Receipt className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-blue-900">
-                  {summary.totalActiveDebts} deuda{summary.totalActiveDebts !== 1 ? 's' : ''} activa{summary.totalActiveDebts !== 1 ? 's' : ''}
+                  {summary.totalActiveDebts} deuda{summary.totalActiveDebts !== 1 ? 's' : ''} activa
+                  {summary.totalActiveDebts !== 1 ? 's' : ''}
                 </p>
                 <p className="text-xs text-blue-700 mt-0.5">
                   Sin pagos vencidos ni próximos a vencer
@@ -143,12 +140,8 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
                 className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-2.5"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {debt.creditor}
-                  </p>
-                  <p className="text-xs text-gray-600 truncate">
-                    {debt.description}
-                  </p>
+                  <p className="text-sm font-medium text-gray-900 truncate">{debt.creditor}</p>
+                  <p className="text-xs text-gray-600 truncate">{debt.description}</p>
                 </div>
                 <div className="text-right ml-3">
                   <p className="text-sm font-semibold text-gray-900">

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { formatCurrency } from '../../lib/utils';
-import type { FixedVsVariable } from '../../types';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+import { formatCurrency } from '../../../lib/utils';
+import type { FixedVsVariable } from '../../../types';
 
 interface FixedVsVariableChartProps {
   data: FixedVsVariable | null;

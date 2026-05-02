@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { CategoryIcon } from '../ui/category-icon';
-import { CategoryLimitBadge } from '../../features/categories/components/CategoryLimitBadge';
-import { formatCurrency } from '../../lib/utils';
-import type { CategorySummary } from '../../types';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+import { CategoryIcon } from '../../../components/ui/category-icon';
+import { CategoryLimitBadge } from '../../categories/components/CategoryLimitBadge';
+import { formatCurrency } from '../../../lib/utils';
+import type { CategorySummary } from '../../../types';
 
 const COLORS = [
   '#3B82F6',

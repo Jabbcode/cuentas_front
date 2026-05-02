@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp } from 'lucide-react';
-import type { MonthComparison } from '../../types';
+import type { MonthComparison } from '../../../types';
 import { MonthSelector } from './MonthSelector';
-import { MONTHS_SHORT, formatCurrency } from '../../lib/utils';
+import { MONTHS_SHORT, formatCurrency } from '../../../lib/utils';
 
 interface TrendBadgeProps {
   diff: number;

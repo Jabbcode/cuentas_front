@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { dashboardApi } from '../api/dashboard.api';
-import { fixedExpensesApi } from '../features/fixed-expenses';
-import { creditCardsApi } from '../features/credit-cards/api';
-import { debtsApi } from '../features/debts/api';
+import { dashboardApi } from '../api';
+import { fixedExpensesApi } from '../../fixed-expenses';
+import { creditCardsApi } from '../../credit-cards/api';
+import { debtsApi } from '../../debts/api';
 import type {
   DashboardSummary,
   CategorySummary,
@@ -11,9 +11,10 @@ import type {
   ProjectionData,
   CreditCardsSummary,
   DebtsSummary,
-} from '../types';
+} from '../../../types';
+import type { UseDashboardReturn } from '../types';
 
-export function useDashboard() {
+export function useDashboard(): UseDashboardReturn {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [byCategory, setByCategory] = useState<CategorySummary[]>([]);
   const [fixedSummary, setFixedSummary] = useState<FixedExpenseSummary | null>(null);

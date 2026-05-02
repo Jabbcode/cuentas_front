@@ -1,7 +1,7 @@
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { formatCurrency } from '../../lib/utils';
-import type { DashboardSummary } from '../../types';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+import { formatCurrency } from '../../../lib/utils';
+import type { DashboardSummary } from '../../../types';
 
 interface DashboardSummaryCardsProps {
   summary: DashboardSummary | null;
@@ -30,9 +30,7 @@ export function DashboardSummaryCards({ summary }: DashboardSummaryCardsProps) {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 lg:p-6 lg:pb-2">
-          <CardTitle className="text-xs font-medium text-gray-500 lg:text-sm">
-            Ingresos
-          </CardTitle>
+          <CardTitle className="text-xs font-medium text-gray-500 lg:text-sm">Ingresos</CardTitle>
           <div className="rounded-full bg-green-100 p-1.5 lg:p-2">
             <TrendingUp className="h-3 w-3 text-green-600 lg:h-4 lg:w-4" />
           </div>
@@ -46,9 +44,7 @@ export function DashboardSummaryCards({ summary }: DashboardSummaryCardsProps) {
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 lg:p-6 lg:pb-2">
-          <CardTitle className="text-xs font-medium text-gray-500 lg:text-sm">
-            Gastos
-          </CardTitle>
+          <CardTitle className="text-xs font-medium text-gray-500 lg:text-sm">Gastos</CardTitle>
           <div className="rounded-full bg-red-100 p-1.5 lg:p-2">
             <TrendingDown className="h-3 w-3 text-red-600 lg:h-4 lg:w-4" />
           </div>
@@ -65,7 +61,9 @@ export function DashboardSummaryCards({ summary }: DashboardSummaryCardsProps) {
           <CardTitle className="text-xs font-medium text-gray-500 lg:text-sm">
             Balance Neto
           </CardTitle>
-          <div className={`rounded-full p-1.5 lg:p-2 ${monthlyNet >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
+          <div
+            className={`rounded-full p-1.5 lg:p-2 ${monthlyNet >= 0 ? 'bg-green-100' : 'bg-red-100'}`}
+          >
             {monthlyNet >= 0 ? (
               <TrendingUp className="h-3 w-3 text-green-600 lg:h-4 lg:w-4" />
             ) : (

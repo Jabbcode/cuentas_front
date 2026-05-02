@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { TrendingUp, TrendingDown, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { CategoryIcon } from '../ui/category-icon';
-import { formatCurrency } from '../../lib/utils';
-import type { ProjectionData } from '../../types';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+import { CategoryIcon } from '../../../components/ui/category-icon';
+import { formatCurrency } from '../../../lib/utils';
+import type { ProjectionData } from '../../../types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface NextMonthProjectionProps {

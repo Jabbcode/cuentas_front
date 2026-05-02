@@ -1,17 +1,17 @@
 import { RefreshCw } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { useDashboard } from '../hooks/useDashboard';
-import { useMonthComparison } from '../hooks/useMonthComparison';
-import { DashboardSummaryCards } from '../components/dashboard/DashboardSummaryCards';
-import { FixedExpensesSummaryCard } from '../components/dashboard/FixedExpensesSummaryCard';
-import { ExpensesByCategoryChart } from '../components/dashboard/ExpensesByCategoryChart';
-import { FixedVsVariableChart } from '../components/dashboard/FixedVsVariableChart';
-import { NextMonthProjection } from '../components/dashboard/NextMonthProjection';
-import { CreditCardsSummaryCard } from '../components/dashboard/CreditCardsSummary';
-import { DebtsSummaryCard } from '../components/dashboard/DebtsSummaryCard';
+import { useDashboard } from '../features/dashboard';
+import { useMonthComparison } from '../features/dashboard';
+import { DashboardSummaryCards } from '../features/dashboard';
+import { FixedExpensesSummaryCard } from '../features/dashboard';
+import { ExpensesByCategoryChart } from '../features/dashboard';
+import { FixedVsVariableChart } from '../features/dashboard';
+import { NextMonthProjection } from '../features/dashboard';
+import { CreditCardsSummaryCard } from '../features/dashboard';
+import { DebtsSummaryCard } from '../features/dashboard';
 import { BudgetDashboardWidget } from '../features/budgets/components/BudgetDashboardWidget';
-import { MonthComparisonCard } from '../components/dashboard/MonthComparisonCard';
-import { CategoryComparisonChart } from '../components/dashboard/CategoryComparisonChart';
+import { MonthComparisonCard } from '../features/dashboard';
+import { CategoryComparisonChart } from '../features/dashboard';
 
 export function DashboardPage() {
   const {

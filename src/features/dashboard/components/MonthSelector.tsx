@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { MONTHS_LONG } from '../../lib/utils';
+import { MONTHS_LONG } from '../../../lib/utils';
 
 interface Props {
   month: number;

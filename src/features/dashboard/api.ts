@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api } from '../../api/client';
 import type {
   DashboardSummary,
   CategorySummary,
@@ -6,7 +6,7 @@ import type {
   FixedVsVariable,
   ProjectionData,
   MonthlySummary,
-} from '../types';
+} from '../../types';
 
 export const dashboardApi = {
   getSummary: async (): Promise<DashboardSummary> => {

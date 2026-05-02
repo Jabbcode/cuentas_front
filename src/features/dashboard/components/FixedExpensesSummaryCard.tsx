@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { CalendarClock, ArrowRight } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { formatCurrency } from '../../lib/utils';
-import type { FixedExpenseSummary } from '../../types';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { formatCurrency } from '../../../lib/utils';
+import type { FixedExpenseSummary } from '../../../types';
 
 interface FixedExpensesSummaryCardProps {
   summary: FixedExpenseSummary;
