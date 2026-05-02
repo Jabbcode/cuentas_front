@@ -30,7 +30,7 @@ export type { GroupedTransaction } from './utils';
 export { useTransactions } from './hooks/useTransactions';
 export { useTransactionsPage } from './hooks/useTransactionsPage';
 export { useTransactionFilters } from './hooks/useTransactionFilters';
-export type { TransactionFilters } from './hooks/useTransactionFilters';
+export type { TransactionFilters as TransactionFilterValues } from './hooks/useTransactionFilters';
 export type { UseTransactionsParams, UseTransactionsReturn } from './hooks/useTransactions';
 export type { UseTransactionsPageReturn } from './hooks/useTransactionsPage';
 

@@ -135,7 +135,10 @@ export function FixedExpenseTable({
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="truncate font-medium text-gray-900">{item.name}</span>
                 {item.autoGenerate && (
-                  <Zap className="h-3 w-3 shrink-0 text-amber-500" title="Pago automático activo" />
+                  <Zap
+                    className="h-3 w-3 shrink-0 text-amber-500"
+                    aria-label="Pago automático activo"
+                  />
                 )}
                 {!item.isActive && (
                   <Badge variant="secondary" className="px-1 text-[10px]">
@@ -226,7 +229,10 @@ export function FixedExpenseTable({
               <div className="flex items-center gap-1">
                 <span className="truncate font-medium text-gray-900">{item.name}</span>
                 {item.autoGenerate && (
-                  <Zap className="h-3 w-3 shrink-0 text-amber-500" title="Pago automático activo" />
+                  <Zap
+                    className="h-3 w-3 shrink-0 text-amber-500"
+                    aria-label="Pago automático activo"
+                  />
                 )}
                 {!item.isActive && (
                   <Badge variant="secondary" className="px-1 text-[10px]">

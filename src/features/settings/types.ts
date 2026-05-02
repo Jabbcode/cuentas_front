@@ -1,5 +1,6 @@
 // UI/form types for the settings feature
 // Domain API response types (UserProfile, AccountStatistics, etc.) live in api.ts
+import type { UserProfile, AccountStatistics } from './api';
 
 export type SettingsTab = 'profile' | 'password' | 'notifications' | 'account';
 
