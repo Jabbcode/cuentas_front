@@ -1,7 +1,8 @@
-import { api } from './client';
-import type { Transaction, TransactionsResponse, ReceiptItem } from '../types';
+import { api } from '../../api/client';
+import type { Transaction, TransactionsResponse, ReceiptItem } from '../../types';
+import type { TransactionReceiptItemInput } from './types';
 
-export interface TransactionFilters {
+export interface TransactionApiFilters {
   startDate?: string;
   endDate?: string;
   accountId?: string;
@@ -12,8 +13,29 @@ export interface TransactionFilters {
   tag?: string;
 }
 
+export interface CreateTransactionInput {
+  amount: number;
+  type: 'expense' | 'income';
+  description?: string;
+  date?: string;
+  accountId: string;
+  categoryId: string;
+  fixedExpenseId?: string;
+  imageHash?: string;
+  tagNames?: string[];
+  receiptItems?: TransactionReceiptItemInput[];
+}
+
+export interface UpdateTransactionInput {
+  description?: string;
+  categoryId?: string;
+  date?: string;
+  amount?: number;
+  tagNames?: string[];
+}
+
 export const transactionsApi = {
-  getAll: async (filters?: TransactionFilters): Promise<TransactionsResponse> => {
+  getAll: async (filters?: TransactionApiFilters): Promise<TransactionsResponse> => {
     const response = await api.get('/transactions', { params: filters });
     return response.data;
   },
@@ -23,31 +45,12 @@ export const transactionsApi = {
     return response.data;
   },
 
-  create: async (data: {
-    amount: number;
-    type: 'expense' | 'income';
-    description?: string;
-    date?: string;
-    accountId: string;
-    categoryId: string;
-    fixedExpenseId?: string;
-    imageHash?: string;
-    tagNames?: string[];
-    receiptItems?: Array<{
-      name: string;
-      quantity: number;
-      unitPrice: number;
-      totalPrice: number;
-    }>;
-  }): Promise<Transaction> => {
+  create: async (data: CreateTransactionInput): Promise<Transaction> => {
     const response = await api.post('/transactions', data);
     return response.data;
   },
 
-  update: async (
-    id: string,
-    data: Partial<Transaction> & { tagNames?: string[] }
-  ): Promise<Transaction> => {
+  update: async (id: string, data: UpdateTransactionInput): Promise<Transaction> => {
     const response = await api.patch(`/transactions/${id}`, data);
     return response.data;
   },

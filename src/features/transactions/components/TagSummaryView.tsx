@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Tag, Trash2 } from 'lucide-react';
-import { Card, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { ConfirmDialog } from '../ui/confirm-dialog';
-import { formatCurrency } from '../../lib/utils';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { ConfirmDialog } from '../../../components/ui/confirm-dialog';
+import { formatCurrency } from '../../../lib/utils';
 import { TagBadge } from './TagBadge';
-import { tagsApi } from '../../api/tags.api';
-import type { TagSummary } from '../../types';
+import { tagsApi } from '../../../api/tags.api';
+import type { TagSummary } from '../../../types';
 
 interface TagSummaryViewProps {
   summary: TagSummary[];

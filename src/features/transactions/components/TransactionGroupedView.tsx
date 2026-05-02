@@ -1,10 +1,10 @@
-import { Card, CardContent } from '../ui/card';
-import { CategoryIconBadge } from '../ui/category-icon';
+import { Card, CardContent } from '../../../components/ui/card';
+import { CategoryIconBadge } from '../../../components/ui/category-icon';
 import { TransactionRow } from './TransactionRow';
 import { TransactionEmpty } from './TransactionEmpty';
-import { formatCurrency, cn } from '../../lib/utils';
-import type { GroupedTransaction } from '../../lib/transaction-utils';
-import type { Account, Transaction } from '../../types';
+import { formatCurrency, cn } from '../../../lib/utils';
+import type { GroupedTransaction } from '../utils';
+import type { Account, Transaction } from '../../../types';
 
 interface TransactionGroupedViewProps {
   groupedTransactions: GroupedTransaction[];
@@ -42,12 +42,8 @@ export function TransactionGroupedView({
                   size="lg"
                 />
                 <div>
-                  <h3 className="font-medium text-gray-900">
-                    {group.category.name}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {group.transactions.length} transacciones
-                  </p>
+                  <h3 className="font-medium text-gray-900">{group.category.name}</h3>
+                  <p className="text-sm text-gray-500">{group.transactions.length} transacciones</p>
                 </div>
               </div>
               <span

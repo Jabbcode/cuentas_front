@@ -2,15 +2,21 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { CategorySelect } from '../ui/category-select';
-import { TagInput } from './TagInput';
-import { formatCurrency } from '../../lib/utils';
-import type { Transaction, Category, Account, Tag } from '../../types';
 import { AlertTriangle } from 'lucide-react';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { CategorySelect } from '../../../components/ui/category-select';
+import { TagInput } from './TagInput';
+import { formatCurrency } from '../../../lib/utils';
+import type { Transaction, Category, Account, Tag } from '../../../types';
 
 const editTransactionSchema = z.object({
   description: z.string().optional(),
@@ -60,7 +66,6 @@ export function EditTransactionModal({
 
   const watchedAmount = watch('amount');
 
-  // Reset form when transaction changes
   useEffect(() => {
     if (transaction) {
       reset({
@@ -74,7 +79,6 @@ export function EditTransactionModal({
     }
   }, [transaction, reset]);
 
-  // Show warning when amount changes
   useEffect(() => {
     if (transaction && watchedAmount) {
       const originalAmount = parseFloat(transaction.amount.toString());
@@ -85,7 +89,6 @@ export function EditTransactionModal({
 
   const onSubmit = async (data: EditTransactionInput) => {
     if (!transaction) return;
-
     setSaving(true);
     try {
       await onSave(transaction.id, { ...data, tagNames });
@@ -100,7 +103,6 @@ export function EditTransactionModal({
   if (!transaction) return null;
 
   const filteredCategories = categories.filter((cat) => cat.type === transaction.type);
-
   const originalAmount = parseFloat(transaction.amount.toString());
   const newAmount = watchedAmount ? parseFloat(watchedAmount) : originalAmount;
   const amountDiff = newAmount - originalAmount;
@@ -116,7 +118,6 @@ export function EditTransactionModal({
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent className="space-y-4">
-          {/* Description */}
           <div>
             <Label htmlFor="description">Descripción (opcional)</Label>
             <Input
@@ -129,7 +130,6 @@ export function EditTransactionModal({
             )}
           </div>
 
-          {/* Category */}
           <div>
             <Label htmlFor="categoryId">Categoría *</Label>
             <CategorySelect
@@ -142,27 +142,24 @@ export function EditTransactionModal({
             )}
           </div>
 
-          {/* Date */}
           <div>
             <Label htmlFor="date">Fecha *</Label>
             <Input id="date" type="date" {...register('date')} />
             {errors.date && <p className="text-sm text-red-600 mt-1">{errors.date.message}</p>}
           </div>
 
-          {/* Amount with warning */}
           <div>
             <Label htmlFor="amount">Monto *</Label>
             <Input id="amount" type="number" step="0.01" {...register('amount')} />
             {errors.amount && <p className="text-sm text-red-600 mt-1">{errors.amount.message}</p>}
 
-            {/* Amount change warning */}
             {showAmountWarning && account && (
               <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1 text-sm">
                     <p className="font-medium text-orange-900 mb-2">
-                      ⚠️ Cambiar el monto afectará el balance de tu cuenta
+                      Cambiar el monto afectará el balance de tu cuenta
                     </p>
                     <div className="space-y-1 text-orange-800">
                       <p>
@@ -193,13 +190,11 @@ export function EditTransactionModal({
             )}
           </div>
 
-          {/* Tags */}
           <div>
             <Label>Etiquetas (opcional)</Label>
             <TagInput value={tagNames} onChange={setTagNames} suggestions={availableTags} />
           </div>
 
-          {/* Transaction info */}
           <div className="pt-3 border-t">
             <p className="text-xs text-gray-500">
               Tipo:{' '}
@@ -212,7 +207,7 @@ export function EditTransactionModal({
             </p>
             {transaction.fixedExpenseId && (
               <p className="text-xs text-orange-600 mt-1">
-                ⓘ Esta transacción está vinculada a un gasto fijo
+                Esta transacción está vinculada a un gasto fijo
               </p>
             )}
           </div>

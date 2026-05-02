@@ -1,15 +1,21 @@
 import { useState, useRef } from 'react';
 import { Camera, Upload, AlertTriangle, CheckCircle, X, Eye, Package } from 'lucide-react';
-import { Dialog, DialogHeader, DialogTitle, DialogContent, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
+import { Button } from '../../../components/ui/button';
 import {
   receiptsApi,
   type ScanReceiptData,
   type ExistingTransaction,
-} from '../../api/receipts.api';
-import { formatCurrency } from '../../lib/utils';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+} from '../../../api/receipts.api';
+import { formatCurrency } from '../../../lib/utils';
 
 interface ReceiptScannerProps {
   open: boolean;
@@ -33,26 +39,22 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       alert('Por favor selecciona una imagen válida');
       return;
     }
 
-    // Validate file size (10MB)
     if (file.size > 10 * 1024 * 1024) {
       alert('La imagen es demasiado grande. Máximo 10MB');
       return;
     }
 
-    // Show preview
     const reader = new FileReader();
     reader.onload = (e) => {
       setImagePreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
 
-    // Scan receipt
     setScanning(true);
     setScanResult(null);
 
@@ -103,11 +105,10 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
   return (
     <Dialog open={open} onClose={handleCloseModal}>
       <DialogHeader>
-        <DialogTitle>📸 Escanear Factura</DialogTitle>
+        <DialogTitle>Escanear Factura</DialogTitle>
       </DialogHeader>
 
       <DialogContent className="space-y-4">
-        {/* File Input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -116,7 +117,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
           className="hidden"
         />
 
-        {/* Image Preview or Upload Button */}
         {!imagePreview ? (
           <div className="space-y-3">
             <button
@@ -129,7 +129,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                 <p className="text-xs text-gray-500 mt-1">JPG, PNG o WEBP - Máximo 10MB</p>
               </div>
             </button>
-
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <Camera className="h-4 w-4" />
               <span>Tip: Asegúrate que la foto esté clara y bien iluminada</span>
@@ -137,7 +136,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Image Preview */}
             <div className="relative">
               <img
                 src={imagePreview}
@@ -154,7 +152,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
               )}
             </div>
 
-            {/* Scanning State */}
             {scanning && (
               <div className="flex flex-col items-center gap-3 py-4">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
@@ -162,10 +159,8 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
               </div>
             )}
 
-            {/* Results */}
             {scanResult && !scanning && (
               <>
-                {/* Exact Duplicate Alert */}
                 {scanResult.duplicate &&
                   scanResult.matchType === 'exact' &&
                   scanResult.existingTransaction && (
@@ -213,7 +208,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                     </div>
                   )}
 
-                {/* Similar Duplicate Alert */}
                 {scanResult.duplicate &&
                   scanResult.matchType === 'similar' &&
                   scanResult.existingTransaction &&
@@ -233,10 +227,7 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                               { locale: es }
                             )}
                           </p>
-
-                          {/* Comparison */}
                           <div className="grid grid-cols-2 gap-3">
-                            {/* Existing */}
                             <div className="bg-white rounded-md p-3">
                               <p className="text-xs font-semibold text-gray-500 mb-2">EXISTENTE</p>
                               <div className="space-y-1 text-sm">
@@ -255,8 +246,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                                 </p>
                               </div>
                             </div>
-
-                            {/* New */}
                             <div className="bg-blue-50 rounded-md p-3 border border-blue-200">
                               <p className="text-xs font-semibold text-blue-600 mb-2">NUEVA</p>
                               <div className="space-y-1 text-sm">
@@ -274,8 +263,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                               </div>
                             </div>
                           </div>
-
-                          {/* Items detected in new scan */}
                           {scanResult.scannedData.items &&
                             scanResult.scannedData.items.length > 0 && (
                               <div className="mt-3">
@@ -325,7 +312,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                     </div>
                   )}
 
-                {/* No Duplicate - Success */}
                 {!scanResult.duplicate && scanResult.scannedData && (
                   <div className="rounded-lg border-2 border-green-200 bg-green-50 p-4">
                     <div className="flex items-start gap-3">
@@ -383,7 +369,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                           </div>
                         </div>
 
-                        {/* Items Detected */}
                         {scanResult.scannedData.items &&
                           scanResult.scannedData.items.length > 0 && (
                             <div className="mt-4">
@@ -446,7 +431,7 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                                     ) > 0.01 && (
                                       <tr className="text-xs text-orange-600">
                                         <td colSpan={4} className="pt-1 text-right">
-                                          ⚠️ La suma no coincide con el total de la factura
+                                          La suma no coincide con el total de la factura
                                         </td>
                                       </tr>
                                     )}
@@ -466,21 +451,16 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
       </DialogContent>
 
       <DialogFooter>
-        {/* No image selected */}
         {!imagePreview && (
           <Button variant="outline" onClick={handleCloseModal}>
             Cancelar
           </Button>
         )}
-
-        {/* Scanning or no result yet */}
         {imagePreview && (scanning || !scanResult) && (
           <Button variant="outline" onClick={handleTryAgain} disabled={scanning}>
             Cancelar
           </Button>
         )}
-
-        {/* Results - Exact Duplicate */}
         {scanResult?.duplicate && scanResult.matchType === 'exact' && (
           <>
             <Button variant="outline" onClick={handleCloseModal}>
@@ -494,8 +474,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
             )}
           </>
         )}
-
-        {/* Results - Similar Duplicate */}
         {scanResult?.duplicate && scanResult.matchType === 'similar' && (
           <>
             <Button variant="outline" onClick={handleCloseModal}>
@@ -510,8 +488,6 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
             <Button onClick={handleUseScanned}>Guardar Como Nueva</Button>
           </>
         )}
-
-        {/* Results - No Duplicate */}
         {scanResult && !scanResult.duplicate && scanResult.scannedData && (
           <>
             <Button variant="outline" onClick={handleTryAgain}>

@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Card, CardContent } from '../ui/card';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
 
 interface TransactionPaginationProps {
   currentPage: number;
@@ -45,12 +45,7 @@ export function TransactionPagination({
             <span className="text-sm text-gray-600">
               Página {currentPage} de {totalPages}
             </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onNextPage}
-              disabled={!hasNextPage}
-            >
+            <Button variant="outline" size="sm" onClick={onNextPage} disabled={!hasNextPage}>
               Siguiente
               <ChevronRight className="h-4 w-4" />
             </Button>

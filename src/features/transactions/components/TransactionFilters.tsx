@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Filter, X, ChevronDown } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Card, CardContent } from '../ui/card';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Select } from '../ui/select';
-import { CategoryIcon } from '../ui/category-icon';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import { Input } from '../../../components/ui/input';
+import { Label } from '../../../components/ui/label';
+import { Select } from '../../../components/ui/select';
+import { CategoryIcon } from '../../../components/ui/category-icon';
 import { TagBadge } from './TagBadge';
-import type { Category, Account, Tag } from '../../types';
+import type { Category, Account, Tag } from '../../../types';
 
 interface TransactionFiltersProps {
   startDate: string;
@@ -91,30 +91,26 @@ export function TransactionFilters({
     onRemove: () => void;
   }[] = [];
 
-  if (startDate) {
+  if (startDate)
     chips.push({
       key: 'startDate',
       label: `Desde: ${startDate}`,
       onRemove: () => onStartDateChange(''),
     });
-  }
-  if (endDate) {
+  if (endDate)
     chips.push({ key: 'endDate', label: `Hasta: ${endDate}`, onRemove: () => onEndDateChange('') });
-  }
-  if (type !== 'all') {
+  if (type !== 'all')
     chips.push({
       key: 'type',
       label: type === 'expense' ? 'Gastos' : 'Ingresos',
       onRemove: () => onTypeChange('all'),
     });
-  }
-  if (accountId !== 'all' && selectedAccount) {
+  if (accountId !== 'all' && selectedAccount)
     chips.push({
       key: 'accountId',
       label: `Cuenta: ${selectedAccount.name}`,
       onRemove: () => onAccountChange('all'),
     });
-  }
   selectedCategories.forEach((cat) => {
     chips.push({
       key: `cat-${cat.id}`,
@@ -124,27 +120,19 @@ export function TransactionFilters({
       onRemove: () => onRemoveCategory(cat.id),
     });
   });
-  if (minAmount) {
+  if (minAmount)
     chips.push({
       key: 'minAmount',
       label: `Mín: $${minAmount}`,
       onRemove: () => onMinAmountChange(''),
     });
-  }
-  if (maxAmount) {
+  if (maxAmount)
     chips.push({
       key: 'maxAmount',
       label: `Máx: $${maxAmount}`,
       onRemove: () => onMaxAmountChange(''),
     });
-  }
-  if (tag) {
-    chips.push({
-      key: 'tag',
-      label: `#${tag}`,
-      onRemove: () => onTagChange(''),
-    });
-  }
+  if (tag) chips.push({ key: 'tag', label: `#${tag}`, onRemove: () => onTagChange('') });
 
   return (
     <Card>
@@ -161,7 +149,6 @@ export function TransactionFilters({
           )}
         </div>
 
-        {/* Row 1: dates, type, view */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-4">
           <div>
             <Label htmlFor="filter-start-date" className="text-xs">
@@ -175,7 +162,6 @@ export function TransactionFilters({
               className="mt-1"
             />
           </div>
-
           <div>
             <Label htmlFor="filter-end-date" className="text-xs">
               Hasta
@@ -188,7 +174,6 @@ export function TransactionFilters({
               className="mt-1"
             />
           </div>
-
           <div>
             <Label htmlFor="filter-type" className="text-xs">
               Tipo
@@ -204,7 +189,6 @@ export function TransactionFilters({
               <option value="income">Ingresos</option>
             </Select>
           </div>
-
           <div>
             <Label htmlFor="group-category" className="text-xs">
               Vista
@@ -221,7 +205,6 @@ export function TransactionFilters({
           </div>
         </div>
 
-        {/* Row 2: account, multi-category, amount range */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Label htmlFor="filter-account" className="text-xs">
@@ -242,7 +225,6 @@ export function TransactionFilters({
             </Select>
           </div>
 
-          {/* Multi-category dropdown */}
           <div ref={dropdownRef} className="relative">
             <Label className="text-xs">Categorías</Label>
             <button
@@ -257,7 +239,6 @@ export function TransactionFilters({
               </span>
               <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0 text-gray-400" />
             </button>
-
             {categoryDropdownOpen && (
               <div className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg">
                 {categories.map((cat) => (
@@ -294,7 +275,6 @@ export function TransactionFilters({
               className="mt-1"
             />
           </div>
-
           <div>
             <Label htmlFor="filter-max-amount" className="text-xs">
               Monto máximo
@@ -312,7 +292,6 @@ export function TransactionFilters({
           </div>
         </div>
 
-        {/* Row 3: tag filter */}
         {availableTags.length > 0 && (
           <div className="mt-4" ref={tagDropdownRef}>
             <Label className="text-xs">Etiqueta</Label>
@@ -356,7 +335,6 @@ export function TransactionFilters({
           </div>
         )}
 
-        {/* Active filter chips */}
         {chips.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {chips.map((chip) => (

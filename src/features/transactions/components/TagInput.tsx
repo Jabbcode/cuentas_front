@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Tag } from 'lucide-react';
 import { TagBadge } from './TagBadge';
-import type { Tag as TagType } from '../../types';
+import type { Tag as TagType } from '../../../types';
 
 interface TagInputProps {
   value: string[];
