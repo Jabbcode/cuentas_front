@@ -95,6 +95,7 @@ export interface UseTransactionsPageReturn {
   setShowTagSummary: (show: boolean) => void;
   setEditingTransaction: (tx: Transaction | null) => void;
   setViewingItems: (tx: Transaction | null) => void;
+  reloadTagSummary: () => void;
 }
 
 export function useTransactionsPage(): UseTransactionsPageReturn {
@@ -482,5 +483,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     setShowTagSummary,
     setEditingTransaction,
     setViewingItems,
+    reloadTagSummary,
   };
 }

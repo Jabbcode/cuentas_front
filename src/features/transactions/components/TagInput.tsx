@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { flushSync } from 'react-dom';
 import type { KeyboardEvent } from 'react';
 import { Tag } from 'lucide-react';
 import { TagBadge } from './TagBadge';
@@ -77,6 +78,13 @@ export function TagInput({
             setOpen(true);
           }}
           onKeyDown={handleKeyDown}
+          onBlur={(e) => {
+            const goingToSubmit =
+              e.relatedTarget instanceof HTMLButtonElement && e.relatedTarget.type === 'submit';
+            if (goingToSubmit && input.trim()) {
+              flushSync(() => addTag(input));
+            }
+          }}
           onFocus={() => setOpen(true)}
           placeholder={value.length === 0 ? placeholder : ''}
           className="min-w-24 flex-1 border-none bg-transparent text-sm outline-none placeholder:text-gray-400"

@@ -17,7 +17,7 @@ import { TransactionFormDialog } from '../features/transactions/components/Trans
 export function TransactionsPage() {
   const page = useTransactionsPage();
 
-  if (page.loading) {
+  if (page.loading && page.transactions.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
@@ -94,9 +94,7 @@ export function TransactionsPage() {
             page.setShowTagSummary(false);
             page.setTag(tagName);
           }}
-          onDeleted={() => {
-            // reload is handled internally by useTags / useTagsSummary when needed
-          }}
+          onDeleted={page.reloadTagSummary}
         />
       )}
 
