@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { calculatePaginationInfo } from '../lib/transaction-utils';
+import { calculatePaginationInfo } from '../features/transactions/utils';
 
 export function usePagination(itemsPerPage: number = 20) {
   const [currentPage, setCurrentPage] = useState(1);
