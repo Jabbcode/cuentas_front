@@ -11,6 +11,7 @@ interface Props {
   onToggle: (type: Account['type']) => void;
   onEdit: (account: Account) => void;
   onDelete: (id: string) => void;
+  onViewTransactions: (id: string) => void;
 }
 
 export function AccountTypeSection({
@@ -22,6 +23,7 @@ export function AccountTypeSection({
   onToggle,
   onEdit,
   onDelete,
+  onViewTransactions,
 }: Props) {
   return (
     <div className="space-y-4">
@@ -46,6 +48,7 @@ export function AccountTypeSection({
               account={account}
               onEdit={onEdit}
               onDelete={onDelete}
+              onViewTransactions={onViewTransactions}
               statement={statementsMap[account.id]}
             />
           ))}

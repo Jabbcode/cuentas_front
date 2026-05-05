@@ -34,6 +34,7 @@ export function useAccountsPage(): UseAccountsPageReturn {
   const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] =
     useState<ExpandedSections>(DEFAULT_EXPANDED_SECTIONS);
   const [formData, setFormData] = useState<AccountFormData>(DEFAULT_FORM_DATA);
@@ -149,5 +150,7 @@ export function useAccountsPage(): UseAccountsPageReturn {
     setShowTransfer,
     toggleSection,
     reload,
+    selectedAccountId,
+    setSelectedAccountId,
   };
 }
