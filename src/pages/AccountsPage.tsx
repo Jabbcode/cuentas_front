@@ -5,6 +5,7 @@ import { AccountEmpty } from '../features/accounts/components/AccountEmpty';
 import { AccountTypeSection } from '../features/accounts/components/AccountTypeSection';
 import { AccountFormDialog } from '../features/accounts/components/AccountFormDialog';
 import { TransferModal } from '../features/accounts/components/TransferModal';
+import { AccountTransactionsModal } from '../features/accounts/components/AccountTransactionsModal';
 import { useAccountsPage } from '../features/accounts/hooks/useAccountsPage';
 import { formatCurrency } from '../lib/utils';
 import type { Account } from '../types';
@@ -42,7 +43,11 @@ export function AccountsPage() {
     setShowTransfer,
     toggleSection,
     reload,
+    selectedAccountId,
+    setSelectedAccountId,
   } = useAccountsPage();
+
+  const selectedAccount = accounts.find((a) => a.id === selectedAccountId) ?? null;
 
   if (loading) {
     return (
@@ -104,6 +109,7 @@ export function AccountsPage() {
                 onToggle={toggleSection}
                 onEdit={openForm}
                 onDelete={setDeleteId}
+                onViewTransactions={setSelectedAccountId}
               />
             );
           })
@@ -129,6 +135,12 @@ export function AccountsPage() {
         description="¿Estás seguro de eliminar esta cuenta? Esta acción no se puede deshacer."
         confirmText="Eliminar"
         loading={deleting}
+      />
+
+      <AccountTransactionsModal
+        open={!!selectedAccountId}
+        account={selectedAccount}
+        onClose={() => setSelectedAccountId(null)}
       />
 
       {showTransfer && (

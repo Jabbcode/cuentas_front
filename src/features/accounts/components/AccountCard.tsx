@@ -7,6 +7,7 @@ import {
   Pencil,
   Trash2,
   AlertTriangle,
+  ListOrdered,
 } from 'lucide-react';
 import { Card, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
@@ -29,10 +30,17 @@ interface AccountCardProps {
   account: Account;
   onEdit: (account: Account) => void;
   onDelete: (id: string) => void;
+  onViewTransactions: (id: string) => void;
   statement?: CreditCardStatement;
 }
 
-export function AccountCard({ account, onEdit, onDelete, statement }: AccountCardProps) {
+export function AccountCard({
+  account,
+  onEdit,
+  onDelete,
+  onViewTransactions,
+  statement,
+}: AccountCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const Icon = accountTypeIcons[account.type];
 
@@ -65,7 +73,16 @@ export function AccountCard({ account, onEdit, onDelete, statement }: AccountCar
             {menuOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-8 z-20 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+                <div className="absolute right-0 top-8 z-20 w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+                  <button
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onViewTransactions(account.id);
+                    }}
+                  >
+                    <ListOrdered className="h-4 w-4" /> Transacciones
+                  </button>
                   <button
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => {
