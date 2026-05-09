@@ -6,11 +6,13 @@ export interface TransactionApiFilters {
   startDate?: string;
   endDate?: string;
   accountId?: string;
-  categoryId?: string;
+  categoryIds?: string[];
   type?: 'expense' | 'income';
   limit?: number;
   offset?: number;
   tag?: string;
+  minAmount?: number;
+  maxAmount?: number;
 }
 
 export interface CreateTransactionInput {
@@ -32,6 +34,21 @@ export interface UpdateTransactionInput {
   date?: string;
   amount?: number;
   tagNames?: string[];
+}
+
+export interface TransactionSummaryFilters {
+  startDate?: string;
+  endDate?: string;
+  accountId?: string;
+  type?: 'expense' | 'income';
+}
+
+export interface TransactionCategorySummaryItem {
+  category: { id: string; name: string; icon: string | null; color: string | null };
+  expenseTotal: number;
+  incomeTotal: number;
+  count: number;
+  netTotal: number;
 }
 
 export const transactionsApi = {
@@ -61,6 +78,13 @@ export const transactionsApi = {
 
   getReceiptItems: async (transactionId: string): Promise<ReceiptItem[]> => {
     const response = await api.get(`/transactions/${transactionId}/items`);
+    return response.data;
+  },
+
+  getSummary: async (
+    filters?: TransactionSummaryFilters
+  ): Promise<TransactionCategorySummaryItem[]> => {
+    const response = await api.get('/transactions/summary', { params: filters });
     return response.data;
   },
 };

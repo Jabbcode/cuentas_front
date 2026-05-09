@@ -42,7 +42,7 @@ export { TagSummaryView } from './components/TagSummaryView';
 export { TransactionCard } from './components/TransactionCard';
 export { TransactionEmpty } from './components/TransactionEmpty';
 export { TransactionFilters } from './components/TransactionFilters';
-export { TransactionGroupedView } from './components/TransactionGroupedView';
+export { TransactionCategorySummaryModal } from './components/TransactionCategorySummaryModal';
 export { TransactionList } from './components/TransactionList';
 export { TransactionPagination } from './components/TransactionPagination';
 export { TransactionRow } from './components/TransactionRow';

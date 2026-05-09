@@ -1,4 +1,4 @@
-import { Plus, Camera, Tag } from 'lucide-react';
+import { Plus, Camera, Tag, BarChart3 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { ReceiptItemsModal } from '../components/receipts/ReceiptItemsModal';
@@ -6,13 +6,13 @@ import { useTransactionsPage } from '../features/transactions/hooks/useTransacti
 import {
   TransactionFilters,
   TransactionList,
-  TransactionGroupedView,
   TransactionPagination,
   TagSummaryView,
   EditTransactionModal,
   ReceiptScanner,
 } from '../features/transactions';
 import { TransactionFormDialog } from '../features/transactions/components/TransactionFormDialog';
+import { TransactionCategorySummaryModal } from '../features/transactions/components/TransactionCategorySummaryModal';
 
 export function TransactionsPage() {
   const page = useTransactionsPage();
@@ -36,6 +36,13 @@ export function TransactionsPage() {
           </p>
         </div>
         <div className="flex flex-col gap-3 md:flex-row md:gap-4">
+          <Button
+            variant="outline"
+            onClick={() => page.setShowCategorySummary(true)}
+            className="w-full md:w-auto"
+          >
+            <BarChart3 className="mr-2 h-4 w-4" /> Resumen por categoría
+          </Button>
           <Button
             variant={page.showTagSummary ? 'default' : 'outline'}
             onClick={() => page.setShowTagSummary(!page.showTagSummary)}
@@ -66,7 +73,6 @@ export function TransactionsPage() {
         minAmount={page.filters.minAmount}
         maxAmount={page.filters.maxAmount}
         type={page.filters.type}
-        groupByCategory={page.filters.groupByCategory}
         tag={page.filters.tag}
         categories={page.categories}
         accounts={page.accounts}
@@ -80,7 +86,6 @@ export function TransactionsPage() {
         onMinAmountChange={page.setMinAmount}
         onMaxAmountChange={page.setMaxAmount}
         onTypeChange={page.setType}
-        onGroupByCategoryChange={page.setGroupByCategory}
         onTagChange={page.setTag}
         onClearFilters={page.clearFilters}
       />
@@ -98,8 +103,8 @@ export function TransactionsPage() {
         />
       )}
 
-      {/* Transactions — flat list or grouped view */}
-      {!page.showTagSummary && !page.filters.groupByCategory ? (
+      {/* Transactions list */}
+      {!page.showTagSummary && (
         <TransactionList
           transactions={page.filteredTransactions}
           accounts={page.accounts}
@@ -109,19 +114,7 @@ export function TransactionsPage() {
           loadingItemsId={page.loadingItemsId}
           onCreateClick={page.handleOpenForm}
         />
-      ) : !page.showTagSummary ? (
-        page.groupedTransactions && (
-          <TransactionGroupedView
-            groupedTransactions={page.groupedTransactions}
-            accounts={page.accounts}
-            onDelete={page.setDeleteId}
-            onEdit={page.handleEdit}
-            onViewItems={page.handleViewItems}
-            loadingItemsId={page.loadingItemsId}
-            onCreateClick={page.handleOpenForm}
-          />
-        )
-      ) : null}
+      )}
 
       {/* Pagination */}
       {!page.showTagSummary &&
@@ -179,6 +172,15 @@ export function TransactionsPage() {
         availableTags={page.availableTags}
         onClose={() => page.setEditingTransaction(null)}
         onSave={page.handleSaveEdit}
+      />
+
+      {/* Category Summary Modal */}
+      <TransactionCategorySummaryModal
+        open={page.showCategorySummary}
+        summary={page.categorySummary}
+        loading={page.categorySummaryLoading}
+        onClose={() => page.setShowCategorySummary(false)}
+        onCategoryClick={(categoryId) => page.toggleCategory(categoryId)}
       />
 
       {/* Receipt Scanner */}

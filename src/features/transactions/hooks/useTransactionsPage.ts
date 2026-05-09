@@ -1,24 +1,18 @@
 import { useState, useCallback, useMemo } from 'react';
 import { transactionsApi } from '../api';
 import { useTransactions } from './useTransactions';
-import {
-  applyClientSideFilters,
-  groupTransactionsByCategory,
-  calculatePaginationInfo,
-  getDefaultTransactionFormData,
-  hasActiveFilters,
-  DEFAULT_FILTER_STATE,
-} from '../utils';
+import { useTransactionFilters } from './useTransactionFilters';
+import { useTransactionSummary } from './useTransactionSummary';
+import { usePagination } from '../../../hooks/usePagination';
+import { useAccounts } from '../../accounts/hooks/useAccounts';
+import { useCategories } from '../../categories/hooks/useCategories';
 import { useTags, useTagsSummary } from '../../../hooks/useTags';
 import { getClosedPeriodWarning } from '../../../lib/credit-card-utils';
 import type { Transaction } from '../../../types';
 import type { ScanReceiptData } from '../../../api/receipts.api';
-import type {
-  TransactionFormData,
-  TransactionFilterState,
-  TransactionEditInput,
-  DateWarning,
-} from '../types';
+import type { TransactionFormData, TransactionEditInput, DateWarning } from '../types';
+import type { TransactionFilters } from './useTransactionFilters';
+import type { TransactionCategorySummaryItem } from '../api';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -26,16 +20,17 @@ export interface UseTransactionsPageReturn {
   // Data
   transactions: Transaction[];
   filteredTransactions: Transaction[];
-  groupedTransactions: ReturnType<typeof groupTransactionsByCategory> | null;
   total: number;
-  accounts: ReturnType<typeof useTransactions>['accounts'];
-  categories: ReturnType<typeof useTransactions>['categories'];
+  accounts: ReturnType<typeof useAccounts>['accounts'];
+  categories: ReturnType<typeof useCategories>['categories'];
   availableTags: ReturnType<typeof useTags>['tags'];
   tagSummary: ReturnType<typeof useTagsSummary>['summary'];
+  categorySummary: TransactionCategorySummaryItem[];
 
   // Loading states
   loading: boolean;
   tagSummaryLoading: boolean;
+  categorySummaryLoading: boolean;
   saving: boolean;
   deleting: boolean;
   loadingItemsId: string | null;
@@ -44,20 +39,24 @@ export interface UseTransactionsPageReturn {
   showForm: boolean;
   showScanner: boolean;
   showTagSummary: boolean;
+  showCategorySummary: boolean;
   deleteId: string | null;
   editingTransaction: Transaction | null;
   viewingItems: Transaction | null;
 
   // Form state
   formData: TransactionFormData;
-  filters: TransactionFilterState;
-  filteredCategories: ReturnType<typeof useTransactions>['categories'];
+  filters: TransactionFilters;
+  filteredCategories: ReturnType<typeof useCategories>['categories'];
   dateWarning: DateWarning;
   hasActiveFilters: boolean;
 
+  // Handlers — ui toggles (extended)
+  setShowCategorySummary: (show: boolean) => void;
+
   // Pagination
   currentPage: number;
-  paginationInfo: ReturnType<typeof calculatePaginationInfo>;
+  paginationInfo: ReturnType<ReturnType<typeof usePagination>['getPaginationInfo']>;
   itemsPerPage: number;
 
   // Handlers — filters
@@ -69,7 +68,6 @@ export interface UseTransactionsPageReturn {
   setMinAmount: (amount: string) => void;
   setMaxAmount: (amount: string) => void;
   setType: (type: 'all' | 'expense' | 'income') => void;
-  setGroupByCategory: (grouped: boolean) => void;
   setTag: (tag: string) => void;
   clearFilters: () => void;
 
@@ -99,12 +97,50 @@ export interface UseTransactionsPageReturn {
 }
 
 export function useTransactionsPage(): UseTransactionsPageReturn {
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const resetPage = useCallback(() => setCurrentPage(1), []);
+  // 1. Pagination — decoupled
+  const pagination = usePagination(ITEMS_PER_PAGE);
 
-  // Filter state
-  const [filters, setFilters] = useState<TransactionFilterState>(DEFAULT_FILTER_STATE);
+  // 2. Filters — decoupled, resets page on any filter change
+  const filterHook = useTransactionFilters(pagination.resetPage);
+
+  // 3. Transactions — server-side filtered and paginated
+  const { transactions, total, loading, reload } = useTransactions({
+    currentPage: pagination.currentPage,
+    itemsPerPage: ITEMS_PER_PAGE,
+    startDate: filterHook.filters.startDate || undefined,
+    endDate: filterHook.filters.endDate || undefined,
+    accountId: filterHook.filters.accountId !== 'all' ? filterHook.filters.accountId : undefined,
+    type: filterHook.filters.type,
+    tag: filterHook.filters.tag || undefined,
+    categoryIds:
+      filterHook.filters.categoryIds.length > 0 ? filterHook.filters.categoryIds : undefined,
+    minAmount: filterHook.filters.minAmount || undefined,
+    maxAmount: filterHook.filters.maxAmount || undefined,
+  });
+
+  // 4. Reference data — fetched once, independent of filters/pagination
+  const { accounts } = useAccounts();
+  const { categories } = useCategories();
+
+  // 5. Tags — unchanged
+  const { tags: availableTags, reload: reloadTags } = useTags();
+  const {
+    summary: tagSummary,
+    loading: tagSummaryLoading,
+    reload: reloadTagSummary,
+  } = useTagsSummary();
+
+  // 6. Category summary — only fetched when modal is open
+  const [showCategorySummary, setShowCategorySummary] = useState(false);
+  const { summary: categorySummary, loading: categorySummaryLoading } = useTransactionSummary(
+    {
+      startDate: filterHook.filters.startDate || undefined,
+      endDate: filterHook.filters.endDate || undefined,
+      accountId: filterHook.filters.accountId !== 'all' ? filterHook.filters.accountId : undefined,
+      type: filterHook.filters.type !== 'all' ? filterHook.filters.type : undefined,
+    },
+    showCategorySummary
+  );
 
   // Modal/UI state
   const [showForm, setShowForm] = useState(false);
@@ -130,153 +166,36 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     receiptItems: [],
   });
 
-  // Server data
-  const { transactions, total, accounts, categories, loading, reload } = useTransactions({
-    currentPage,
-    itemsPerPage: ITEMS_PER_PAGE,
-    startDate: filters.startDate,
-    endDate: filters.endDate,
-    accountId: filters.accountId !== 'all' ? filters.accountId : undefined,
-    type: filters.type,
-    tag: filters.tag || undefined,
-  });
-
-  const { tags: availableTags, reload: reloadTags } = useTags();
-  const {
-    summary: tagSummary,
-    loading: tagSummaryLoading,
-    reload: reloadTagSummary,
-  } = useTagsSummary();
-
-  // Derived: client-side filtered transactions
-  const filteredTransactions = useMemo(
-    () =>
-      applyClientSideFilters(transactions, {
-        categoryIds: filters.categoryIds,
-        minAmount: filters.minAmount,
-        maxAmount: filters.maxAmount,
-      }),
-    [transactions, filters.categoryIds, filters.minAmount, filters.maxAmount]
-  );
-
-  // Derived: grouped transactions
-  const groupedTransactions = useMemo(() => {
-    if (!filters.groupByCategory) return null;
-    return groupTransactionsByCategory(filteredTransactions);
-  }, [filteredTransactions, filters.groupByCategory]);
-
   // Derived: pagination info
-  const paginationInfo = useMemo(
-    () => calculatePaginationInfo(currentPage, total, ITEMS_PER_PAGE),
-    [currentPage, total]
-  );
+  const paginationInfo = useMemo(() => pagination.getPaginationInfo(total), [pagination, total]);
 
-  // Derived: filtered categories for form
+  // Derived: categories for form filtered by current type
   const filteredCategories = useMemo(
     () => categories.filter((c) => c.type === formData.type),
     [categories, formData.type]
   );
 
-  // Derived: date warning for credit card
+  // Derived: credit card date warning
   const dateWarning: DateWarning = useMemo(() => {
     if (!formData.accountId || !formData.date || formData.type !== 'expense') return null;
     const account = accounts.find((acc) => acc.id === formData.accountId);
     return getClosedPeriodWarning(formData.date, account);
   }, [formData.accountId, formData.date, formData.type, accounts]);
 
-  // Derived: hasActiveFilters
-  const activeFilters = useMemo(() => hasActiveFilters(filters), [filters]);
-
   // Helpers
   const buildInitialFormData = useCallback((): TransactionFormData => {
-    return getDefaultTransactionFormData(
-      accounts.length > 0 ? accounts[0].id : '',
-      categories.find((c) => c.type === 'expense')?.id ?? ''
-    );
+    return {
+      amount: '',
+      type: 'expense',
+      description: '',
+      date: new Date().toISOString().split('T')[0],
+      accountId: accounts.length > 0 ? accounts[0].id : '',
+      categoryId: categories.find((c) => c.type === 'expense')?.id ?? '',
+      imageHash: undefined,
+      tagNames: [],
+      receiptItems: [],
+    };
   }, [accounts, categories]);
-
-  // Filter handlers
-  const withResetPage = useCallback(
-    <T>(setter: (val: T) => void) =>
-      (val: T) => {
-        setter(val);
-        resetPage();
-      },
-    [resetPage]
-  );
-
-  const setStartDate = useCallback(
-    withResetPage((date: string) => setFilters((prev) => ({ ...prev, startDate: date }))),
-    [withResetPage]
-  );
-
-  const setEndDate = useCallback(
-    withResetPage((date: string) => setFilters((prev) => ({ ...prev, endDate: date }))),
-    [withResetPage]
-  );
-
-  const toggleCategory = useCallback(
-    withResetPage((categoryId: string) =>
-      setFilters((prev) => {
-        const exists = prev.categoryIds.includes(categoryId);
-        return {
-          ...prev,
-          categoryIds: exists
-            ? prev.categoryIds.filter((id) => id !== categoryId)
-            : [...prev.categoryIds, categoryId],
-        };
-      })
-    ),
-    [withResetPage]
-  );
-
-  const removeCategory = useCallback(
-    withResetPage((categoryId: string) =>
-      setFilters((prev) => ({
-        ...prev,
-        categoryIds: prev.categoryIds.filter((id) => id !== categoryId),
-      }))
-    ),
-    [withResetPage]
-  );
-
-  const setAccountId = useCallback(
-    withResetPage((accountId: string) => setFilters((prev) => ({ ...prev, accountId }))),
-    [withResetPage]
-  );
-
-  const setMinAmount = useCallback((minAmount: string) => {
-    setFilters((prev) => ({ ...prev, minAmount }));
-  }, []);
-
-  const setMaxAmount = useCallback((maxAmount: string) => {
-    setFilters((prev) => ({ ...prev, maxAmount }));
-  }, []);
-
-  const setType = useCallback(
-    withResetPage((type: 'all' | 'expense' | 'income') =>
-      setFilters((prev) => ({ ...prev, type }))
-    ),
-    [withResetPage]
-  );
-
-  const setGroupByCategory = useCallback((groupByCategory: boolean) => {
-    setFilters((prev) => ({ ...prev, groupByCategory }));
-  }, []);
-
-  const setTag = useCallback(
-    withResetPage((tag: string) => setFilters((prev) => ({ ...prev, tag }))),
-    [withResetPage]
-  );
-
-  const clearFilters = useCallback(() => {
-    setFilters(DEFAULT_FILTER_STATE);
-    resetPage();
-  }, [resetPage]);
-
-  // Pagination handlers
-  const nextPage = useCallback(() => setCurrentPage((p) => p + 1), []);
-  const previousPage = useCallback(() => setCurrentPage((p) => Math.max(1, p - 1)), []);
 
   // Form handlers
   const handleOpenForm = useCallback(() => {
@@ -413,17 +332,18 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
   return {
     // Data
     transactions,
-    filteredTransactions,
-    groupedTransactions,
+    filteredTransactions: transactions,
     total,
     accounts,
     categories,
     availableTags,
     tagSummary,
+    categorySummary,
 
     // Loading states
     loading,
     tagSummaryLoading,
+    categorySummaryLoading,
     saving,
     deleting,
     loadingItemsId,
@@ -432,38 +352,38 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     showForm,
     showScanner,
     showTagSummary,
+    showCategorySummary,
     deleteId,
     editingTransaction,
     viewingItems,
 
     // Form / filter state
     formData,
-    filters,
+    filters: filterHook.filters,
     filteredCategories,
     dateWarning,
-    hasActiveFilters: activeFilters,
+    hasActiveFilters: filterHook.hasActiveFilters,
 
     // Pagination
-    currentPage,
+    currentPage: pagination.currentPage,
     paginationInfo,
     itemsPerPage: ITEMS_PER_PAGE,
 
     // Filter handlers
-    setStartDate,
-    setEndDate,
-    toggleCategory,
-    removeCategory,
-    setAccountId,
-    setMinAmount,
-    setMaxAmount,
-    setType,
-    setGroupByCategory,
-    setTag,
-    clearFilters,
+    setStartDate: filterHook.setStartDate,
+    setEndDate: filterHook.setEndDate,
+    toggleCategory: filterHook.toggleCategory,
+    removeCategory: filterHook.removeCategory,
+    setAccountId: filterHook.setAccountId,
+    setMinAmount: filterHook.setMinAmount,
+    setMaxAmount: filterHook.setMaxAmount,
+    setType: filterHook.setType,
+    setTag: filterHook.setTag,
+    clearFilters: filterHook.clearFilters,
 
     // Pagination handlers
-    nextPage,
-    previousPage,
+    nextPage: pagination.nextPage,
+    previousPage: pagination.previousPage,
 
     // Modal/form handlers
     handleOpenForm,
@@ -481,6 +401,7 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     setDeleteId,
     setShowScanner,
     setShowTagSummary,
+    setShowCategorySummary,
     setEditingTransaction,
     setViewingItems,
     reloadTagSummary,

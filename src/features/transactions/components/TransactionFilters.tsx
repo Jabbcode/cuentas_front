@@ -17,7 +17,6 @@ interface TransactionFiltersProps {
   minAmount: string;
   maxAmount: string;
   type: 'all' | 'expense' | 'income';
-  groupByCategory: boolean;
   tag: string;
   categories: Category[];
   accounts: Account[];
@@ -31,7 +30,6 @@ interface TransactionFiltersProps {
   onMinAmountChange: (amount: string) => void;
   onMaxAmountChange: (amount: string) => void;
   onTypeChange: (type: 'all' | 'expense' | 'income') => void;
-  onGroupByCategoryChange: (grouped: boolean) => void;
   onTagChange: (tag: string) => void;
   onClearFilters: () => void;
 }
@@ -44,7 +42,6 @@ export function TransactionFilters({
   minAmount,
   maxAmount,
   type,
-  groupByCategory,
   tag,
   categories,
   accounts,
@@ -58,7 +55,6 @@ export function TransactionFilters({
   onMinAmountChange,
   onMaxAmountChange,
   onTypeChange,
-  onGroupByCategoryChange,
   onTagChange,
   onClearFilters,
 }: TransactionFiltersProps) {
@@ -187,20 +183,6 @@ export function TransactionFilters({
               <option value="all">Todos</option>
               <option value="expense">Gastos</option>
               <option value="income">Ingresos</option>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="group-category" className="text-xs">
-              Vista
-            </Label>
-            <Select
-              id="group-category"
-              value={groupByCategory ? 'grouped' : 'list'}
-              onChange={(e) => onGroupByCategoryChange(e.target.value === 'grouped')}
-              className="mt-1"
-            >
-              <option value="list">Lista</option>
-              <option value="grouped">Agrupada</option>
             </Select>
           </div>
         </div>

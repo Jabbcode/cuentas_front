@@ -56,8 +56,22 @@ export function buildTransactionApiFilters(params: {
   accountId?: string;
   type?: 'all' | 'expense' | 'income';
   tag?: string;
+  categoryIds?: string[];
+  minAmount?: string;
+  maxAmount?: string;
 }): TransactionApiFilters {
-  const { currentPage, itemsPerPage, startDate, endDate, accountId, type, tag } = params;
+  const {
+    currentPage,
+    itemsPerPage,
+    startDate,
+    endDate,
+    accountId,
+    type,
+    tag,
+    categoryIds,
+    minAmount,
+    maxAmount,
+  } = params;
 
   const filters: TransactionApiFilters = {
     limit: itemsPerPage,
@@ -92,6 +106,15 @@ export function buildTransactionApiFilters(params: {
   if (tag) {
     filters.tag = tag;
   }
+
+  if (categoryIds?.length) {
+    filters.categoryIds = categoryIds;
+  }
+
+  const min = parseFloat(minAmount ?? '');
+  const max = parseFloat(maxAmount ?? '');
+  if (!isNaN(min)) filters.minAmount = min;
+  if (!isNaN(max)) filters.maxAmount = max;
 
   return filters;
 }
