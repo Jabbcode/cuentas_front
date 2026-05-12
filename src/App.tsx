@@ -13,6 +13,7 @@ import { CreditCardsPage } from './pages/CreditCardsPage';
 import { DebtsPage } from './pages/DebtsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { BudgetsPage } from './pages/BudgetsPage';
+import { ProjectionsPage } from './pages/ProjectionsPage';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/credit-cards" element={<CreditCardsPage />} />
             <Route path="/debts" element={<DebtsPage />} />
             <Route path="/budgets" element={<BudgetsPage />} />
+            <Route path="/projections" element={<ProjectionsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>

@@ -11,6 +11,7 @@ import {
   LogOut,
   X,
   Target,
+  TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/credit-cards', icon: CreditCard, label: 'Tarjetas de Crédito' },
   { to: '/debts', icon: Receipt, label: 'Deudas' },
   { to: '/budgets', icon: Target, label: 'Presupuestos' },
+  { to: '/projections', icon: TrendingUp, label: 'Proyecciones' },
   { to: '/categories', icon: Tags, label: 'Categorías' },
   { to: '/settings', icon: Settings, label: 'Configuración' },
 ];
