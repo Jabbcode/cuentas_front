@@ -4,7 +4,7 @@ Documento vivo del estado actual del proyecto. Actualizar regularmente.
 
 ## 📅 Fecha de Actualización
 
-**Última actualización:** 2026-05-01
+**Última actualización:** 2026-05-16
 
 ## 🚀 Estado General
 
@@ -29,19 +29,25 @@ Aplicación en desarrollo activo con funcionalidades core implementadas.
 - [x] **Sistema de notificaciones y alertas** (FEAT-013 — 2026-04-21) — campana en navbar/sidebar, panel dropdown responsive, toasts globales con Sonner, preferencias en Settings
 - [x] **FIX-011 (2026-04-24):** AccountCard muestra disponible del período actual (no vencido), badge rojo si período vencido sin pagar; balance total en AccountsPage descuenta períodos vencidos y muestra nota informativa en amber
 - [x] **REFACTOR-accounts (2026-05-01):** AccountsPage refactorizado de 480 → 115 líneas siguiendo Pure UI Rule — nuevos archivos: `types/accounts.types.ts`, `lib/accounts.utils.ts`, `components/accounts/AccountFormDialog.tsx`, `components/accounts/AccountTypeSection.tsx`; `useAccountsPage.ts` limpio importando desde utils y types; `useAccounts.ts` simplificado (eliminado `totalBalance` sin consumidores)
+- [x] **FEAT-015 (PR front #20):** Toggle "Auto-generar" en formulario de gasto fijo; badge en transacciones auto-generadas
+- [x] **FEAT-017:** Widget `MonthComparisonCard` en dashboard — totales mes actual vs anterior con flechas de tendencia
+- [x] **FEAT-018 (PR front #26):** `AccountTransactionsModal` — historial de transacciones por cuenta desde AccountCard; `useAccountTransactions` hook; patrón Pure UI; referencia: `CreditCardTransactionsModal`
+- [x] **FEAT-009 (PR #14):** Transferencias entre cuentas — formulario + flujo completo
+- [x] **FEAT-010 (PR #15):** Filtros avanzados en TransactionsPage — filtros servidor-side migrados a feature
+- [x] **FEAT-016 (PR #21):** Tags UI — input con autocompletado, `TagBadge`, filtro por tag en TransactionsPage; bug fixes en PR separado
+- [x] **Refactor Feature-Module (PRs #22–#25):** migración completa de auth, budgets, credit-cards, debts, fixed-expenses, settings, transactions, dashboard a `src/features/<module>/` — Pure UI Rule, hooks, utils, types por módulo; `__tests__/` con utils de accounts, debts, fixed-expenses
+- [x] **FEAT-banking-sync (PR front #28):** `useBanking`, `useBankMapping`, `BankConnectionBadge`, `BankingMapPage` (`/banking/map`); integración en `AccountCard` / `AccountTypeSection` / `useAccountsPage`
 
-### 🔄 En Progreso
+### 🔄 En Progreso / Review
 
-- [ ] Upload de recibos con OCR
-- [ ] Análisis de transacciones con IA
-- [ ] Proyecciones financieras
+- [ ] **FEAT-004:** Modo dark — PR #7 abierto; TailwindCSS class strategy, `ThemeContext`, `ThemeToggle`, localStorage
+- [ ] **FEAT-banking-sync:** Bloqueado en producción — providers España pendientes en TrueLayer Console
 
 ### 📝 Pendiente
 
-- [ ] Categorización automática (IA)
-- [ ] Alertas de deudas vencidas
-- [ ] Exportar datos (CSV, PDF)
-- [ ] Modo oscuro
+- [ ] FEAT-016: Tags en transacciones — input con autocompletado, `TagBadge`, filtro por tag (depende de REFACTOR-BE-001 en backend)
+- [ ] FEAT-014: Metas de ahorro — sección Metas + widget dashboard + barra progreso circular
+- [ ] FEAT-012: Exportar datos CSV/PDF — botón en TransactionsPage + modal con filtros
 - [ ] Múltiples monedas
 
 ## 🐛 Bugs Conocidos
@@ -128,15 +134,14 @@ Aplicación en desarrollo activo con funcionalidades core implementadas.
 
 ### Sprint Actual
 
-1. [ ] Mejorar performance del dashboard
-2. [ ] Agregar tests unitarios (componentes críticos)
-3. [ ] Optimizar bundle size
+1. [ ] **FEAT-004** — Merge PR #7 modo dark (abierto desde 2026-04-12)
+2. [ ] Completar PR #27 — Proyecciones financieras (WIP)
+3. [ ] Desbloquear FEAT-banking-sync en prod (TrueLayer Console España)
 
 ### Próximos Sprints
 
-1. [ ] Upload de recibos (OCR)
-2. [ ] Proyecciones financieras
-3. [ ] Exportación de datos
+1. [ ] FEAT-014 — Metas de ahorro (sección Metas, widget dashboard, barra progreso circular)
+2. [ ] FEAT-012 — Exportación CSV/PDF (botón en TransactionsPage + modal filtros)
 
 ## 👥 Equipo y Roles
 
