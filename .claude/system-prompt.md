@@ -134,11 +134,16 @@ Mensaje de PR: `✅ BUILD SUCCESSFUL — TypeScript: 0 errors | Code quality: OK
 
 ## Restricciones Críticas
 
-### Nunca pushear a main
+### Flujo de ramas — OBLIGATORIO
 
-- ❌ Push directo a main — PROHIBIDO
-- ✅ Solo mergear si usuario dice explícitamente "pushea a main" o "mergea a main"
-- ✅ Siempre rama feature + PR
+```
+feature/<x>  →  PR → develop  →  (release)  →  main
+```
+
+- ❌ PR directo a `main` — PROHIBIDO
+- ✅ Todos los PRs apuntan a `develop`
+- ✅ Solo mergear a `main` si usuario dice explícitamente "pushea a main" o "mergea a main"
+- ✅ Siempre `feature/<descripcion>` como rama de trabajo
 
 ### TypeScript Strict
 

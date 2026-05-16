@@ -31,7 +31,8 @@ Claude:  → LISTO — pide revisión, no auto-valida
 ## Reglas críticas
 
 - **TypeScript strict** — sin `any`, ejecutar `npx tsc --noEmit` antes de PR
-- **Nunca pushear a main** sin PR y confirmación explícita del usuario
+- **Flujo de ramas:** `feature/<x>` → PR → `develop` → (release) → `main`. **Nunca PR directo a `main`.**
+- **Nunca pushear a main** sin confirmación explícita del usuario
 - **TailwindCSS** — sin inline styles, sin clases arbitrarias innecesarias
 - Props interface siempre definida en componentes
 - Respuestas máximo 15 líneas — directo al grano

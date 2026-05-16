@@ -169,18 +169,23 @@ export const accountsApi = {
 - `refactor: extract AccountCard to separate component`
 - `docs: update API integration guide`
 
-### Ramas
+### Flujo de ramas
 
-- **Main:** Código en producción
-- **Develop:** Rama de integración (si aplica)
-- **Feature:** `feature/descripcion-corta` para nuevas funcionalidades
-- **Fix:** `fix/descripcion-corta` para correcciones
+```
+feature/<descripcion>  →  PR  →  develop  →  (release)  →  main
+```
+
+- `main` — Producción. Solo recibe merges desde `develop` con confirmación explícita del usuario.
+- `develop` — Integración. **Todos los PRs apuntan aquí**, nunca a `main` directamente.
+- `feature/<descripcion>` — Nueva funcionalidad
+- `fix/<descripcion>` — Bug fix
+- `refactor/<descripcion>` — Refactor
 
 ### Pull Requests
 
-- **Obligatorio:** Todos los cambios pasan por PR
+- **Obligatorio:** Todos los cambios pasan por PR apuntando a `develop`
+- **Nunca** crear PR directo a `main`
 - **Descripción:** Incluir qué se cambió y por qué
-- **Tests:** Indicar si se añadieron/modificaron tests
 - **Screenshots:** Para cambios visuales
 
 ## 💅 Estilo de Código
