@@ -13,6 +13,7 @@ import { CreditCardsPage } from './pages/CreditCardsPage';
 import { DebtsPage } from './pages/DebtsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { BudgetsPage } from './pages/BudgetsPage';
+import { BankingMapPage } from './pages/BankingMapPage';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/budgets" element={<BudgetsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/banking/map" element={<BankingMapPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

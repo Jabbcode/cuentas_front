@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Wallet,
   CreditCard,
@@ -13,6 +13,8 @@ import { Card, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { formatCurrency, cn } from '../../../lib/utils';
 import type { Account, CreditCardStatement } from '../../../types';
+import type { BankConnection } from '../../../types/banking.types';
+import { BankConnectionBadge } from './BankConnectionBadge';
 
 const accountTypeIcons = {
   cash: Banknote,
@@ -32,6 +34,9 @@ interface AccountCardProps {
   onDelete: (id: string) => void;
   onViewTransactions: (id: string) => void;
   statement?: CreditCardStatement;
+  connection?: BankConnection;
+  onDisconnect?: (connectionId: string) => Promise<void>;
+  onSync?: (connectionId: string) => Promise<void>;
 }
 
 export function AccountCard({
@@ -40,8 +45,24 @@ export function AccountCard({
   onDelete,
   onViewTransactions,
   statement,
+  connection,
+  onDisconnect,
+  onSync,
 }: AccountCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleDisconnect = useCallback(async () => {
+    if (connection && onDisconnect) {
+      await onDisconnect(connection.id);
+    }
+  }, [connection, onDisconnect]);
+
+  const handleSync = useCallback(async () => {
+    if (connection && onSync) {
+      await onSync(connection.id);
+    }
+  }, [connection, onSync]);
+
   const Icon = accountTypeIcons[account.type];
 
   return (
@@ -182,6 +203,12 @@ export function AccountCard({
             </p>
           )}
         </div>
+
+        <BankConnectionBadge
+          connection={connection ?? null}
+          onDisconnect={handleDisconnect}
+          onSync={handleSync}
+        />
       </CardContent>
     </Card>
   );

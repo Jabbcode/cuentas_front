@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { AccountCard } from './AccountCard';
 import type { Account, CreditCardStatement } from '../../../types';
+import type { BankConnection } from '../../../types/banking.types';
 
 interface Props {
   type: Account['type'];
@@ -12,6 +13,9 @@ interface Props {
   onEdit: (account: Account) => void;
   onDelete: (id: string) => void;
   onViewTransactions: (id: string) => void;
+  getConnectionForAccount: (accountId: string) => BankConnection | undefined;
+  onDisconnect: (connectionId: string) => Promise<void>;
+  onSync: (connectionId: string) => Promise<void>;
 }
 
 export function AccountTypeSection({
@@ -24,6 +28,9 @@ export function AccountTypeSection({
   onEdit,
   onDelete,
   onViewTransactions,
+  getConnectionForAccount,
+  onDisconnect,
+  onSync,
 }: Props) {
   return (
     <div className="space-y-4">
@@ -50,6 +57,9 @@ export function AccountTypeSection({
               onDelete={onDelete}
               onViewTransactions={onViewTransactions}
               statement={statementsMap[account.id]}
+              connection={getConnectionForAccount(account.id)}
+              onDisconnect={onDisconnect}
+              onSync={onSync}
             />
           ))}
         </div>

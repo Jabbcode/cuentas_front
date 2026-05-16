@@ -45,6 +45,9 @@ export function AccountsPage() {
     reload,
     selectedAccountId,
     setSelectedAccountId,
+    getConnectionForAccount,
+    handleDisconnect,
+    handleSync,
   } = useAccountsPage();
 
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId) ?? null;
@@ -110,6 +113,9 @@ export function AccountsPage() {
                 onEdit={openForm}
                 onDelete={setDeleteId}
                 onViewTransactions={setSelectedAccountId}
+                getConnectionForAccount={getConnectionForAccount}
+                onDisconnect={handleDisconnect}
+                onSync={handleSync}
               />
             );
           })
