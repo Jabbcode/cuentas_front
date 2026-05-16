@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { accountsApi } from '../api';
 import { creditCardsApi } from '../../credit-cards/api';
 import { useAccounts } from './useAccounts';
+import { useBanking } from '../../../hooks/useBanking';
 import { groupAccountsByType, buildAccountPayload, calculateBalanceTotals } from '../utils';
 import type { Account, CreditCardStatement } from '../../../types';
 import type { AccountFormData, ExpandedSections, UseAccountsPageReturn } from '../types';
@@ -26,6 +27,7 @@ const DEFAULT_EXPANDED_SECTIONS: ExpandedSections = {
 
 export function useAccountsPage(): UseAccountsPageReturn {
   const { accounts, loading, reload } = useAccounts();
+  const { getConnectionForAccount, disconnect, triggerSync } = useBanking();
 
   const [statementsMap, setStatementsMap] = useState<Record<string, CreditCardStatement>>({});
   const [showForm, setShowForm] = useState(false);
@@ -126,6 +128,20 @@ export function useAccountsPage(): UseAccountsPageReturn {
     setExpandedSections((prev) => ({ ...prev, [type]: !prev[type] }));
   }, []);
 
+  const handleDisconnect = useCallback(
+    async (connectionId: string): Promise<void> => {
+      await disconnect(connectionId);
+    },
+    [disconnect]
+  );
+
+  const handleSync = useCallback(
+    async (connectionId: string): Promise<void> => {
+      await triggerSync(connectionId);
+    },
+    [triggerSync]
+  );
+
   return {
     accounts,
     statementsMap,
@@ -152,5 +168,8 @@ export function useAccountsPage(): UseAccountsPageReturn {
     reload,
     selectedAccountId,
     setSelectedAccountId,
+    getConnectionForAccount,
+    handleDisconnect,
+    handleSync,
   };
 }

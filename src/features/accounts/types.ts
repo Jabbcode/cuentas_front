@@ -1,4 +1,5 @@
 import type { Account } from '../../types';
+import type { BankConnection } from '../../types/banking.types';
 
 export interface AccountFormData {
   name: string;
@@ -56,4 +57,7 @@ export interface UseAccountsPageReturn {
   reload: () => void;
   selectedAccountId: string | null;
   setSelectedAccountId: (id: string | null) => void;
+  getConnectionForAccount: (accountId: string) => BankConnection | undefined;
+  handleDisconnect: (connectionId: string) => Promise<void>;
+  handleSync: (connectionId: string) => Promise<void>;
 }
