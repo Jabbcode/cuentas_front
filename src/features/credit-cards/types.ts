@@ -50,4 +50,6 @@ export interface UseCreditCardsPageReturn {
   handleCloseTransactions: () => void;
   handlePay: (e: React.FormEvent) => Promise<void>;
   updatePaymentFormData: (data: Partial<PaymentFormData>) => void;
+  reload: () => void;
+  loadError: string | null;
 }

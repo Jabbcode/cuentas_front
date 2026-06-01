@@ -1,5 +1,6 @@
 import { Plus, Camera, Tag, BarChart3 } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { ErrorCard } from '../components/ui/ErrorCard';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { ReceiptItemsModal } from '../components/receipts/ReceiptItemsModal';
 import { useTransactionsPage } from '../features/transactions/hooks/useTransactionsPage';
@@ -23,6 +24,10 @@ export function TransactionsPage() {
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
+  }
+
+  if (page.loadError) {
+    return <ErrorCard message={page.loadError} onRetry={page.reload} />;
   }
 
   return (

@@ -1,5 +1,6 @@
 import { Plus, ArrowLeftRight, Info } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { ErrorCard } from '../components/ui/ErrorCard';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { AccountEmpty } from '../features/accounts/components/AccountEmpty';
 import { AccountTypeSection } from '../features/accounts/components/AccountTypeSection';
@@ -43,6 +44,7 @@ export function AccountsPage() {
     setShowTransfer,
     toggleSection,
     reload,
+    loadError,
     selectedAccountId,
     setSelectedAccountId,
   } = useAccountsPage();
@@ -55,6 +57,10 @@ export function AccountsPage() {
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
+  }
+
+  if (loadError) {
+    return <ErrorCard message={loadError} onRetry={reload} />;
   }
 
   return (

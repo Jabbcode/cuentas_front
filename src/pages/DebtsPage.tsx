@@ -1,5 +1,6 @@
 import { Plus, Settings } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { ErrorCard } from '../components/ui/ErrorCard';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { DebtCard } from '../features/debts/components/DebtCard';
 import { DebtForm } from '../features/debts/components/DebtForm';
@@ -45,6 +46,8 @@ export function DebtsPage() {
     handleConfirmDeleteRecurring,
     handleCancelDeleteRecurring,
     toggleActive,
+    reload,
+    loadError,
   } = useDebtsPage();
 
   const { activeDebts, overdueDebts, paidDebts } = groups;
@@ -57,6 +60,10 @@ export function DebtsPage() {
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
+  }
+
+  if (loadError) {
+    return <ErrorCard message={loadError} onRetry={reload} />;
   }
 
   return (

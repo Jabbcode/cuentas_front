@@ -95,6 +95,8 @@ export interface UseTransactionsPageReturn {
   setEditingTransaction: (tx: Transaction | null) => void;
   setViewingItems: (tx: Transaction | null) => void;
   reloadTagSummary: () => void;
+  reload: () => void;
+  loadError: string | null;
 }
 
 export function useTransactionsPage(): UseTransactionsPageReturn {
@@ -105,7 +107,13 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
   const filterHook = useTransactionFilters(pagination.resetPage);
 
   // 3. Transactions — server-side filtered and paginated
-  const { transactions, total, loading, reload } = useTransactions({
+  const {
+    transactions,
+    total,
+    loading,
+    reload,
+    error: loadError,
+  } = useTransactions({
     currentPage: pagination.currentPage,
     itemsPerPage: ITEMS_PER_PAGE,
     startDate: filterHook.filters.startDate || undefined,
@@ -406,5 +414,7 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     setEditingTransaction,
     setViewingItems,
     reloadTagSummary,
+    reload,
+    loadError,
   };
 }

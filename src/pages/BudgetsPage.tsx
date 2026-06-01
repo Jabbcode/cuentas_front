@@ -1,5 +1,6 @@
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { ErrorCard } from '../components/ui/ErrorCard';
 import { Card, CardContent } from '../components/ui/card';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { useBudgetsPage } from '../features/budgets/hooks/useBudgetsPage';
@@ -30,6 +31,8 @@ export function BudgetsPage() {
     prevMonth,
     nextMonth,
     updateFormData,
+    reload,
+    loadError,
   } = useBudgetsPage();
 
   if (loading) {
@@ -38,6 +41,10 @@ export function BudgetsPage() {
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
+  }
+
+  if (loadError) {
+    return <ErrorCard message={loadError} onRetry={reload} />;
   }
 
   return (

@@ -26,7 +26,7 @@ const DEFAULT_EXPANDED_SECTIONS: ExpandedSections = {
 };
 
 export function useAccountsPage(): UseAccountsPageReturn {
-  const { accounts, loading, reload } = useAccounts();
+  const { accounts, loading, reload, error: loadError } = useAccounts();
 
   const [statementsMap, setStatementsMap] = useState<Record<string, CreditCardStatement>>({});
   const [showForm, setShowForm] = useState(false);
@@ -154,6 +154,7 @@ export function useAccountsPage(): UseAccountsPageReturn {
     setShowTransfer,
     toggleSection,
     reload,
+    loadError,
     selectedAccountId,
     setSelectedAccountId,
   };

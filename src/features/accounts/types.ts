@@ -54,6 +54,7 @@ export interface UseAccountsPageReturn {
   setShowTransfer: (show: boolean) => void;
   toggleSection: (type: Account['type']) => void;
   reload: () => void;
+  loadError: string | null;
   selectedAccountId: string | null;
   setSelectedAccountId: (id: string | null) => void;
 }
