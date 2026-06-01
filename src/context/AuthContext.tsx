@@ -22,19 +22,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const userData = await authApi.getMe();
-          setUser(userData);
-          setSentryUser(userData);
-          logger.info('auth', 'Session restored');
-        } catch {
-          localStorage.removeItem('token');
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
+      try {
+        const userData = await authApi.getMe();
+        setUser(userData);
+        setSentryUser(userData);
+        logger.info('auth', 'Session restored');
+      } catch {
+        setUser(null);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -44,7 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const response = await authApi.login({ email, password });
-    localStorage.setItem('token', response.token);
     setUser(response.user);
     setSentryUser(response.user);
     logger.info('auth', 'User logged in');
@@ -52,14 +46,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (email: string, password: string, name: string) => {
     const response = await authApi.register({ email, password, name });
-    localStorage.setItem('token', response.token);
     setUser(response.user);
     setSentryUser(response.user);
     logger.info('auth', 'User registered');
   };
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
+    authApi.logout().catch(() => undefined);
     setUser(null);
     clearSentryUser();
     logger.info('auth', 'User logged out');
