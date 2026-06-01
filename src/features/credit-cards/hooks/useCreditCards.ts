@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { creditCardsApi } from '../api';
 import { accountsApi } from '../../accounts/api';
+import { logger } from '../../../lib/logger';
 import type { CreditCardStatement, Account } from '../../../types';
 import type { UseCreditCardsReturn } from '../types';
 
@@ -21,8 +22,9 @@ export function useCreditCards(): UseCreditCardsReturn {
       setStatements(summary.cards);
       // Only non-credit card accounts can be used for payment
       setAccounts(allAccounts.filter((acc) => acc.type !== 'credit_card'));
-    } catch {
+    } catch (err) {
       setError('Error al cargar las tarjetas. Intenta de nuevo.');
+      logger.error('credit-card', 'Failed to load credit cards', err);
     } finally {
       setLoading(false);
     }
