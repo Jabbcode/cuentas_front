@@ -9,6 +9,7 @@ vi.mock('../features/auth/api', () => ({
   authApi: {
     login: vi.fn(),
     register: vi.fn(),
+    logout: vi.fn(),
     getMe: vi.fn(),
   },
 }));
@@ -18,25 +19,25 @@ const mockUser: User = { id: 'u1', email: 'test@test.com', name: 'Test User' };
 const wrapper = ({ children }: { children: ReactNode }) => <AuthProvider>{children}</AuthProvider>;
 
 beforeEach(() => {
-  localStorage.clear();
   vi.clearAllMocks();
 });
 
 // ─── checkAuth (mount) ────────────────────────────────────────────────────────
 
 describe('checkAuth on mount', () => {
-  it('no token → isAuthenticated=false sin llamar getMe', async () => {
+  it('sin cookie activa (getMe falla) → isAuthenticated=false', async () => {
+    vi.mocked(authApi.getMe).mockRejectedValue(new Error('Unauthorized'));
+
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(authApi.getMe).not.toHaveBeenCalled();
+    expect(authApi.getMe).toHaveBeenCalledOnce();
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.user).toBeNull();
   });
 
-  it('token válido → isAuthenticated=true y user seteado', async () => {
-    localStorage.setItem('token', 'valid-token');
+  it('cookie válida (getMe ok) → isAuthenticated=true y user seteado', async () => {
     vi.mocked(authApi.getMe).mockResolvedValue(mockUser);
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -45,26 +46,14 @@ describe('checkAuth on mount', () => {
 
     expect(result.current.user).toEqual(mockUser);
   });
-
-  it('token inválido (401) → token eliminado, isAuthenticated=false', async () => {
-    localStorage.setItem('token', 'expired-token');
-    vi.mocked(authApi.getMe).mockRejectedValue(new Error('Unauthorized'));
-
-    const { result } = renderHook(() => useAuth(), { wrapper });
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    expect(localStorage.getItem('token')).toBeNull();
-    expect(result.current.isAuthenticated).toBe(false);
-    expect(result.current.user).toBeNull();
-  });
 });
 
 // ─── login ────────────────────────────────────────────────────────────────────
 
 describe('login', () => {
-  it('login exitoso → token en localStorage, isAuthenticated=true, user seteado', async () => {
-    vi.mocked(authApi.login).mockResolvedValue({ token: 'new-token', user: mockUser });
+  it('login exitoso → isAuthenticated=true, user seteado', async () => {
+    vi.mocked(authApi.getMe).mockRejectedValue(new Error('Unauthorized'));
+    vi.mocked(authApi.login).mockResolvedValue({ user: mockUser });
 
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -73,12 +62,12 @@ describe('login', () => {
       await result.current.login('test@test.com', 'password');
     });
 
-    expect(localStorage.getItem('token')).toBe('new-token');
     expect(result.current.isAuthenticated).toBe(true);
     expect(result.current.user).toEqual(mockUser);
   });
 
   it('login fallido → error propagado, isAuthenticated=false', async () => {
+    vi.mocked(authApi.getMe).mockRejectedValue(new Error('Unauthorized'));
     vi.mocked(authApi.login).mockRejectedValue(new Error('Credenciales inválidas'));
 
     const { result } = renderHook(() => useAuth(), { wrapper });
@@ -98,8 +87,9 @@ describe('login', () => {
 // ─── register ────────────────────────────────────────────────────────────────
 
 describe('register', () => {
-  it('register exitoso → token en localStorage, isAuthenticated=true', async () => {
-    vi.mocked(authApi.register).mockResolvedValue({ token: 'reg-token', user: mockUser });
+  it('register exitoso → isAuthenticated=true', async () => {
+    vi.mocked(authApi.getMe).mockRejectedValue(new Error('Unauthorized'));
+    vi.mocked(authApi.register).mockResolvedValue({ user: mockUser });
 
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -108,7 +98,6 @@ describe('register', () => {
       await result.current.register('test@test.com', 'pass123', 'Test User');
     });
 
-    expect(localStorage.getItem('token')).toBe('reg-token');
     expect(result.current.isAuthenticated).toBe(true);
     expect(result.current.user).toEqual(mockUser);
   });
@@ -117,9 +106,9 @@ describe('register', () => {
 // ─── logout ──────────────────────────────────────────────────────────────────
 
 describe('logout', () => {
-  it('logout → token eliminado, isAuthenticated=false, user=null', async () => {
-    localStorage.setItem('token', 'valid-token');
+  it('logout → llama authApi.logout, isAuthenticated=false, user=null', async () => {
     vi.mocked(authApi.getMe).mockResolvedValue(mockUser);
+    vi.mocked(authApi.logout).mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
@@ -128,18 +117,18 @@ describe('logout', () => {
       result.current.logout();
     });
 
-    expect(localStorage.getItem('token')).toBeNull();
+    expect(authApi.logout).toHaveBeenCalledOnce();
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.user).toBeNull();
   });
 });
 
-// ─── auth:unauthorized event (FIX-023) ───────────────────────────────────────
+// ─── auth:unauthorized event ──────────────────────────────────────────────────
 
 describe('auth:unauthorized event', () => {
   it('evento auth:unauthorized → logout automático', async () => {
-    localStorage.setItem('token', 'valid-token');
     vi.mocked(authApi.getMe).mockResolvedValue(mockUser);
+    vi.mocked(authApi.logout).mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.isAuthenticated).toBe(true));
@@ -148,7 +137,6 @@ describe('auth:unauthorized event', () => {
       window.dispatchEvent(new CustomEvent('auth:unauthorized'));
     });
 
-    expect(localStorage.getItem('token')).toBeNull();
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.user).toBeNull();
   });
