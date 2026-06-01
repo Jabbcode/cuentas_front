@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { toast } from 'sonner';
 import { accountsApi } from '../api';
 import { creditCardsApi } from '../../credit-cards/api';
 import { useAccounts } from './useAccounts';
@@ -98,8 +99,10 @@ export function useAccountsPage(): UseAccountsPageReturn {
         const payload = buildAccountPayload(formData);
         if (editingAccount) {
           await accountsApi.update(editingAccount.id, payload);
+          toast.success('Cuenta actualizada');
         } else {
           await accountsApi.create(payload);
+          toast.success('Cuenta creada correctamente');
         }
         setShowForm(false);
         reload();
@@ -115,6 +118,7 @@ export function useAccountsPage(): UseAccountsPageReturn {
     setDeleting(true);
     try {
       await accountsApi.delete(deleteId);
+      toast.success('Cuenta eliminada');
       setDeleteId(null);
       reload();
     } finally {
