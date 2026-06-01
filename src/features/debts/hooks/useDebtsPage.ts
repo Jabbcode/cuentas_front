@@ -7,7 +7,7 @@ import type { Debt, RecurringDebtPayment } from '../../../types';
 import type { UseDebtsPageReturn } from '../types';
 
 export function useDebtsPage(): UseDebtsPageReturn {
-  const { debts, loading, reload, deleteDebt, payDebt } = useDebts();
+  const { debts, loading, reload, error: loadError, deleteDebt, payDebt } = useDebts();
   const {
     recurringPayments,
     reload: reloadRecurring,
@@ -185,5 +185,7 @@ export function useDebtsPage(): UseDebtsPageReturn {
     handleViewHistory,
     handleSetPayingDebt,
     toggleActive,
+    reload,
+    loadError,
   };
 }

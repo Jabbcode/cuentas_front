@@ -1,5 +1,6 @@
 import { Plus, TrendingDown, TrendingUp } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { ErrorCard } from '../components/ui/ErrorCard';
 import { Card, CardContent } from '../components/ui/card';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { formatCurrency } from '../lib/utils';
@@ -64,6 +65,8 @@ export function FixedExpensesPage() {
     toggleIncomeCategory,
     clearExpenseFilters,
     clearIncomeFilters,
+    reload,
+    loadError,
   } = useFixedExpensesPage();
 
   if (loading) {
@@ -72,6 +75,10 @@ export function FixedExpensesPage() {
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
+  }
+
+  if (loadError) {
+    return <ErrorCard message={loadError} onRetry={reload} />;
   }
 
   return (

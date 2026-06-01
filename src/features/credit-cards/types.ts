@@ -30,6 +30,7 @@ export interface UseCreditCardsReturn {
   statements: import('../../types').CreditCardStatement[];
   accounts: import('../../types').Account[];
   loading: boolean;
+  error: string | null;
   reload: () => void;
 }
 
@@ -49,4 +50,6 @@ export interface UseCreditCardsPageReturn {
   handleCloseTransactions: () => void;
   handlePay: (e: React.FormEvent) => Promise<void>;
   updatePaymentFormData: (data: Partial<PaymentFormData>) => void;
+  reload: () => void;
+  loadError: string | null;
 }

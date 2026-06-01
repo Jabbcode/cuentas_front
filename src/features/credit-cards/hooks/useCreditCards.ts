@@ -8,9 +8,11 @@ export function useCreditCards(): UseCreditCardsReturn {
   const [statements, setStatements] = useState<CreditCardStatement[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const [summary, allAccounts] = await Promise.all([
         creditCardsApi.getSummary(),
@@ -19,6 +21,8 @@ export function useCreditCards(): UseCreditCardsReturn {
       setStatements(summary.cards);
       // Only non-credit card accounts can be used for payment
       setAccounts(allAccounts.filter((acc) => acc.type !== 'credit_card'));
+    } catch {
+      setError('Error al cargar las tarjetas. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -32,5 +36,5 @@ export function useCreditCards(): UseCreditCardsReturn {
     loadData();
   }, [loadData]);
 
-  return { statements, accounts, loading, reload };
+  return { statements, accounts, loading, error, reload };
 }

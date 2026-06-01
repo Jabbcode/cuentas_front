@@ -1,4 +1,5 @@
 import { useCreditCardsPage } from '../features/credit-cards/hooks/useCreditCardsPage';
+import { ErrorCard } from '../components/ui/ErrorCard';
 import { CreditCardPaymentModal } from '../features/credit-cards/components/CreditCardPaymentModal';
 import { CreditCardEmpty } from '../features/credit-cards/components/CreditCardEmpty';
 import { CreditCardSummary } from '../features/credit-cards/components/CreditCardSummary';
@@ -22,6 +23,8 @@ export function CreditCardsPage() {
     handleCloseTransactions,
     handlePay,
     updatePaymentFormData,
+    reload,
+    loadError,
   } = useCreditCardsPage();
 
   if (loading) {
@@ -30,6 +33,10 @@ export function CreditCardsPage() {
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-purple-600 border-t-transparent" />
       </div>
     );
+  }
+
+  if (loadError) {
+    return <ErrorCard message={loadError} onRetry={reload} />;
   }
 
   if (statements.length === 0) {

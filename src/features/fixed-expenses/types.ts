@@ -14,6 +14,7 @@ export type FixedExpenseWithStatus = FixedExpense & { isPaidThisMonth: boolean }
 export interface UseFixedExpensesReturn {
   summary: FixedExpenseSummary | null;
   loading: boolean;
+  error: string | null;
   reload: () => void;
   payExpense: (id: string, amount?: number) => Promise<void>;
   deleteExpense: (id: string) => Promise<void>;
@@ -53,4 +54,6 @@ export interface UseFixedExpensesPageReturn {
   toggleIncomeCategory: (categoryId: string) => void;
   clearExpenseFilters: () => void;
   clearIncomeFilters: () => void;
+  reload: () => void;
+  loadError: string | null;
 }

@@ -19,6 +19,7 @@ export interface CategoryPayload {
 export interface UseCategoriesReturn {
   categories: Category[];
   loading: boolean;
+  error: string | null;
   reload: () => void;
 }
 
@@ -40,4 +41,6 @@ export interface UseCategoriesPageReturn {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   handleDelete: () => Promise<void>;
   setDeleteId: (id: string | null) => void;
+  reload: () => void;
+  loadError: string | null;
 }

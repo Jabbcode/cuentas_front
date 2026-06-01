@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react';
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary';
 import type { ReactNode } from 'react';
 
@@ -23,5 +24,12 @@ interface Props {
 }
 
 export function ErrorBoundary({ children }: Props) {
-  return <ReactErrorBoundary FallbackComponent={ErrorFallback}>{children}</ReactErrorBoundary>;
+  return (
+    <ReactErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onError={(error) => Sentry.captureException(error)}
+    >
+      {children}
+    </ReactErrorBoundary>
+  );
 }

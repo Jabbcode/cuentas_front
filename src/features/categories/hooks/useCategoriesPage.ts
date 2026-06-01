@@ -12,7 +12,7 @@ import type { Category } from '../../../types';
 import type { CategoryFormData, UseCategoriesPageReturn } from '../types';
 
 export function useCategoriesPage(): UseCategoriesPageReturn {
-  const { categories, loading, reload } = useCategories();
+  const { categories, loading, reload, error: loadError } = useCategories();
 
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -107,5 +107,7 @@ export function useCategoriesPage(): UseCategoriesPageReturn {
     handleSubmit,
     handleDelete,
     setDeleteId,
+    reload,
+    loadError,
   };
 }
