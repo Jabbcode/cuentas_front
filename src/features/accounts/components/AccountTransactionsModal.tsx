@@ -125,28 +125,28 @@ export function AccountTransactionsModal({
   const [groupByCategory, setGroupByCategory] = useState(false);
 
   useEffect(() => {
-    if (open && account) {
-      setTransactions([]);
-      setCategoryFilter('all');
-      setTypeFilter('all');
-      setGroupByCategory(false);
-      loadTransactions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!open || !account) return;
+    let cancelled = false;
+    setTransactions([]);
+    setCategoryFilter('all');
+    setTypeFilter('all');
+    setGroupByCategory(false);
+    const load = async () => {
+      setLoading(true);
+      try {
+        const response = await transactionsApi.getAll({ accountId: account.id, limit: 1000 });
+        if (!cancelled) setTransactions(response.transactions);
+      } catch (err) {
+        console.error('Error loading transactions:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [open, account]);
-
-  const loadTransactions = async () => {
-    if (!account) return;
-    setLoading(true);
-    try {
-      const response = await transactionsApi.getAll({ accountId: account.id, limit: 1000 });
-      setTransactions(response.transactions);
-    } catch (err) {
-      console.error('Error loading transactions:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const categories = useMemo(() => {
     const map = new Map<string, { id: string; name: string; icon?: string; color?: string }>();

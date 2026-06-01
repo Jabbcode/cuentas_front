@@ -21,20 +21,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const checkAuth = async () => {
       try {
         const userData = await authApi.getMe();
-        setUser(userData);
-        setSentryUser(userData);
-        logger.info('auth', 'Session restored');
+        if (!cancelled) {
+          setUser(userData);
+          setSentryUser(userData);
+          logger.info('auth', 'Session restored');
+        }
       } catch {
-        setUser(null);
+        if (!cancelled) setUser(null);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
-
     checkAuth();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const login = async (email: string, password: string) => {

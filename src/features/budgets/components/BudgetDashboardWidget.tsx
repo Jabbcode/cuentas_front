@@ -15,10 +15,21 @@ export function BudgetDashboardWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    budgetsApi
-      .getAll(now.getMonth() + 1, now.getFullYear())
-      .then(setBudgets)
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const data = await budgetsApi.getAll(now.getMonth() + 1, now.getFullYear());
+        if (!cancelled) setBudgets(data);
+      } catch {
+        // silent
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading || budgets.length === 0) return null;
