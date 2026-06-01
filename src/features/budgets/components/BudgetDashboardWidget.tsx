@@ -1,37 +1,18 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Target } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { BudgetProgressBar } from './BudgetProgressBar';
 import { CategoryIcon } from '../../../components/ui/category-icon';
-import { budgetsApi } from '../api';
 import { cn } from '../../../lib/utils';
 import type { Budget } from '../../../types';
 
-export function BudgetDashboardWidget() {
-  const now = new Date();
-  const [budgets, setBudgets] = useState<Budget[]>([]);
-  const [loading, setLoading] = useState(true);
+interface BudgetDashboardWidgetProps {
+  budgets: Budget[];
+  loading?: boolean;
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      try {
-        const data = await budgetsApi.getAll(now.getMonth() + 1, now.getFullYear());
-        if (!cancelled) setBudgets(data);
-      } catch {
-        // silent
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+export function BudgetDashboardWidget({ budgets, loading = false }: BudgetDashboardWidgetProps) {
   if (loading || budgets.length === 0) return null;
 
   const overBudgetCount = budgets.filter((b) => b.isOverBudget).length;

@@ -22,6 +22,7 @@ export function DashboardPage() {
     projection,
     creditCardsSummary,
     debtsSummary,
+    budgets,
     loading,
     reload,
   } = useDashboard();
@@ -71,7 +72,7 @@ export function DashboardPage() {
 
       {debtsSummary && <DebtsSummaryCard summary={debtsSummary} />}
 
-      <BudgetDashboardWidget />
+      <BudgetDashboardWidget budgets={budgets} loading={loading} />
 
       {projection && <NextMonthProjection projection={projection} />}
 

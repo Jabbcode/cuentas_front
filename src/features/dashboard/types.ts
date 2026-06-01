@@ -9,6 +9,7 @@ export interface UseDashboardReturn {
   projection: import('../../types').ProjectionData | null;
   creditCardsSummary: import('../../types').CreditCardsSummary | null;
   debtsSummary: import('../../types').DebtsSummary | null;
+  budgets: import('../../types').Budget[];
   loading: boolean;
   reload: () => void;
 }
