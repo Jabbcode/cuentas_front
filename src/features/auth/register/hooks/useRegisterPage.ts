@@ -24,6 +24,7 @@ export function useRegisterPage(): UseRegisterPageReturn {
       const errorMessage =
         axiosError?.response?.data?.error ?? 'Error al registrar. El email puede estar en uso.';
       setError(errorMessage);
+    } finally {
       setLoading(false);
     }
   };
