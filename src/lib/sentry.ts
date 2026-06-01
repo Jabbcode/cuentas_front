@@ -9,6 +9,7 @@ export function initSentry(): void {
     environment: 'production',
     integrations: [Sentry.browserTracingIntegration()],
     tracesSampleRate: 1.0,
+    _experiments: { enableLogs: true },
   });
 }
 
