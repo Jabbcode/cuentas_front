@@ -8,6 +8,7 @@ import {
   filterCategoriesByType,
   DEFAULT_FORM_DATA,
 } from '../utils';
+import { logger } from '../../../lib/logger';
 import type { Category } from '../../../types';
 import type { CategoryFormData, UseCategoriesPageReturn } from '../types';
 
@@ -58,13 +59,19 @@ export function useCategoriesPage(): UseCategoriesPageReturn {
         const payload = buildCategoryPayload(formData);
         if (editingCategory) {
           await categoriesApi.update(editingCategory.id, payload);
+          logger.info('category', 'Category updated', {
+            id: editingCategory.id,
+            name: formData.name,
+          });
         } else {
           await categoriesApi.create(payload);
+          logger.info('category', 'Category created', { name: formData.name });
         }
         setShowForm(false);
         reload();
-      } catch {
+      } catch (err) {
         toast.error('No se pudo guardar la categoría');
+        logger.error('category', 'Failed to save category', err, { name: formData.name });
       } finally {
         setSaving(false);
       }
@@ -77,10 +84,12 @@ export function useCategoriesPage(): UseCategoriesPageReturn {
     setDeleting(true);
     try {
       await categoriesApi.delete(deleteId);
+      logger.info('category', 'Category deleted', { id: deleteId });
       setDeleteId(null);
       reload();
     } catch (err: unknown) {
       setDeleteId(null);
+      logger.error('category', 'Failed to delete category', err, { id: deleteId });
       if (err instanceof Error && err.message.includes('transacciones')) {
         setError('No se puede eliminar una categoría con transacciones asociadas');
       }

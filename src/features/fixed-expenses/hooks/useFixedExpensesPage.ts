@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
+import { logger } from '../../../lib/logger';
 import { useFixedExpenses } from './useFixedExpenses';
 import {
   getExpenseCategories,
@@ -95,9 +96,11 @@ export function useFixedExpensesPage(): UseFixedExpensesPageReturn {
     setDeleting(true);
     try {
       await deleteExpense(deleteId);
+      logger.info('fixed-expense', 'Fixed expense deleted', { id: deleteId });
       setDeleteId(null);
-    } catch {
+    } catch (err) {
       toast.error('No se pudo eliminar el gasto fijo');
+      logger.error('fixed-expense', 'Failed to delete fixed expense', err, { id: deleteId });
     } finally {
       setDeleting(false);
     }

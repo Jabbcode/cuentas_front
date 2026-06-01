@@ -37,9 +37,11 @@ export function useFixedExpenses(): UseFixedExpensesReturn {
     async (id: string, amount?: number) => {
       try {
         await fixedExpensesApi.pay(id, amount ? { amount } : undefined);
+        logger.info('fixed-expense', 'Fixed expense paid', { id, amount });
         reload();
-      } catch {
+      } catch (err) {
         toast.error('No se pudo registrar el pago del gasto fijo');
+        logger.error('fixed-expense', 'Failed to pay fixed expense', err, { id });
       }
     },
     [reload]
@@ -57,9 +59,11 @@ export function useFixedExpenses(): UseFixedExpensesReturn {
     async (id: string, isActive: boolean) => {
       try {
         await fixedExpensesApi.update(id, { isActive: !isActive });
+        logger.info('fixed-expense', 'Fixed expense toggled', { id, isActive: !isActive });
         reload();
-      } catch {
+      } catch (err) {
         toast.error('No se pudo actualizar el estado del gasto fijo');
+        logger.error('fixed-expense', 'Failed to toggle fixed expense', err, { id });
       }
     },
     [reload]
