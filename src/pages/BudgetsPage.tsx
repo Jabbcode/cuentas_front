@@ -1,10 +1,10 @@
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { ErrorCard } from '../components/ui/ErrorCard';
-import { Card, CardContent } from '../components/ui/card';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { useBudgetsPage } from '../features/budgets/hooks/useBudgetsPage';
 import { BudgetCard } from '../features/budgets/components/BudgetCard';
+import { BudgetEmpty } from '../features/budgets/components/BudgetEmpty';
 import { BudgetFormDialog } from '../features/budgets/components/BudgetFormDialog';
 import { getMonthLabel } from '../features/budgets/utils';
 
@@ -72,18 +72,7 @@ export function BudgetsPage() {
       </div>
 
       {budgets.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-gray-500">
-              No hay presupuestos para {getMonthLabel(month)} {year}.
-            </p>
-            {availableCategories.length > 0 && (
-              <Button className="mt-4" onClick={() => openForm()}>
-                <Plus className="mr-2 h-4 w-4" /> Crear presupuesto
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        <BudgetEmpty onAction={availableCategories.length > 0 ? () => openForm() : undefined} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {budgets.map((budget) => (

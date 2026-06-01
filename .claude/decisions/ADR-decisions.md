@@ -1,426 +1,186 @@
 # Decisions - Cuentas Frontend
 
-Registro de decisiones arquitectónicas importantes tomadas en el proyecto.
-
-## ADR-001: Usar Context API en lugar de Redux
-
-**Fecha:** 2024
-**Estado:** Aceptada
-**Autores:** Equipo de desarrollo
-
-### Problema
-
-¿Cómo manejar estado global (autenticación, tema, configuración)?
-
-### Contexto
-
-- Proyecto mediano de ~20 componentes
-- Datos globales: user, tema, idioma
-- La mayoría de datos son del servidor (no estado local)
-
-### Opciones Consideradas
-
-1. **Redux** - Completo pero overhead para proyecto pequeño
-2. **Zustand** - Ligero pero menos convenciones
-3. **Context API** - Built-in, suficiente para nuestro caso
-4. **Local Storage** - No es solución a nivel de aplicación
-
-### Decisión
-
-**Usar Context API** para estado global
-
-### Justificación
-
-- ✅ Built-in en React, sin dependencias
-- ✅ Suficiente para nuestro volumen de estado
-- ✅ Más simple de aprender para nuevos desarrolladores
-- ✅ Menos boilerplate que Redux
-
-### Consecuencias
-
-- ✅ Estado global fácil de entender
-- ⚠️ Potencial prop drilling si estado crece mucho
-- ⚠️ Todos los cambios re-renderizan subscribers
-  - Mitigación: Dividir Context por dominio (Auth, Theme, etc)
+Registro de decisiones arquitectónicas del proyecto.
 
 ---
 
-## ADR-002: Axios para HTTP Client
+## ADR-001: Context API para estado global de autenticación
 
-**Fecha:** 2024
-**Estado:** Aceptada
+**Fecha:** 2024 | **Estado:** Aceptada
 
-### Problema
+**Decisión:** `AuthContext` maneja el estado de sesión (user, isLoading, isAuthenticated). El token JWT vive en una httpOnly cookie gestionada por el backend — no en Context ni localStorage.
 
-¿Cómo hacer requests HTTP al backend?
+**Justificación:** Context API es suficiente para el volumen de estado global. El token deliberadamente no está en Context: la cookie httpOnly es invisible para JS y se envía automáticamente con cada request via `withCredentials: true`.
 
-### Contexto
+**Consecuencias:**
 
-- Necesidad de interceptores (añadir token)
-- Manejo centralizado de errores 401
-- TypeScript typing para requests/responses
-
-### Opciones Consideradas
-
-1. **Fetch API** - Built-in pero verbose
-2. **Axios** - Librería, muchas features
-3. **React Query** - Excelente para caching, sobre-engineered
-
-### Decisión
-
-**Usar Axios** + abstracción en api clients
-
-### Justificación
-
-- ✅ Interceptores para token y errores
-- ✅ Sintaxis limpia
-- ✅ Manejo de CancelToken para cleanup
-- ✅ TypeScript support excelente
-
-### Consecuencias
-
-- ✅ Centralización de requests
-- ✅ Interceptor de 401 automático
-- ⚠️ Dependencia externa (pero bien mantenida)
+- ✅ Estado de auth simple y predecible
+- ✅ Token protegido contra XSS
+- ⚠️ Potencial prop drilling si el estado crece — mitigación: dividir Context por dominio
 
 ---
 
-## ADR-003: Zod para Validación de Formularios
+## ADR-002: Axios con withCredentials — sin interceptor de Authorization
 
-**Fecha:** 2024
-**Estado:** Aceptada
+**Fecha:** 2024 (actualizado 2026-06-01) | **Estado:** Aceptada
 
-### Problema
+**Decisión:** Cliente Axios con `withCredentials: true`. El interceptor de request **no agrega** header `Authorization` — el browser envía la cookie automáticamente. El interceptor de response captura 401 y dispara el evento custom `auth:unauthorized`.
 
-¿Cómo validar datos de formularios y del servidor?
+**Justificación:** FIX-032 migró el JWT a httpOnly cookie. Con `withCredentials: true`, el browser adjunta la cookie en cada request cross-origin sin intervención del código. El interceptor de Authorization era redundante y peligroso (podría loggear el token).
 
-### Contexto
+**Consecuencias:**
 
-- Validación tanto frontend como backend
-- Necesidad de mantener tipos en sync
-- Mensajes de error claros
-
-### Opciones Consideradas
-
-1. **Manual validation** - Error-prone
-2. **Yup** - Bueno pero apiado
-3. **Zod** - Muy bueno con TypeScript
-4. **Joi** - Overkill para frontend
-
-### Decisión
-
-**Usar Zod** + react-hook-form
-
-### Justificación
-
-- ✅ Type-safe: extrae tipos automáticamente
-- ✅ Composable: schemas reutilizables
-- ✅ TypeScript-first design
-- ✅ Mensajes de error claros
-
-### Consecuencias
-
-- ✅ Seguridad de tipos
-- ✅ Validación consistente
-- ✅ Frontend y backend en sync
-- ⚠️ Pequeña curva de aprendizaje inicial
+- ✅ Token nunca expuesto en JavaScript
+- ✅ Logout automático en 401 via evento custom (FIX-023)
+- ⚠️ Requiere `credentials: true` en CORS del backend
+- ⚠️ `sameSite: 'none'` requerido para cross-origin (Vercel→Render)
 
 ---
 
-## ADR-004: TailwindCSS en lugar de Styled Components
+## ADR-003: Zod + React Hook Form para formularios
 
-**Fecha:** 2024
-**Estado:** Aceptada
+**Fecha:** 2024 | **Estado:** Aceptada
 
-### Problema
+**Decisión:** Zod para schemas de validación, React Hook Form para gestión de estado del formulario. Tipos inferidos con `z.infer<>`.
 
-¿Cómo estilizar componentes de manera escalable?
-
-### Contexto
-
-- Proyecto que requiere estilos consistentes
-- Múltiples componentes con estilos similares
-- Balance entre flexibilidad y mantenibilidad
-
-### Opciones Consideradas
-
-1. **CSS modules** - Buen aislamiento, verbose
-2. **Styled Components** - JS-in-CSS, popular
-3. **TailwindCSS** - Utility-first, apoyado por comunidad
-4. **BEM CSS** - Convenciones, poco escalable
-
-### Decisión
-
-**Usar TailwindCSS 4** + componentes Tailwind
-
-### Justificación
-
-- ✅ Bundle size pequeño (utility classes)
-- ✅ Rápido de desarrollar
-- ✅ Temas, dark mode fácil
-- ✅ Comunidad activa, recursos abundantes
-- ✅ Customizable via tailwind.config.js
-
-### Consecuencias
-
-- ✅ Desarrollo muy rápido
-- ✅ Estilos mantenibles
-- ⚠️ Clases HTML pueden ser largas (mitigación: use clsx)
-- ⚠️ Necesita disciplina para no mezclar estilos
+**Justificación:** TypeScript-first, sin re-renders innecesarios, composable, validación consistente con el backend (que también usa Zod).
 
 ---
 
-## ADR-005: React Custom Hooks sobre Renderless Components
+## ADR-004: TailwindCSS 4 — sin estilos inline
 
-**Fecha:** 2024
-**Estado:** Aceptada
+**Fecha:** 2024 | **Estado:** Aceptada
 
-### Problema
+**Decisión:** TailwindCSS 4 como única solución de estilos. `clsx` para condicionales. Sin `style={{}}` inline.
 
-¿Cómo compartir lógica stateful entre componentes?
-
-### Contexto
-
-- Múltiples componentes necesitan misma lógica (fetch, filters)
-- Componentes presentacionales vs contenedores
-- Code reuse sin duplicación
-
-### Opciones Consideradas
-
-1. **Render props** - Overkill para nuestro caso
-2. **HOC (High Order Components)** - Antigua, complicada
-3. **Custom Hooks** - Moderna, limpia
-4. **Composición de funciones** - Muy funcional
-
-### Decisión
-
-**Usar Custom Hooks** para lógica compartida
-
-### Justificación
-
-- ✅ Modern React pattern
-- ✅ Simpler than HOC o render props
-- ✅ Composable: hooks usan otros hooks
-- ✅ Fácil de testear
-- ✅ TypeScript support nativo
-
-### Consecuencias
-
-- ✅ Código limpio y reutilizable
-- ✅ Testing más simple
-- ⚠️ Requires discipline (hooks rules)
+**Justificación:** Bundle pequeño, desarrollo rápido, temas y dark mode nativos, comunidad activa.
 
 ---
 
-## ADR-006: TypeScript en Strict Mode
+## ADR-005: Custom Hooks — Pure UI Rule
 
-**Fecha:** 2024
-**Estado:** Aceptada
+**Fecha:** 2024 | **Estado:** Aceptada
 
-### Problema
+**Decisión:** Toda lógica de estado, fetch y side effects en custom hooks. Componentes son UI pura — solo reciben props y llaman callbacks. Pages son orquestadores — solo componen componentes con hooks.
 
-¿Cómo asegurar type safety máxima?
-
-### Contexto
-
-- Aplicación medianas que crece
-- Muchas integraciones entre módulos
-- Necesidad de refactorings seguros
-
-### Opciones Consideradas
-
-1. **Sin TypeScript** - Flexible pero riesgoso
-2. **TypeScript con any** - Tiene holes
-3. **TypeScript strict** - Máxima seguridad
-4. **JSDoc** - Ligero pero menos potente
-
-### Decisión
-
-**TypeScript strict mode, sin `any`**
-
-### Justificación
-
-- ✅ Catch errors en compile time
-- ✅ Mejor IDE support
-- ✅ Documentación vía tipos
-- ✅ Refactorings más seguros
-
-### Consecuencias
-
-- ✅ Menos bugs en runtime
-- ✅ Mejor developer experience
-- ⚠️ Desarrollo más lento inicialmente
-- ⚠️ Curva de aprendizaje TypeScript
+**Regla:** Hook files: cero JSX. Component files: cero `useEffect`, cero fetch directo.
 
 ---
 
-## ADR-007: Vite como Build Tool
+## ADR-006: TypeScript strict — sin any
 
-**Fecha:** 2024
-**Estado:** Aceptada
+**Fecha:** 2024 | **Estado:** Aceptada
 
-### Problema
+**Decisión:** TypeScript strict mode. Sin `any`, sin `@ts-ignore`. `unknown` con type guards si necesario.
 
-¿Cómo hacer build y dev server?
-
-### Contexto
-
-- Necesidad de dev server rápido
-- Build optimizado para producción
-- Soporte para TypeScript, JSX
-
-### Opciones Consideradas
-
-1. **Create React App** - Out of the box, lento
-2. **Webpack** - Flexible, configuración compleja
-3. **Vite** - Super rápido, moderno
-4. **Parcel** - Zero config, menos control
-
-### Decisión
-
-**Usar Vite 8**
-
-### Justificación
-
-- ✅ Dev server instantáneo (HMR)
-- ✅ Build muy rápido
-- ✅ Zero config para nuestra stack
-- ✅ Soporte nativo para ES modules
-- ✅ Rollup para build production
-
-### Consecuencias
-
-- ✅ Desarrollo rapidísimo
-- ✅ Build size optimizado
-- ⚠️ Menos comunidad que Webpack
-- ⚠️ Menos plugins disponibles
+**Consecuencias:** `npx tsc --noEmit` debe pasar en 0 errores antes de cualquier PR.
 
 ---
 
-## ADR-008: Resend para Email Transaccional
+## ADR-007: Vite 8 como build tool
 
-**Fecha:** 2026-04-21
-**Estado:** Aceptada
+**Fecha:** 2024 | **Estado:** Aceptada
 
-### Problema
+**Decisión:** Vite 8 para dev server y build de producción.
 
-¿Cómo enviar emails transaccionales (resúmenes mensuales) desde el backend?
-
-### Contexto
-
-- FEAT-013 requiere enviar un email HTML con resumen financiero mensual
-- Necesidad de templates HTML con estilos inline
-- Sin infraestructura de email propia
-
-### Opciones Consideradas
-
-1. **Nodemailer** - Popular, requiere configurar SMTP (Gmail, SendGrid, etc.)
-2. **Resend** - SDK moderno, API key directo, buen soporte HTML
-3. **SendGrid** - Enterprise, más complejo para proyecto pequeño
-
-### Decisión
-
-**Usar Resend** con SDK oficial
-
-### Justificación
-
-- ✅ Setup mínimo (solo API key)
-- ✅ SDK TypeScript-first
-- ✅ Dashboard con logs de emails enviados
-- ✅ No requiere configurar servidor SMTP
-- ✅ Free tier suficiente para uso actual
-
-### Consecuencias
-
-- ✅ Envío de email en <5 líneas de código
-- ⚠️ Dependencia de servicio externo (Resend)
-- ⚠️ Requiere dominio verificado para producción
+**Justificación:** HMR instantáneo, build rápido via Rollup, zero config para React + TypeScript.
 
 ---
 
-## ADR-009: Budget como Fuente de Verdad para Límites de Gasto
+## ADR-008: Feature-module architecture
 
-**Fecha:** 2026-04-21
-**Estado:** Aceptada
+**Fecha:** 2026-05-01 | **Estado:** Aceptada
 
-### Problema
+**Decisión:** Todo el código de dominio vive en `src/features/<module>/` con la estructura:
 
-¿Dónde vive el límite de gasto por categoría — en `Category.monthlyLimit` o en el modelo `Budget`?
+```
+src/features/<module>/
+├── index.ts          # barrel — único entry point público
+├── types.ts          # tipos del módulo
+├── utils.ts          # funciones puras
+├── api.ts            # cliente HTTP del módulo
+├── hooks/
+│   ├── use<Resource>.ts       # fetch + estado base
+│   └── use<Resource>Page.ts  # estado completo de página
+└── components/
+    └── ...
+```
 
-### Contexto
+Pages en `src/pages/` solo importan desde el barrel del feature correspondiente.
 
-- `Category` tiene campo `monthlyLimit` (legado)
-- `Budget` tiene `amount`, `month`, `year`, `alertAt` (más completo, por mes/año)
-- FEAT-013 necesita disparar notificaciones cuando se supera un límite
-- El sistema de notificaciones verificaba `category.monthlyLimit` pero los usuarios configuraban límites en Budgets
+**Justificación:** PRs #22–#25 migraron auth, budgets, credit-cards, debts, fixed-expenses, settings, transactions, dashboard. Elimina imports cruzados, facilita encontrar código por dominio, facilita tests unitarios de utils y hooks.
 
-### Decisión
+**Consecuencias:**
 
-**Budget es la única fuente de verdad** para límites de gasto. `checkBudgetAndNotify` consulta únicamente el modelo Budget.
-
-### Justificación
-
-- ✅ Budget es más expresivo (límite específico por mes/año)
-- ✅ Evita divergencia entre dos fuentes de verdad
-- ✅ Consistente con cómo los usuarios ya configuran límites en la UI
-- ✅ Budget tiene `alertAt` para alertas tempranas (ej. al 80%)
-
-### Consecuencias
-
-- ✅ Notificaciones confiables y consistentes con lo que el usuario configura
-- ⚠️ `Category.monthlyLimit` queda como campo legado (pendiente REFACTOR-001 para eliminarlo)
-- ⚠️ Si el usuario no tiene Budget para una categoría, no hay notificación de límite
+- ✅ Un feature = un directorio = una responsabilidad
+- ✅ Tests de utils sin mocks de React
+- ⚠️ Más archivos — trade-off aceptado a cambio de separación de concerns
 
 ---
 
-## Cómo Agregar Nueva Decisión
+## ADR-009: Vitest como test runner
 
-Cuando tomes una decisión arquitectónica importante:
+**Fecha:** 2026-06-01 | **Estado:** Aceptada
 
-1. Crea nuevo archivo `ADR-NNN: descripcion.md`
-2. Usa template:
+**Decisión:** Vitest con `@testing-library/react` para tests de hooks. Patrón: `renderHook` + `vi.hoisted` para mocks de módulos. No se testean renders de componentes — solo lógica pura (utils) y transiciones de estado de hooks.
 
-   ```markdown
-   # ADR-NNN: Título de la Decisión
+**Justificación:** Vitest es el test runner nativo de Vite — configuración mínima, velocidad máxima. `vi.hoisted` resuelve el problema de mocks con módulos que se importan antes del mock.
 
-   **Fecha:** AAAA-MM-DD
-   **Estado:** Propuesta/Aceptada/Deprecada
-   **Autores:** Nombres
+**Consecuencias:**
 
-   ### Problema
+- ✅ Tests de hooks con `renderHook` sin levantar DOM
+- ✅ Utils testables sin React
+- ⚠️ Hooks con 10+ dependencias requieren muchos mocks — usar `vi.mock` de módulo completo
 
-   ### Contexto
+---
 
-   ### Opciones Consideradas
+## ADR-010: Sentry para error tracking y observabilidad
 
-   ### Decisión
+**Fecha:** 2026-06-01 | **Estado:** Aceptada
 
-   ### Justificación
+**Decisión:** Sentry con source maps, user context (`setSentryUser`/`clearSentryUser`), browserTracing, Sentry Logs panel. Tunnel en `/api/monitoring/sentry-tunnel` para evitar bloqueo por ad blockers.
 
-   ### Consecuencias
-   ```
+**Justificación:** En producción era imposible diagnosticar errores sin tracking. El tunnel es necesario porque los ad blockers bloquean `*.sentry.io` directamente.
 
-3. Abre PR documentando la decisión
-4. Agrupa por proyecto (Frontend/Backend)
+**Consecuencias:**
+
+- ✅ Stack traces reales en producción (source maps)
+- ✅ Errores asociados al usuario
+- ✅ Logs del frontend visibles en Sentry dashboard
+- ⚠️ Requiere `VITE_SENTRY_DSN` en variables de entorno Vercel
+
+---
+
+## ADR-011: JWT en httpOnly cookie
+
+**Fecha:** 2026-06-01 | **Estado:** Aceptada
+
+**Decisión:** El JWT no se almacena en localStorage. El backend lo setea como httpOnly cookie en login/register. El frontend usa `withCredentials: true` en Axios. `AuthContext.checkAuth` llama `GET /auth/me` directamente al montar — si falla → no autenticado.
+
+**Justificación:** localStorage es accesible desde JS. En una app financiera un XSS puede comprometer la sesión completa. httpOnly elimina ese vector sin cambiar la UX.
+
+**Consecuencias:**
+
+- ✅ `localStorage` completamente limpio de tokens
+- ✅ `AuthResponse` ya no incluye `token`
+- ✅ `checkAuth` siempre verifica sesión con el servidor (no confía en localStorage)
+- ⚠️ `sameSite: 'none'` requerido en backend para cross-origin (Vercel→Render)
+- ⚠️ Logout requiere llamar `POST /auth/logout` para limpiar la cookie del servidor
 
 ---
 
 ## Estado Actual
 
-### Decisiones Activas: 9
+### Decisiones Activas: 11
 
-- ADR-001: Context API ✅
-- ADR-002: Axios ✅
-- ADR-003: Zod ✅
-- ADR-004: TailwindCSS ✅
-- ADR-005: Custom Hooks ✅
-- ADR-006: TypeScript Strict ✅
-- ADR-007: Vite ✅
-- ADR-008: Resend para email ✅
-- ADR-009: Budget como fuente de verdad para límites ✅
-
-### Próximas Decisiones a Documentar
-
-- [ ] Testing framework (Jest vs Vitest)
-- [ ] State management para datos del server (react-query?)
-- [ ] Deployment strategy
+- ADR-001: Context API para auth ✅
+- ADR-002: Axios withCredentials ✅
+- ADR-003: Zod + RHF ✅
+- ADR-004: TailwindCSS 4 ✅
+- ADR-005: Pure UI Rule ✅
+- ADR-006: TypeScript strict ✅
+- ADR-007: Vite 8 ✅
+- ADR-008: Feature-module architecture ✅
+- ADR-009: Vitest ✅
+- ADR-010: Sentry ✅
+- ADR-011: JWT httpOnly cookie ✅
