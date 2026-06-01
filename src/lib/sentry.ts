@@ -5,6 +5,7 @@ export function initSentry(): void {
 
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN as string,
+    tunnel: `${import.meta.env.VITE_API_URL as string}/monitoring/tunnel`,
     environment: 'production',
     tracesSampleRate: 0.1,
   });
