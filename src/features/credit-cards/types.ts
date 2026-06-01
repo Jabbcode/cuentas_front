@@ -30,6 +30,7 @@ export interface UseCreditCardsReturn {
   statements: import('../../types').CreditCardStatement[];
   accounts: import('../../types').Account[];
   loading: boolean;
+  error: string | null;
   reload: () => void;
 }
 

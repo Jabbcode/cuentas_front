@@ -19,6 +19,7 @@ export interface CategoryPayload {
 export interface UseCategoriesReturn {
   categories: Category[];
   loading: boolean;
+  error: string | null;
   reload: () => void;
 }
 
