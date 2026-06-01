@@ -18,6 +18,11 @@ export interface UseBudgetsReturn {
   reload: () => void;
 }
 
+export interface UseBudgetWidgetReturn {
+  budgets: import('../../types').Budget[];
+  loading: boolean;
+}
+
 export interface UseBudgetsPageReturn {
   budgets: import('../../types').Budget[];
   categories: import('../../types').Category[];

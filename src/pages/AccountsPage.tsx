@@ -8,6 +8,7 @@ import { AccountFormDialog } from '../features/accounts/components/AccountFormDi
 import { TransferModal } from '../features/accounts/components/TransferModal';
 import { AccountTransactionsModal } from '../features/accounts/components/AccountTransactionsModal';
 import { useAccountsPage } from '../features/accounts/hooks/useAccountsPage';
+import { creditCardsApi } from '../features/credit-cards';
 import { formatCurrency } from '../lib/utils';
 import type { Account } from '../types';
 
@@ -47,7 +48,7 @@ export function AccountsPage() {
     loadError,
     selectedAccountId,
     setSelectedAccountId,
-  } = useAccountsPage();
+  } = useAccountsPage({ fetchSummary: creditCardsApi.getSummary });
 
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId) ?? null;
 
