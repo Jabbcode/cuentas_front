@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { logger } from '../../../lib/logger';
 import { useCreditCards } from './useCreditCards';
 import { creditCardsApi } from '../api';
 import { getTodayDateString } from '../utils';
@@ -96,15 +97,21 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
 
       setPaying(true);
       try {
-        await creditCardsApi.payStatement(paymentModal.statement.account.id, {
+        const cardId = paymentModal.statement.account.id;
+        await creditCardsApi.payStatement(cardId, {
           amount: parseFloat(paymentFormData.amount),
           paymentAccountId: paymentFormData.paymentAccountId,
           paymentDate: paymentFormData.paymentDate,
         });
+        logger.info('credit-card', 'Credit card statement paid', {
+          accountId: cardId,
+          amount: paymentFormData.amount,
+        });
         handleClosePayment();
         reload();
-      } catch {
+      } catch (err) {
         toast.error('No se pudo registrar el pago de la tarjeta');
+        logger.error('credit-card', 'Failed to pay credit card statement', err);
       } finally {
         setPaying(false);
       }

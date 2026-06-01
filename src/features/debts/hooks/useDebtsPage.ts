@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { logger } from '../../../lib/logger';
 import { useDebts } from './useDebts';
 import { useRecurringDebtPayments } from './useRecurringDebtPayments';
 import { groupDebtsByStatus, calculateDebtTotals, filterRecurringByDebt } from '../utils';
@@ -61,7 +62,13 @@ export function useDebtsPage(): UseDebtsPageReturn {
   const handlePay = useCallback(
     async (amount: number, accountId: string, notes?: string) => {
       if (!payingDebt) return;
-      await payDebt(payingDebt.id, amount, accountId, notes);
+      try {
+        await payDebt(payingDebt.id, amount, accountId, notes);
+        logger.info('debt', 'Debt payment registered', { id: payingDebt.id, amount });
+      } catch (err) {
+        toast.error('No se pudo registrar el pago de la deuda');
+        logger.error('debt', 'Failed to pay debt', err, { id: payingDebt.id, amount });
+      }
     },
     [payingDebt, payDebt]
   );
@@ -115,9 +122,11 @@ export function useDebtsPage(): UseDebtsPageReturn {
     setDeleting(true);
     try {
       await deleteDebt(deleteId);
+      logger.info('debt', 'Debt deleted', { id: deleteId });
       setDeleteId(null);
-    } catch {
+    } catch (err) {
       toast.error('No se pudo eliminar la deuda');
+      logger.error('debt', 'Failed to delete debt', err, { id: deleteId });
     } finally {
       setDeleting(false);
     }
@@ -137,9 +146,13 @@ export function useDebtsPage(): UseDebtsPageReturn {
     setDeleting(true);
     try {
       await deleteRecurringPayment(deleteRecurringId);
+      logger.info('debt', 'Recurring debt payment deleted', { id: deleteRecurringId });
       setDeleteRecurringId(null);
-    } catch {
+    } catch (err) {
       toast.error('No se pudo eliminar el pago recurrente');
+      logger.error('debt', 'Failed to delete recurring debt payment', err, {
+        id: deleteRecurringId,
+      });
     } finally {
       setDeleting(false);
     }

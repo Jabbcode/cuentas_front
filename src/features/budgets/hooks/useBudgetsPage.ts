@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { useBudgets } from './useBudgets';
+import { logger } from '../../../lib/logger';
 import { budgetsApi } from '../api';
 import { categoriesApi } from '../../categories/api';
 import { getAvailableCategories, getPrevMonthYear, getNextMonthYear } from '../utils';
@@ -76,14 +78,17 @@ export function useBudgetsPage(): UseBudgetsPageReturn {
 
         if (editingBudget) {
           await budgetsApi.update(editingBudget.id, payload);
+          logger.info('budget', 'Budget updated', { id: editingBudget.id });
         } else {
           await budgetsApi.create(payload);
+          logger.info('budget', 'Budget created', { categoryId: formData.categoryId, month, year });
         }
 
         setShowForm(false);
         reload();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al guardar');
+        logger.error('budget', 'Failed to save budget', err);
       } finally {
         setSaving(false);
       }
@@ -96,8 +101,12 @@ export function useBudgetsPage(): UseBudgetsPageReturn {
     setDeleting(true);
     try {
       await budgetsApi.delete(deleteId);
+      logger.info('budget', 'Budget deleted', { id: deleteId });
       setDeleteId(null);
       reload();
+    } catch (err) {
+      toast.error('No se pudo eliminar el presupuesto');
+      logger.error('budget', 'Failed to delete budget', err, { id: deleteId });
     } finally {
       setDeleting(false);
     }
