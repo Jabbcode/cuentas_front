@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { transactionsApi } from '../api';
 import { buildTransactionApiFilters } from '../utils';
+import { logger } from '../../../lib/logger';
 import { toast } from 'sonner';
 import type { Transaction } from '../../../types';
 
@@ -39,9 +40,10 @@ export function useTransactions(params: UseTransactionsParams): UseTransactionsR
       const txData = await transactionsApi.getAll(filters);
       setTransactions(txData.transactions);
       setTotal(txData.total);
-    } catch {
+    } catch (err) {
       setError('Error al cargar las transacciones. Intenta de nuevo.');
       toast.error('No se pudieron cargar las transacciones');
+      logger.error('transaction', 'Failed to load transactions', err);
     } finally {
       setLoading(false);
     }

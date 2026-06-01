@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { categoriesApi } from '../api';
+import { logger } from '../../../lib/logger';
 import type { Category } from '../../../types';
 import type { UseCategoriesReturn } from '../types';
 
@@ -14,8 +15,9 @@ export function useCategories(): UseCategoriesReturn {
     try {
       const data = await categoriesApi.getAll();
       setCategories(data);
-    } catch {
+    } catch (err) {
       setError('Error al cargar las categorías. Intenta de nuevo.');
+      logger.error('category', 'Failed to load categories', err);
     } finally {
       setLoading(false);
     }

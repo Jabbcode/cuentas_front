@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { accountsApi } from '../api';
+import { logger } from '../../../lib/logger';
 import type { Account } from '../../../types';
 
 export function useAccounts() {
@@ -13,8 +14,9 @@ export function useAccounts() {
     try {
       const data = await accountsApi.getAll();
       setAccounts(data);
-    } catch {
+    } catch (err) {
       setError('Error al cargar las cuentas. Intenta de nuevo.');
+      logger.error('account', 'Failed to load accounts', err);
     } finally {
       setLoading(false);
     }

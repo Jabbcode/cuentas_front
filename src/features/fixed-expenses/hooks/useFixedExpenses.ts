@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fixedExpensesApi } from '../api';
+import { logger } from '../../../lib/logger';
 import type { FixedExpenseSummary } from '../../../types';
 import { toast } from 'sonner';
 import type { UseFixedExpensesReturn } from '../types';
@@ -15,9 +16,10 @@ export function useFixedExpenses(): UseFixedExpensesReturn {
     try {
       const data = await fixedExpensesApi.getSummary();
       setSummary(data);
-    } catch {
+    } catch (err) {
       setError('Error al cargar los gastos fijos. Intenta de nuevo.');
       toast.error('No se pudieron cargar los gastos fijos');
+      logger.error('fixed-expense', 'Failed to load fixed expenses', err);
     } finally {
       setLoading(false);
     }
