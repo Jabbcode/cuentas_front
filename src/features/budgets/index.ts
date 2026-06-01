@@ -1,7 +1,12 @@
 // Public API of the budgets feature module
 
 // Types
-export type { BudgetFormData, UseBudgetsReturn, UseBudgetsPageReturn } from './types';
+export type {
+  BudgetFormData,
+  UseBudgetsReturn,
+  UseBudgetsPageReturn,
+  UseBudgetWidgetReturn,
+} from './types';
 
 // API
 export { budgetsApi } from './api';
@@ -18,6 +23,7 @@ export {
 // Hooks
 export { useBudgets } from './hooks/useBudgets';
 export { useBudgetsPage } from './hooks/useBudgetsPage';
+export { useBudgetWidget } from './hooks/useBudgetWidget';
 
 // Components (feature-owned)
 export { BudgetProgressBar } from './components/BudgetProgressBar';

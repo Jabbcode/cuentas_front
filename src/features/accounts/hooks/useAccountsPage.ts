@@ -1,12 +1,16 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { accountsApi } from '../api';
-import { creditCardsApi } from '../../credit-cards/api';
 import { useAccounts } from './useAccounts';
 import { groupAccountsByType, buildAccountPayload, calculateBalanceTotals } from '../utils';
 import { logger } from '../../../lib/logger';
 import type { Account, CreditCardStatement } from '../../../types';
-import type { AccountFormData, ExpandedSections, UseAccountsPageReturn } from '../types';
+import type {
+  AccountFormData,
+  ExpandedSections,
+  UseAccountsPageReturn,
+  UseAccountsPageOptions,
+} from '../types';
 
 const DEFAULT_FORM_DATA: AccountFormData = {
   name: '',
@@ -26,7 +30,9 @@ const DEFAULT_EXPANDED_SECTIONS: ExpandedSections = {
   cash: true,
 };
 
-export function useAccountsPage(): UseAccountsPageReturn {
+export function useAccountsPage({
+  fetchSummary,
+}: UseAccountsPageOptions = {}): UseAccountsPageReturn {
   const { accounts, loading, reload, error: loadError } = useAccounts();
 
   const [statementsMap, setStatementsMap] = useState<Record<string, CreditCardStatement>>({});
@@ -43,11 +49,11 @@ export function useAccountsPage(): UseAccountsPageReturn {
 
   useEffect(() => {
     const hasCreditCards = accounts.some((a) => a.type === 'credit_card');
-    if (!hasCreditCards) return;
+    if (!hasCreditCards || !fetchSummary) return;
     let cancelled = false;
     const load = async () => {
       try {
-        const summary = await creditCardsApi.getSummary();
+        const summary = await fetchSummary();
         if (!cancelled) {
           const map: Record<string, CreditCardStatement> = {};
           for (const card of summary.cards) {
@@ -63,7 +69,7 @@ export function useAccountsPage(): UseAccountsPageReturn {
     return () => {
       cancelled = true;
     };
-  }, [accounts]);
+  }, [accounts, fetchSummary]);
 
   const { totalBalance, unpaidClosedTotal } = useMemo(
     () => calculateBalanceTotals(accounts, statementsMap),

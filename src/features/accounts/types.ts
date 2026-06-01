@@ -1,4 +1,10 @@
-import type { Account } from '../../types';
+import type { Account, CreditCardsSummary } from '../../types';
+
+export type FetchCreditCardsSummary = () => Promise<CreditCardsSummary>;
+
+export interface UseAccountsPageOptions {
+  fetchSummary?: FetchCreditCardsSummary;
+}
 
 export interface AccountFormData {
   name: string;

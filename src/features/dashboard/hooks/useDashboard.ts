@@ -3,6 +3,7 @@ import { dashboardApi } from '../api';
 import { fixedExpensesApi } from '../../fixed-expenses';
 import { creditCardsApi } from '../../credit-cards/api';
 import { debtsApi } from '../../debts/api';
+import { budgetsApi } from '../../budgets/api';
 import type {
   DashboardSummary,
   CategorySummary,
@@ -11,6 +12,7 @@ import type {
   ProjectionData,
   CreditCardsSummary,
   DebtsSummary,
+  Budget,
 } from '../../../types';
 import type { UseDashboardReturn } from '../types';
 
@@ -22,12 +24,14 @@ export function useDashboard(): UseDashboardReturn {
   const [projection, setProjection] = useState<ProjectionData | null>(null);
   const [creditCardsSummary, setCreditCardsSummary] = useState<CreditCardsSummary | null>(null);
   const [debtsSummary, setDebtsSummary] = useState<DebtsSummary | null>(null);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
+    const now = new Date();
     setLoading(true);
     try {
-      const [sum, cat, fixed, fvv, proj, ccSummary, debtSum] = await Promise.all([
+      const [sum, cat, fixed, fvv, proj, ccSummary, debtSum, budgetList] = await Promise.all([
         dashboardApi.getSummary(),
         dashboardApi.getByCategory('expense'),
         fixedExpensesApi.getSummary(),
@@ -47,6 +51,7 @@ export function useDashboard(): UseDashboardReturn {
           debtsDueSoon: 0,
           upcomingDebts: [],
         })),
+        budgetsApi.getAll(now.getMonth() + 1, now.getFullYear()).catch(() => [] as Budget[]),
       ]);
 
       setSummary(sum);
@@ -56,6 +61,7 @@ export function useDashboard(): UseDashboardReturn {
       setProjection(proj);
       setCreditCardsSummary(ccSummary);
       setDebtsSummary(debtSum);
+      setBudgets(budgetList);
     } finally {
       setLoading(false);
     }
@@ -90,6 +96,7 @@ export function useDashboard(): UseDashboardReturn {
     projection,
     creditCardsSummary,
     debtsSummary,
+    budgets,
     loading,
     reload,
   };
