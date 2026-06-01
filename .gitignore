@@ -27,3 +27,4 @@ dist-ssr
 
 # Documentation
 docs
+.gstack/

@@ -89,7 +89,10 @@ export function MonthComparisonCard({
   return (
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2 p-4 lg:p-6">
-        <button onClick={() => setIsOpen((v) => !v)} className="flex items-center gap-2 text-left">
+        <button
+          onClick={() => setIsOpen((v) => !v)}
+          className="flex min-h-[44px] items-center gap-2 text-left"
+        >
           <h2 className="text-base font-semibold text-gray-900 lg:text-lg">Comparativa mensual</h2>
           {isOpen ? (
             <ChevronUp className="h-4 w-4 shrink-0 text-gray-400" />
