@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { authApi } from '../features/auth/api';
+import { clearSentryUser, setSentryUser } from '../lib/sentry';
 import type { User } from '../types';
 
 interface AuthContextType {
@@ -25,6 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const userData = await authApi.getMe();
           setUser(userData);
+          setSentryUser(userData);
         } catch {
           localStorage.removeItem('token');
         } finally {
@@ -42,17 +44,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await authApi.login({ email, password });
     localStorage.setItem('token', response.token);
     setUser(response.user);
+    setSentryUser(response.user);
   };
 
   const register = async (email: string, password: string, name: string) => {
     const response = await authApi.register({ email, password, name });
     localStorage.setItem('token', response.token);
     setUser(response.user);
+    setSentryUser(response.user);
   };
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     setUser(null);
+    clearSentryUser();
   }, []);
 
   useEffect(() => {

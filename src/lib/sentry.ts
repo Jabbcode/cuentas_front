@@ -9,3 +9,11 @@ export function initSentry(): void {
     tracesSampleRate: 0.1,
   });
 }
+
+export function setSentryUser(user: { id: string; email: string; name: string }): void {
+  Sentry.setUser({ id: user.id, email: user.email, username: user.name });
+}
+
+export function clearSentryUser(): void {
+  Sentry.setUser(null);
+}
