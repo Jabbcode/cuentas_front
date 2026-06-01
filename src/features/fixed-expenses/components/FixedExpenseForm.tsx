@@ -42,21 +42,22 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
   });
 
   useEffect(() => {
+    let cancelled = false;
     const loadFormData = async () => {
       try {
         const [accountsData, categoriesData] = await Promise.all([
           accountsApi.getAll(),
           categoriesApi.getAll(),
         ]);
+        if (cancelled) return;
         setAccounts(accountsData);
         setCategories(categoriesData);
-
         if (accountsData.length > 0) {
           setFormData((prev) => ({ ...prev, accountId: accountsData[0].id }));
         }
-
         if (editId) {
           const expense = await fixedExpensesApi.getById(editId);
+          if (cancelled) return;
           setFormData({
             name: expense.name,
             amount: expense.amount.toString(),
@@ -77,11 +78,13 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
       } catch (err) {
         console.error('Error loading form data:', err);
       } finally {
-        setLoadingData(false);
+        if (!cancelled) setLoadingData(false);
       }
     };
-
     loadFormData();
+    return () => {
+      cancelled = true;
+    };
   }, [editId]);
 
   const filteredCategories = categories.filter((c) => c.type === formData.type);

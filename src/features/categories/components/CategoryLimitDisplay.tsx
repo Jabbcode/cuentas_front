@@ -12,18 +12,21 @@ export function CategoryLimitDisplay({ categoryId }: CategoryLimitDisplayProps) 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const loadSpending = async () => {
       try {
         const data = await categoriesApi.getSpending(categoryId);
-        setSpending(data);
+        if (!cancelled) setSpending(data);
       } catch (error) {
         console.error('Error loading category spending:', error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
-
     loadSpending();
+    return () => {
+      cancelled = true;
+    };
   }, [categoryId]);
 
   if (loading) {

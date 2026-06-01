@@ -29,7 +29,19 @@ export function useBudgetsPage(): UseBudgetsPageReturn {
   });
 
   useEffect(() => {
-    categoriesApi.getAll('expense').then(setCategories);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const data = await categoriesApi.getAll('expense');
+        if (!cancelled) setCategories(data);
+      } catch {
+        // silent
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const availableCategories = getAvailableCategories(categories, budgets, editingBudget);
