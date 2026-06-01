@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { transactionsApi } from '../api';
+import { toast } from 'sonner';
 import type { TransactionCategorySummaryItem, TransactionSummaryFilters } from '../api';
 
 export interface UseTransactionSummaryReturn {
@@ -21,8 +22,8 @@ export function useTransactionSummary(
     try {
       const data = await transactionsApi.getSummary(filters);
       setSummary(data);
-    } catch (err) {
-      console.error('Error loading transaction summary:', err);
+    } catch {
+      toast.error('No se pudo cargar el resumen de transacciones');
     } finally {
       setLoading(false);
     }

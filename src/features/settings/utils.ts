@@ -1,11 +1,8 @@
 import type { FeedbackMessage } from './types';
+import { getApiErrorMessage } from '../../lib/api-errors';
 
-/**
- * Extracts a human-readable error message from an Axios error response.
- */
 export function extractApiError(err: unknown, fallback: string): string {
-  const axiosErr = err as { response?: { data?: { error?: string } } };
-  return axiosErr?.response?.data?.error ?? fallback;
+  return getApiErrorMessage(err, fallback);
 }
 
 /**

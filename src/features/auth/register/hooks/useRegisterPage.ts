@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../../../context/AuthContext';
+import { getApiErrorMessage } from '../../../../lib/api-errors';
 import type { UseRegisterPageReturn } from '../../types';
 
 export function useRegisterPage(): UseRegisterPageReturn {
@@ -20,10 +21,7 @@ export function useRegisterPage(): UseRegisterPageReturn {
       await register(email, password, name);
       // Navigation is handled automatically by the page via isAuthenticated
     } catch (err: unknown) {
-      const axiosError = err as { response?: { data?: { error?: string } } };
-      const errorMessage =
-        axiosError?.response?.data?.error ?? 'Error al registrar. El email puede estar en uso.';
-      setError(errorMessage);
+      setError(getApiErrorMessage(err, 'Error al registrar. El email puede estar en uso.'));
     } finally {
       setLoading(false);
     }

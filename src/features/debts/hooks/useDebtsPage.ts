@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 import { useDebts } from './useDebts';
 import { useRecurringDebtPayments } from './useRecurringDebtPayments';
 import { groupDebtsByStatus, calculateDebtTotals, filterRecurringByDebt } from '../utils';
@@ -115,8 +116,8 @@ export function useDebtsPage(): UseDebtsPageReturn {
     try {
       await deleteDebt(deleteId);
       setDeleteId(null);
-    } catch (err) {
-      console.error('Error deleting debt:', err);
+    } catch {
+      toast.error('No se pudo eliminar la deuda');
     } finally {
       setDeleting(false);
     }
@@ -137,8 +138,8 @@ export function useDebtsPage(): UseDebtsPageReturn {
     try {
       await deleteRecurringPayment(deleteRecurringId);
       setDeleteRecurringId(null);
-    } catch (err) {
-      console.error('Error deleting recurring payment:', err);
+    } catch {
+      toast.error('No se pudo eliminar el pago recurrente');
     } finally {
       setDeleting(false);
     }

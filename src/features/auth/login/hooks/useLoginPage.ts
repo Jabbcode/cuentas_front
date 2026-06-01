@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../../../context/AuthContext';
+import { getApiErrorMessage } from '../../../../lib/api-errors';
 import type { UseLoginPageReturn } from '../../types';
 
 export function useLoginPage(): UseLoginPageReturn {
@@ -19,9 +20,7 @@ export function useLoginPage(): UseLoginPageReturn {
       await login(email, password);
       // Navigation is handled automatically by the page via isAuthenticated
     } catch (err: unknown) {
-      const axiosError = err as { response?: { data?: { error?: string } } };
-      const errorMessage = axiosError?.response?.data?.error ?? 'Email o contraseña incorrectos';
-      setError(errorMessage);
+      setError(getApiErrorMessage(err, 'Email o contraseña incorrectos'));
     } finally {
       setLoading(false);
     }

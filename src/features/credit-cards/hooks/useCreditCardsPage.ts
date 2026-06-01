@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { useCreditCards } from './useCreditCards';
 import { creditCardsApi } from '../api';
 import { getTodayDateString } from '../utils';
@@ -102,8 +103,8 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
         });
         handleClosePayment();
         reload();
-      } catch (err) {
-        console.error('Error paying credit card:', err);
+      } catch {
+        toast.error('No se pudo registrar el pago de la tarjeta');
       } finally {
         setPaying(false);
       }

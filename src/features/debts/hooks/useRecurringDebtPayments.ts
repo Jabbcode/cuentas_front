@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { recurringDebtPaymentsApi } from '../api';
+import { toast } from 'sonner';
 import type { RecurringDebtPayment } from '../../../types';
 
 export interface UseRecurringDebtPaymentsReturn {
@@ -19,8 +20,8 @@ export function useRecurringDebtPayments(debtId?: string): UseRecurringDebtPayme
     try {
       const data = await recurringDebtPaymentsApi.getAll(debtId);
       setRecurringPayments(data);
-    } catch (err) {
-      console.error('Error loading recurring payments:', err);
+    } catch {
+      toast.error('No se pudieron cargar los pagos recurrentes');
     } finally {
       setLoading(false);
     }
