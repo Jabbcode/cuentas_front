@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { debtsApi } from '../api';
+import { toast } from 'sonner';
 import type { Debt } from '../../../types';
 
 export interface UseDebtsReturn {
@@ -19,8 +20,8 @@ export function useDebts(status?: string): UseDebtsReturn {
     try {
       const data = await debtsApi.getAll(status);
       setDebts(data);
-    } catch (err) {
-      console.error('Error loading debts:', err);
+    } catch {
+      toast.error('No se pudieron cargar las deudas');
     } finally {
       setLoading(false);
     }

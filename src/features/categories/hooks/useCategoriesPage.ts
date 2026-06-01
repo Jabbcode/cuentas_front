@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { toast } from 'sonner';
 import { categoriesApi } from '../api';
 import { useCategories } from './useCategories';
 import {
@@ -62,8 +63,8 @@ export function useCategoriesPage(): UseCategoriesPageReturn {
         }
         setShowForm(false);
         reload();
-      } catch (err) {
-        console.error('Error saving category:', err);
+      } catch {
+        toast.error('No se pudo guardar la categoría');
       } finally {
         setSaving(false);
       }

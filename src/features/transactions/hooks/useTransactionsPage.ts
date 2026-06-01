@@ -7,6 +7,7 @@ import { usePagination } from '../../../hooks/usePagination';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useCategories } from '../../categories/hooks/useCategories';
 import { useTags, useTagsSummary } from '../../../hooks/useTags';
+import { toast } from 'sonner';
 import { getClosedPeriodWarning } from '../../../lib/credit-card-utils';
 import type { Transaction } from '../../../types';
 import type { ScanReceiptData } from '../../../api/receipts.api';
@@ -240,8 +241,8 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
         reloadTags();
         reloadTagSummary();
         reload();
-      } catch (err) {
-        console.error('Error creating transaction:', err);
+      } catch {
+        toast.error('No se pudo guardar la transacción');
       } finally {
         setSaving(false);
       }
@@ -306,8 +307,8 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
       await transactionsApi.delete(deleteId);
       setDeleteId(null);
       reload();
-    } catch (err) {
-      console.error('Error deleting transaction:', err);
+    } catch {
+      toast.error('No se pudo eliminar la transacción');
     } finally {
       setDeleting(false);
     }
@@ -322,8 +323,8 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     try {
       const items = await transactionsApi.getReceiptItems(transaction.id);
       setViewingItems({ ...transaction, receiptItems: items });
-    } catch (error) {
-      console.error('Error loading receipt items:', error);
+    } catch {
+      toast.error('No se pudieron cargar los ítems del recibo');
     } finally {
       setLoadingItemsId(null);
     }

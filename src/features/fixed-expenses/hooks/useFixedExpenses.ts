@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fixedExpensesApi } from '../api';
 import type { FixedExpenseSummary } from '../../../types';
+import { toast } from 'sonner';
 import type { UseFixedExpensesReturn } from '../types';
 
 export function useFixedExpenses(): UseFixedExpensesReturn {
@@ -12,8 +13,8 @@ export function useFixedExpenses(): UseFixedExpensesReturn {
     try {
       const data = await fixedExpensesApi.getSummary();
       setSummary(data);
-    } catch (err) {
-      console.error('Error loading fixed expenses:', err);
+    } catch {
+      toast.error('No se pudieron cargar los gastos fijos');
     } finally {
       setLoading(false);
     }
@@ -32,8 +33,8 @@ export function useFixedExpenses(): UseFixedExpensesReturn {
       try {
         await fixedExpensesApi.pay(id, amount ? { amount } : undefined);
         reload();
-      } catch (err) {
-        console.error('Error paying expense:', err);
+      } catch {
+        toast.error('No se pudo registrar el pago del gasto fijo');
       }
     },
     [reload]
@@ -52,8 +53,8 @@ export function useFixedExpenses(): UseFixedExpensesReturn {
       try {
         await fixedExpensesApi.update(id, { isActive: !isActive });
         reload();
-      } catch (err) {
-        console.error('Error toggling active status:', err);
+      } catch {
+        toast.error('No se pudo actualizar el estado del gasto fijo');
       }
     },
     [reload]
