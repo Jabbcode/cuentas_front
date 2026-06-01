@@ -80,6 +80,7 @@ export function TransactionFormDialog({
               step="0.01"
               min="0"
               placeholder="0.00"
+              aria-label="Monto de la transacción"
               value={formData.amount}
               onChange={(e) => onFormDataChange({ amount: e.target.value })}
               required
