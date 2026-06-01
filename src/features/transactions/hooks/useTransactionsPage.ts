@@ -9,6 +9,7 @@ import { useCategories } from '../../categories/hooks/useCategories';
 import { useTags, useTagsSummary } from '../../../hooks/useTags';
 import { toast } from 'sonner';
 import { getClosedPeriodWarning } from '../../../lib/credit-card-utils';
+import { logger } from '../../../lib/logger';
 import type { Transaction } from '../../../types';
 import type { ScanReceiptData } from '../../../api/receipts.api';
 import type { TransactionFormData, TransactionEditInput, DateWarning } from '../types';
@@ -245,12 +246,17 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
           tagNames: formData.tagNames.length > 0 ? formData.tagNames : undefined,
           receiptItems: formData.receiptItems.length > 0 ? formData.receiptItems : undefined,
         });
+        logger.info('transaction', 'Transaction created', {
+          type: formData.type,
+          description: formData.description,
+        });
         handleCloseForm();
         reloadTags();
         reloadTagSummary();
         reload();
-      } catch {
+      } catch (err) {
         toast.error('No se pudo guardar la transacción');
+        logger.error('transaction', 'Failed to create transaction', err);
       } finally {
         setSaving(false);
       }
@@ -293,17 +299,23 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
 
   const handleSaveEdit = useCallback(
     async (id: string, data: TransactionEditInput) => {
-      await transactionsApi.update(id, {
-        description: data.description || undefined,
-        categoryId: data.categoryId,
-        date: new Date(data.date).toISOString(),
-        amount: parseFloat(data.amount),
-        tagNames: data.tagNames,
-      });
-      setEditingTransaction(null);
-      reloadTags();
-      reloadTagSummary();
-      reload();
+      try {
+        await transactionsApi.update(id, {
+          description: data.description || undefined,
+          categoryId: data.categoryId,
+          date: new Date(data.date).toISOString(),
+          amount: parseFloat(data.amount),
+          tagNames: data.tagNames,
+        });
+        logger.info('transaction', 'Transaction updated', { id });
+        setEditingTransaction(null);
+        reloadTags();
+        reloadTagSummary();
+        reload();
+      } catch (err) {
+        toast.error('No se pudo actualizar la transacción');
+        logger.error('transaction', 'Failed to update transaction', err, { id });
+      }
     },
     [reload, reloadTags, reloadTagSummary]
   );
@@ -313,10 +325,12 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     setDeleting(true);
     try {
       await transactionsApi.delete(deleteId);
+      logger.info('transaction', 'Transaction deleted', { id: deleteId });
       setDeleteId(null);
       reload();
-    } catch {
+    } catch (err) {
       toast.error('No se pudo eliminar la transacción');
+      logger.error('transaction', 'Failed to delete transaction', err, { id: deleteId });
     } finally {
       setDeleting(false);
     }

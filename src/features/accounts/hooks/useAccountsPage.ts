@@ -4,6 +4,7 @@ import { accountsApi } from '../api';
 import { creditCardsApi } from '../../credit-cards/api';
 import { useAccounts } from './useAccounts';
 import { groupAccountsByType, buildAccountPayload, calculateBalanceTotals } from '../utils';
+import { logger } from '../../../lib/logger';
 import type { Account, CreditCardStatement } from '../../../types';
 import type { AccountFormData, ExpandedSections, UseAccountsPageReturn } from '../types';
 
@@ -100,12 +101,17 @@ export function useAccountsPage(): UseAccountsPageReturn {
         if (editingAccount) {
           await accountsApi.update(editingAccount.id, payload);
           toast.success('Cuenta actualizada');
+          logger.info('account', 'Account updated', { id: editingAccount.id, name: formData.name });
         } else {
           await accountsApi.create(payload);
           toast.success('Cuenta creada correctamente');
+          logger.info('account', 'Account created', { name: formData.name });
         }
         setShowForm(false);
         reload();
+      } catch (err) {
+        toast.error('No se pudo guardar la cuenta');
+        logger.error('account', 'Failed to save account', err, { name: formData.name });
       } finally {
         setSaving(false);
       }
@@ -119,8 +125,12 @@ export function useAccountsPage(): UseAccountsPageReturn {
     try {
       await accountsApi.delete(deleteId);
       toast.success('Cuenta eliminada');
+      logger.info('account', 'Account deleted', { id: deleteId });
       setDeleteId(null);
       reload();
+    } catch (err) {
+      toast.error('No se pudo eliminar la cuenta');
+      logger.error('account', 'Failed to delete account', err, { id: deleteId });
     } finally {
       setDeleting(false);
     }
