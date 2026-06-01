@@ -3,6 +3,7 @@ import { Button } from '../components/ui/button';
 import { ErrorCard } from '../components/ui/ErrorCard';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { DebtCard } from '../features/debts/components/DebtCard';
+import { DebtEmpty } from '../features/debts/components/DebtEmpty';
 import { DebtForm } from '../features/debts/components/DebtForm';
 import { DebtPaymentModal } from '../features/debts/components/DebtPaymentModal';
 import { RecurringPaymentModal } from '../features/debts/components/RecurringPaymentModal';
@@ -102,12 +103,7 @@ export function DebtsPage() {
 
       {/* Debts List */}
       {allDebts.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-12 text-center">
-          <p className="text-gray-500">No tienes deudas registradas</p>
-          <Button onClick={handleOpenCreate} className="mt-4">
-            <Plus className="mr-2 h-4 w-4" /> Crear primera deuda
-          </Button>
-        </div>
+        <DebtEmpty onAction={handleOpenCreate} />
       ) : (
         <>
           {/* Overdue Debts */}

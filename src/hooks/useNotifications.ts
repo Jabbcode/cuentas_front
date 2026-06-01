@@ -72,10 +72,21 @@ export function useNotificationPreferences() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    notificationsApi
-      .getPreferences()
-      .then(setPreferences)
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const data = await notificationsApi.getPreferences();
+        if (!cancelled) setPreferences(data);
+      } catch {
+        // silent
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const update = useCallback(async (prefs: Partial<NotificationPreferences>) => {

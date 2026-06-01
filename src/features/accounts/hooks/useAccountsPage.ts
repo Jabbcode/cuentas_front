@@ -44,19 +44,25 @@ export function useAccountsPage(): UseAccountsPageReturn {
   useEffect(() => {
     const hasCreditCards = accounts.some((a) => a.type === 'credit_card');
     if (!hasCreditCards) return;
-
-    creditCardsApi
-      .getSummary()
-      .then((summary) => {
-        const map: Record<string, CreditCardStatement> = {};
-        for (const card of summary.cards) {
-          map[card.account.id] = card;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const summary = await creditCardsApi.getSummary();
+        if (!cancelled) {
+          const map: Record<string, CreditCardStatement> = {};
+          for (const card of summary.cards) {
+            map[card.account.id] = card;
+          }
+          setStatementsMap(map);
         }
-        setStatementsMap(map);
-      })
-      .catch(() => {
+      } catch {
         // Silently fail — balance fallback uses account data directly
-      });
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [accounts]);
 
   const { totalBalance, unpaidClosedTotal } = useMemo(

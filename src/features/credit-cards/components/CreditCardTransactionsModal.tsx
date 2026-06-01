@@ -29,30 +29,28 @@ export function CreditCardTransactionsModal({
   const [groupByCategory, setGroupByCategory] = useState(false);
 
   useEffect(() => {
-    if (open && statement) {
-      loadTransactions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!open || !statement) return;
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const response = await transactionsApi.getAll({
+          accountId: statement.account.id,
+          type: 'expense',
+          limit: 1000,
+        });
+        if (!cancelled) setAllTransactions(response.transactions);
+      } catch (err) {
+        console.error('Error loading transactions:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [open, statement]);
-
-  const loadTransactions = async () => {
-    if (!statement) return;
-
-    setLoading(true);
-    try {
-      const response = await transactionsApi.getAll({
-        accountId: statement.account.id,
-        type: 'expense', // Only expenses for credit cards
-        limit: 1000, // Get all transactions
-      });
-
-      setAllTransactions(response.transactions);
-    } catch (err) {
-      console.error('Error loading transactions:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Get unique categories from transactions
   const categories = useMemo(() => {
