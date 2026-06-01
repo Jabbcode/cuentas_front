@@ -11,7 +11,7 @@ export function useBudgetsPage(): UseBudgetsPageReturn {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
 
-  const { budgets, loading, reload } = useBudgets(month, year);
+  const { budgets, loading, reload, error: loadError } = useBudgets(month, year);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -137,5 +137,7 @@ export function useBudgetsPage(): UseBudgetsPageReturn {
     prevMonth,
     nextMonth,
     updateFormData,
+    reload,
+    loadError,
   };
 }

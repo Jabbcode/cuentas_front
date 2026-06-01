@@ -21,6 +21,7 @@ export interface UseTransactionsReturn {
   transactions: Transaction[];
   total: number;
   loading: boolean;
+  error: string | null;
   reload: () => void;
 }
 
@@ -28,15 +29,18 @@ export function useTransactions(params: UseTransactionsParams): UseTransactionsR
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const filters = buildTransactionApiFilters(params);
       const txData = await transactionsApi.getAll(filters);
       setTransactions(txData.transactions);
       setTotal(txData.total);
     } catch {
+      setError('Error al cargar las transacciones. Intenta de nuevo.');
       toast.error('No se pudieron cargar las transacciones');
     } finally {
       setLoading(false);
@@ -61,5 +65,5 @@ export function useTransactions(params: UseTransactionsParams): UseTransactionsR
 
   const reload = useCallback(() => loadData(), [loadData]);
 
-  return { transactions, total, loading, reload };
+  return { transactions, total, loading, error, reload };
 }

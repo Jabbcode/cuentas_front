@@ -14,7 +14,15 @@ import {
 import type { UseFixedExpensesPageReturn } from '../types';
 
 export function useFixedExpensesPage(): UseFixedExpensesPageReturn {
-  const { summary, loading, reload, payExpense, deleteExpense, toggleActive } = useFixedExpenses();
+  const {
+    summary,
+    loading,
+    reload,
+    error: loadError,
+    payExpense,
+    deleteExpense,
+    toggleActive,
+  } = useFixedExpenses();
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -139,5 +147,7 @@ export function useFixedExpensesPage(): UseFixedExpensesPageReturn {
     clearExpenseFilters,
     clearIncomeFilters,
     pendingAmount,
+    reload,
+    loadError,
   };
 }

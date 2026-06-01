@@ -12,7 +12,7 @@ import type {
 } from '../types';
 
 export function useCreditCardsPage(): UseCreditCardsPageReturn {
-  const { statements, accounts, loading, reload } = useCreditCards();
+  const { statements, accounts, loading, reload, error: loadError } = useCreditCards();
 
   const [paying, setPaying] = useState(false);
   const [collapsedCards, setCollapsedCards] = useState<Set<string>>(new Set());
@@ -128,5 +128,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
     handleCloseTransactions,
     handlePay,
     updatePaymentFormData,
+    reload,
+    loadError,
   };
 }

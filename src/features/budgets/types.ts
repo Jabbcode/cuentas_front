@@ -40,4 +40,6 @@ export interface UseBudgetsPageReturn {
   prevMonth: () => void;
   nextMonth: () => void;
   updateFormData: (data: Partial<BudgetFormData>) => void;
+  reload: () => void;
+  loadError: string | null;
 }

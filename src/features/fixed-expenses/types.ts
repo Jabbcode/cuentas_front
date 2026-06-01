@@ -54,4 +54,6 @@ export interface UseFixedExpensesPageReturn {
   toggleIncomeCategory: (categoryId: string) => void;
   clearExpenseFilters: () => void;
   clearIncomeFilters: () => void;
+  reload: () => void;
+  loadError: string | null;
 }

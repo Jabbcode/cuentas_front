@@ -75,4 +75,6 @@ export interface UseDebtsPageReturn {
   handleViewHistory: (debt: Debt) => void;
   handleSetPayingDebt: (debt: Debt) => void;
   toggleActive: (id: string, isActive: boolean) => Promise<void>;
+  reload: () => void;
+  loadError: string | null;
 }

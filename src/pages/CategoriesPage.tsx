@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { ErrorCard } from '../components/ui/ErrorCard';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { CategoryList } from '../features/categories/components/CategoryList';
 import { CategoryFormDialog } from '../features/categories/components/CategoryFormDialog';
@@ -23,6 +24,8 @@ export function CategoriesPage() {
     handleSubmit,
     handleDelete,
     setDeleteId,
+    reload,
+    loadError,
   } = useCategoriesPage();
 
   if (loading) {
@@ -31,6 +34,10 @@ export function CategoriesPage() {
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
+  }
+
+  if (loadError) {
+    return <ErrorCard message={loadError} onRetry={reload} />;
   }
 
   return (

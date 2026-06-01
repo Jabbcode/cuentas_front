@@ -41,4 +41,6 @@ export interface UseCategoriesPageReturn {
   handleSubmit: (e: React.FormEvent) => Promise<void>;
   handleDelete: () => Promise<void>;
   setDeleteId: (id: string | null) => void;
+  reload: () => void;
+  loadError: string | null;
 }
