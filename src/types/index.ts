@@ -51,25 +51,6 @@ export interface CategorySpending {
   isOverLimit: boolean;
 }
 
-export interface Tag {
-  id: string;
-  name: string;
-  createdAt?: string;
-  _count?: { transactions: number };
-}
-
-export interface TagSummary {
-  id: string;
-  name: string;
-  count: number;
-  totalExpenses: number;
-  totalIncome: number;
-}
-
-export interface TransactionTag {
-  tag: Pick<Tag, 'id' | 'name'>;
-}
-
 export interface ReceiptItem {
   id: string;
   transactionId: string;
@@ -94,7 +75,6 @@ export interface Transaction {
   account?: Pick<Account, 'id' | 'name' | 'color'>;
   category?: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;
   receiptItems?: ReceiptItem[];
-  tags?: TransactionTag[];
   _count?: {
     receiptItems: number;
   };
@@ -416,32 +396,6 @@ export interface CreateRecurringDebtPaymentInput {
   startDate?: string;
   endDate?: string;
   notes?: string;
-}
-
-// Budgets
-export interface Budget {
-  id: string;
-  categoryId: string;
-  category: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;
-  amount: number;
-  month: number;
-  year: number;
-  alertAt: number | null;
-  spent: number;
-  remaining: number;
-  percentage: number;
-  isOverBudget: boolean;
-  isNearLimit: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateBudgetInput {
-  categoryId: string;
-  amount: number;
-  month: number;
-  year: number;
-  alertAt?: number;
 }
 
 export interface UpdateRecurringDebtPaymentInput {

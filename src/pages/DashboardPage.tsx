@@ -9,7 +9,6 @@ import { FixedVsVariableChart } from '../features/dashboard';
 import { NextMonthProjection } from '../features/dashboard';
 import { CreditCardsSummaryCard } from '../features/dashboard';
 import { DebtsSummaryCard } from '../features/dashboard';
-import { BudgetDashboardWidget } from '../features/budgets/components/BudgetDashboardWidget';
 import { MonthComparisonCard } from '../features/dashboard';
 import { CategoryComparisonChart } from '../features/dashboard';
 
@@ -22,7 +21,6 @@ export function DashboardPage() {
     projection,
     creditCardsSummary,
     debtsSummary,
-    budgets,
     loading,
     reload,
   } = useDashboard();
@@ -71,8 +69,6 @@ export function DashboardPage() {
       {creditCardsSummary && <CreditCardsSummaryCard summary={creditCardsSummary} />}
 
       {debtsSummary && <DebtsSummaryCard summary={debtsSummary} />}
-
-      <BudgetDashboardWidget budgets={budgets} loading={loading} />
 
       {projection && <NextMonthProjection projection={projection} />}
 

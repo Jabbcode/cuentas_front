@@ -6,8 +6,7 @@ import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Select } from '../../../components/ui/select';
 import { CategoryIcon } from '../../../components/ui/category-icon';
-import { TagBadge } from './TagBadge';
-import type { Category, Account, Tag } from '../../../types';
+import type { Category, Account } from '../../../types';
 
 interface TransactionFiltersProps {
   startDate: string;
@@ -17,10 +16,8 @@ interface TransactionFiltersProps {
   minAmount: string;
   maxAmount: string;
   type: 'all' | 'expense' | 'income';
-  tag: string;
   categories: Category[];
   accounts: Account[];
-  availableTags?: Tag[];
   hasActiveFilters: boolean;
   onStartDateChange: (date: string) => void;
   onEndDateChange: (date: string) => void;
@@ -30,7 +27,6 @@ interface TransactionFiltersProps {
   onMinAmountChange: (amount: string) => void;
   onMaxAmountChange: (amount: string) => void;
   onTypeChange: (type: 'all' | 'expense' | 'income') => void;
-  onTagChange: (tag: string) => void;
   onClearFilters: () => void;
 }
 
@@ -42,10 +38,8 @@ export function TransactionFilters({
   minAmount,
   maxAmount,
   type,
-  tag,
   categories,
   accounts,
-  availableTags = [],
   hasActiveFilters,
   onStartDateChange,
   onEndDateChange,
@@ -55,22 +49,16 @@ export function TransactionFilters({
   onMinAmountChange,
   onMaxAmountChange,
   onTypeChange,
-  onTagChange,
   onClearFilters,
 }: TransactionFiltersProps) {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
-  const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const tagDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setCategoryDropdownOpen(false);
-      }
-      if (tagDropdownRef.current && !tagDropdownRef.current.contains(e.target as Node)) {
-        setTagDropdownOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -129,7 +117,6 @@ export function TransactionFilters({
       label: `Máx: $${maxAmount}`,
       onRemove: () => onMaxAmountChange(''),
     });
-  if (tag) chips.push({ key: 'tag', label: `#${tag}`, onRemove: () => onTagChange('') });
 
   return (
     <Card>
@@ -304,49 +291,6 @@ export function TransactionFilters({
               />
             </div>
           </div>
-
-          {availableTags.length > 0 && (
-            <div className="mt-4" ref={tagDropdownRef}>
-              <Label className="text-xs">Etiqueta</Label>
-              <div className="relative mt-1">
-                <button
-                  type="button"
-                  onClick={() => setTagDropdownOpen((prev) => !prev)}
-                  className="flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <span>{tag ? <TagBadge name={tag} /> : 'Todas las etiquetas'}</span>
-                  <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0 text-gray-400" />
-                </button>
-                {tagDropdownOpen && (
-                  <div className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onTagChange('');
-                        setTagDropdownOpen(false);
-                      }}
-                      className="flex w-full px-3 py-2 text-sm text-gray-500 hover:bg-gray-50"
-                    >
-                      Todas las etiquetas
-                    </button>
-                    {availableTags.map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => {
-                          onTagChange(t.name);
-                          setTagDropdownOpen(false);
-                        }}
-                        className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50"
-                      >
-                        <TagBadge name={t.name} active={t.name === tag} />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
         {/* fin bloque colapsable */}
 

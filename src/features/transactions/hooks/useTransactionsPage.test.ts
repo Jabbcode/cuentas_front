@@ -5,20 +5,11 @@ import React from 'react';
 import type { FormEvent } from 'react';
 import { useTransactionsPage } from './useTransactionsPage';
 
-const {
-  mockToastError,
-  mockApiCreate,
-  mockApiDelete,
-  mockReload,
-  mockReloadTags,
-  mockReloadTagSummary,
-} = vi.hoisted(() => ({
+const { mockToastError, mockApiCreate, mockApiDelete, mockReload } = vi.hoisted(() => ({
   mockToastError: vi.fn(),
   mockApiCreate: vi.fn(),
   mockApiDelete: vi.fn(),
   mockReload: vi.fn(),
-  mockReloadTags: vi.fn(),
-  mockReloadTagSummary: vi.fn(),
 }));
 
 vi.mock('sonner', () => ({
@@ -55,7 +46,6 @@ vi.mock('./useTransactionFilters', () => ({
       endDate: '',
       accountId: 'all',
       type: 'all',
-      tag: '',
       categoryIds: [],
       minAmount: '',
       maxAmount: '',
@@ -69,7 +59,6 @@ vi.mock('./useTransactionFilters', () => ({
     setMinAmount: vi.fn(),
     setMaxAmount: vi.fn(),
     setType: vi.fn(),
-    setTag: vi.fn(),
     clearFilters: vi.fn(),
   })),
 }));
@@ -100,11 +89,6 @@ vi.mock('../../accounts/hooks/useAccounts', () => ({
 
 vi.mock('../../categories/hooks/useCategories', () => ({
   useCategories: vi.fn(() => ({ categories: [], loading: false, error: null, reload: vi.fn() })),
-}));
-
-vi.mock('../../../hooks/useTags', () => ({
-  useTags: vi.fn(() => ({ tags: [], reload: mockReloadTags })),
-  useTagsSummary: vi.fn(() => ({ summary: [], loading: false, reload: mockReloadTagSummary })),
 }));
 
 vi.mock('../../../lib/credit-card-utils', () => ({

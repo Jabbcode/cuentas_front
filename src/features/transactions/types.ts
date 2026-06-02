@@ -9,7 +9,6 @@ export interface TransactionFormData {
   accountId: string;
   categoryId: string;
   imageHash: string | undefined;
-  tagNames: string[];
   receiptItems: TransactionReceiptItemInput[];
 }
 
@@ -29,7 +28,6 @@ export interface TransactionFilterState {
   maxAmount: string;
   type: 'all' | 'expense' | 'income';
   groupByCategory: boolean;
-  tag: string;
 }
 
 export interface TransactionPaginationState {
@@ -42,7 +40,6 @@ export interface TransactionEditInput {
   categoryId: string;
   date: string;
   amount: string;
-  tagNames: string[];
 }
 
 export type DateWarning = {

@@ -14,7 +14,6 @@ import { CategoriesPage } from './pages/CategoriesPage';
 import { CreditCardsPage } from './pages/CreditCardsPage';
 import { DebtsPage } from './pages/DebtsPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { BudgetsPage } from './pages/BudgetsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,7 +46,6 @@ function App() {
               <Route path="/fixed-expenses" element={<FixedExpensesPage />} />
               <Route path="/credit-cards" element={<CreditCardsPage />} />
               <Route path="/debts" element={<DebtsPage />} />
-              <Route path="/budgets" element={<BudgetsPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>

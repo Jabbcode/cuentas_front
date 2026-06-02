@@ -1,4 +1,4 @@
-import { Plus, Camera, Tag, BarChart3 } from 'lucide-react';
+import { Plus, Camera, BarChart3 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { ErrorCard } from '../components/ui/ErrorCard';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
@@ -8,7 +8,6 @@ import {
   TransactionFilters,
   TransactionList,
   TransactionPagination,
-  TagSummaryView,
   EditTransactionModal,
   ReceiptScanner,
 } from '../features/transactions';
@@ -49,14 +48,6 @@ export function TransactionsPage() {
             <BarChart3 className="mr-2 h-4 w-4" /> Resumen por categoría
           </Button>
           <Button
-            variant={page.showTagSummary ? 'default' : 'outline'}
-            onClick={() => page.setShowTagSummary(!page.showTagSummary)}
-            className="w-full md:w-auto"
-          >
-            <Tag className="mr-2 h-4 w-4" />
-            {page.showTagSummary ? 'Ver lista' : 'Resumen por tags'}
-          </Button>
-          <Button
             variant="outline"
             onClick={() => page.setShowScanner(true)}
             className="w-full md:w-auto"
@@ -78,10 +69,8 @@ export function TransactionsPage() {
         minAmount={page.filters.minAmount}
         maxAmount={page.filters.maxAmount}
         type={page.filters.type}
-        tag={page.filters.tag}
         categories={page.categories}
         accounts={page.accounts}
-        availableTags={page.availableTags}
         hasActiveFilters={page.hasActiveFilters}
         onStartDateChange={page.setStartDate}
         onEndDateChange={page.setEndDate}
@@ -91,39 +80,22 @@ export function TransactionsPage() {
         onMinAmountChange={page.setMinAmount}
         onMaxAmountChange={page.setMaxAmount}
         onTypeChange={page.setType}
-        onTagChange={page.setTag}
         onClearFilters={page.clearFilters}
       />
 
-      {/* Tag Summary View */}
-      {page.showTagSummary && (
-        <TagSummaryView
-          summary={page.tagSummary}
-          loading={page.tagSummaryLoading}
-          onTagClick={(tagName) => {
-            page.setShowTagSummary(false);
-            page.setTag(tagName);
-          }}
-          onDeleted={page.reloadTagSummary}
-        />
-      )}
-
       {/* Transactions list */}
-      {!page.showTagSummary && (
-        <TransactionList
-          transactions={page.filteredTransactions}
-          accounts={page.accounts}
-          onDelete={page.setDeleteId}
-          onEdit={page.handleEdit}
-          onViewItems={page.handleViewItems}
-          loadingItemsId={page.loadingItemsId}
-          onCreateClick={page.handleOpenForm}
-        />
-      )}
+      <TransactionList
+        transactions={page.filteredTransactions}
+        accounts={page.accounts}
+        onDelete={page.setDeleteId}
+        onEdit={page.handleEdit}
+        onViewItems={page.handleViewItems}
+        loadingItemsId={page.loadingItemsId}
+        onCreateClick={page.handleOpenForm}
+      />
 
       {/* Pagination */}
-      {!page.showTagSummary &&
-        page.total > page.itemsPerPage &&
+      {page.total > page.itemsPerPage &&
         (page.filteredTransactions.length >= page.itemsPerPage || page.currentPage > 1) && (
           <TransactionPagination
             currentPage={page.currentPage}
@@ -145,7 +117,6 @@ export function TransactionsPage() {
         formData={page.formData}
         filteredCategories={page.filteredCategories}
         accounts={page.accounts}
-        availableTags={page.availableTags}
         dateWarning={page.dateWarning}
         saving={page.saving}
         onTypeChange={page.handleTypeChange}
@@ -174,7 +145,6 @@ export function TransactionsPage() {
             ? (page.accounts.find((a) => a.id === page.editingTransaction!.accountId) ?? null)
             : null
         }
-        availableTags={page.availableTags}
         onClose={() => page.setEditingTransaction(null)}
         onSave={page.handleSaveEdit}
       />
