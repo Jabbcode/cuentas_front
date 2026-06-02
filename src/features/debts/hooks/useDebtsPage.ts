@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '../../../lib/logger';
 import { useDebts } from './useDebts';
 import { useRecurringDebtPayments } from './useRecurringDebtPayments';
@@ -8,6 +9,7 @@ import type { Debt, RecurringDebtPayment } from '../../../types';
 import type { UseDebtsPageReturn } from '../types';
 
 export function useDebtsPage(): UseDebtsPageReturn {
+  const queryClient = useQueryClient();
   const { debts, loading, reload, error: loadError, deleteDebt, payDebt } = useDebts();
   const {
     recurringPayments,
@@ -55,8 +57,8 @@ export function useDebtsPage(): UseDebtsPageReturn {
   const handleFormSuccess = useCallback(() => {
     setShowForm(false);
     setEditingDebt(undefined);
-    reload();
-  }, [reload]);
+    void queryClient.invalidateQueries({ queryKey: ['debts'] });
+  }, [queryClient]);
 
   // Pay handlers
   const handlePay = useCallback(

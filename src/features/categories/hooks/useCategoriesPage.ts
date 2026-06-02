@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { categoriesApi } from '../api';
 import { useCategories } from './useCategories';
 import {
@@ -13,6 +14,7 @@ import type { Category } from '../../../types';
 import type { CategoryFormData, UseCategoriesPageReturn } from '../types';
 
 export function useCategoriesPage(): UseCategoriesPageReturn {
+  const queryClient = useQueryClient();
   const { categories, loading, reload, error: loadError } = useCategories();
 
   const [showForm, setShowForm] = useState(false);
@@ -68,7 +70,7 @@ export function useCategoriesPage(): UseCategoriesPageReturn {
           logger.info('category', 'Category created', { name: formData.name });
         }
         setShowForm(false);
-        reload();
+        await queryClient.invalidateQueries({ queryKey: ['categories'] });
       } catch (err) {
         toast.error('No se pudo guardar la categoría');
         logger.error('category', 'Failed to save category', err, { name: formData.name });
@@ -76,7 +78,7 @@ export function useCategoriesPage(): UseCategoriesPageReturn {
         setSaving(false);
       }
     },
-    [formData, editingCategory, reload]
+    [formData, editingCategory, queryClient]
   );
 
   const handleDelete = useCallback(async () => {
@@ -86,7 +88,7 @@ export function useCategoriesPage(): UseCategoriesPageReturn {
       await categoriesApi.delete(deleteId);
       logger.info('category', 'Category deleted', { id: deleteId });
       setDeleteId(null);
-      reload();
+      await queryClient.invalidateQueries({ queryKey: ['categories'] });
     } catch (err: unknown) {
       setDeleteId(null);
       logger.error('category', 'Failed to delete category', err, { id: deleteId });
@@ -96,7 +98,7 @@ export function useCategoriesPage(): UseCategoriesPageReturn {
     } finally {
       setDeleting(false);
     }
-  }, [deleteId, reload]);
+  }, [deleteId, queryClient]);
 
   return {
     categories,

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '../api';
 import { getPrevMonth, calcDiffPct, mergeCategories } from '../utils';
 import type { MonthComparison } from '../../../types';
@@ -8,21 +9,17 @@ export function useMonthComparison(): UseMonthComparisonReturn {
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
-  const [comparison, setComparison] = useState<MonthComparison | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
+  const query = useQuery<MonthComparison, Error>({
+    queryKey: ['month-comparison', selectedMonth, selectedYear],
+    queryFn: async () => {
       const prev = getPrevMonth(selectedMonth, selectedYear);
       const [current, previous] = await Promise.all([
         dashboardApi.getMonthlySummary(selectedMonth, selectedYear),
         dashboardApi.getMonthlySummary(prev.month, prev.year),
       ]);
 
-      setComparison({
+      return {
         currentMonth: current,
         previousMonth: previous,
         expensesDiff: current.totalExpenses - previous.totalExpenses,
@@ -31,17 +28,9 @@ export function useMonthComparison(): UseMonthComparisonReturn {
         incomeDiffPercentage: calcDiffPct(current.totalIncome, previous.totalIncome),
         netDiff: current.net - previous.net,
         categories: mergeCategories(current, previous),
-      });
-    } catch {
-      setError('Error cargando comparativa');
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedMonth, selectedYear]);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+      };
+    },
+  });
 
   const goToPrevMonth = useCallback(() => {
     const prev = getPrevMonth(selectedMonth, selectedYear);
@@ -61,14 +50,16 @@ export function useMonthComparison(): UseMonthComparisonReturn {
   const isCurrentMonth = selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear();
 
   return {
-    comparison,
-    loading,
-    error,
+    comparison: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error?.message ?? null,
     selectedMonth,
     selectedYear,
     goToPrevMonth,
     goToNextMonth,
     isCurrentMonth,
-    reload: loadData,
+    reload: () => {
+      void query.refetch();
+    },
   };
 }

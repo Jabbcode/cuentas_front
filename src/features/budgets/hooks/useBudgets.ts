@@ -1,29 +1,26 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { budgetsApi } from '../api';
 import type { Budget } from '../../../types';
 import type { UseBudgetsReturn } from '../types';
 
 export function useBudgets(month: number, year: number): UseBudgetsReturn {
-  const [budgets, setBudgets] = useState<Budget[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const query = useQuery<Budget[], Error>({
+    queryKey: ['budgets', month, year],
+    queryFn: async () => {
+      try {
+        return await budgetsApi.getAll(month, year);
+      } catch (err) {
+        throw err instanceof Error ? err : new Error('Error desconocido');
+      }
+    },
+  });
 
-  const loadBudgets = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await budgetsApi.getAll(month, year);
-      setBudgets(data);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
-    } finally {
-      setLoading(false);
-    }
-  }, [month, year]);
-
-  useEffect(() => {
-    loadBudgets();
-  }, [loadBudgets]);
-
-  return { budgets, loading, error, reload: loadBudgets };
+  return {
+    budgets: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error?.message ?? null,
+    reload: () => {
+      void query.refetch();
+    },
+  };
 }
