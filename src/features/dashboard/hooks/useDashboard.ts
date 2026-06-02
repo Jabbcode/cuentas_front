@@ -3,7 +3,6 @@ import { dashboardApi } from '../api';
 import { fixedExpensesApi } from '../../fixed-expenses';
 import { creditCardsApi } from '../../credit-cards/api';
 import { debtsApi } from '../../debts/api';
-import { budgetsApi } from '../../budgets/api';
 import type {
   DashboardSummary,
   CategorySummary,
@@ -12,7 +11,6 @@ import type {
   ProjectionData,
   CreditCardsSummary,
   DebtsSummary,
-  Budget,
 } from '../../../types';
 import type { UseDashboardReturn } from '../types';
 
@@ -24,15 +22,13 @@ interface DashboardData {
   projection: ProjectionData;
   creditCardsSummary: CreditCardsSummary;
   debtsSummary: DebtsSummary;
-  budgets: Budget[];
 }
 
 export function useDashboard(): UseDashboardReturn {
   const query = useQuery<DashboardData, Error>({
     queryKey: ['dashboard'],
     queryFn: async () => {
-      const now = new Date();
-      const [sum, cat, fixed, fvv, proj, ccSummary, debtSum, budgetList] = await Promise.all([
+      const [sum, cat, fixed, fvv, proj, ccSummary, debtSum] = await Promise.all([
         dashboardApi.getSummary(),
         dashboardApi.getByCategory('expense'),
         fixedExpensesApi.getSummary(),
@@ -52,7 +48,6 @@ export function useDashboard(): UseDashboardReturn {
           debtsDueSoon: 0,
           upcomingDebts: [],
         })),
-        budgetsApi.getAll(now.getMonth() + 1, now.getFullYear()).catch(() => [] as Budget[]),
       ]);
 
       return {
@@ -63,7 +58,6 @@ export function useDashboard(): UseDashboardReturn {
         projection: proj,
         creditCardsSummary: ccSummary,
         debtsSummary: debtSum,
-        budgets: budgetList,
       };
     },
   });
@@ -76,7 +70,6 @@ export function useDashboard(): UseDashboardReturn {
     projection: query.data?.projection ?? null,
     creditCardsSummary: query.data?.creditCardsSummary ?? null,
     debtsSummary: query.data?.debtsSummary ?? null,
-    budgets: query.data?.budgets ?? [],
     loading: query.isLoading,
     reload: () => {
       void query.refetch();

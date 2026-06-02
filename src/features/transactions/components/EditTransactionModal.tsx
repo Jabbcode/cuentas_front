@@ -14,9 +14,8 @@ import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { CategorySelect } from '../../../components/ui/category-select';
-import { TagInput } from './TagInput';
 import { formatCurrency } from '../../../lib/utils';
-import type { Transaction, Category, Account, Tag } from '../../../types';
+import type { Transaction, Category, Account } from '../../../types';
 
 const editTransactionSchema = z.object({
   description: z.string().optional(),
@@ -35,9 +34,8 @@ interface EditTransactionModalProps {
   transaction: Transaction | null;
   categories: Category[];
   account: Account | null;
-  availableTags?: Tag[];
   onClose: () => void;
-  onSave: (id: string, data: EditTransactionInput & { tagNames: string[] }) => Promise<void>;
+  onSave: (id: string, data: EditTransactionInput) => Promise<void>;
 }
 
 export function EditTransactionModal({
@@ -45,13 +43,11 @@ export function EditTransactionModal({
   transaction,
   categories,
   account,
-  availableTags = [],
   onClose,
   onSave,
 }: EditTransactionModalProps) {
   const [saving, setSaving] = useState(false);
   const [showAmountWarning, setShowAmountWarning] = useState(false);
-  const [tagNames, setTagNames] = useState<string[]>([]);
 
   const {
     register,
@@ -74,7 +70,6 @@ export function EditTransactionModal({
         date: new Date(transaction.date).toISOString().split('T')[0],
         amount: transaction.amount.toString(),
       });
-      setTagNames(transaction.tags?.map((tt) => tt.tag.name) ?? []);
       setShowAmountWarning(false);
     }
   }, [transaction, reset]);
@@ -91,7 +86,7 @@ export function EditTransactionModal({
     if (!transaction) return;
     setSaving(true);
     try {
-      await onSave(transaction.id, { ...data, tagNames });
+      await onSave(transaction.id, data);
       onClose();
     } catch (err) {
       console.error('Error saving transaction:', err);
@@ -188,11 +183,6 @@ export function EditTransactionModal({
                 </div>
               </div>
             )}
-          </div>
-
-          <div>
-            <Label>Etiquetas (opcional)</Label>
-            <TagInput value={tagNames} onChange={setTagNames} suggestions={availableTags} />
           </div>
 
           <div className="pt-3 border-t">

@@ -10,7 +10,6 @@ export interface TransactionApiFilters {
   type?: 'expense' | 'income';
   limit?: number;
   offset?: number;
-  tag?: string;
   minAmount?: number;
   maxAmount?: number;
 }
@@ -24,7 +23,6 @@ export interface CreateTransactionInput {
   categoryId: string;
   fixedExpenseId?: string;
   imageHash?: string;
-  tagNames?: string[];
   receiptItems?: TransactionReceiptItemInput[];
 }
 
@@ -33,7 +31,6 @@ export interface UpdateTransactionInput {
   categoryId?: string;
   date?: string;
   amount?: number;
-  tagNames?: string[];
 }
 
 export interface TransactionSummaryFilters {

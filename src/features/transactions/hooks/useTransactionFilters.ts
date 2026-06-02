@@ -8,7 +8,6 @@ export interface TransactionFilters {
   minAmount: string;
   maxAmount: string;
   type: 'all' | 'expense' | 'income';
-  tag: string;
 }
 
 export function useTransactionFilters(onFilterChange?: () => void) {
@@ -20,7 +19,6 @@ export function useTransactionFilters(onFilterChange?: () => void) {
     minAmount: '',
     maxAmount: '',
     type: 'all',
-    tag: '',
   });
 
   const setStartDate = useCallback(
@@ -90,14 +88,6 @@ export function useTransactionFilters(onFilterChange?: () => void) {
     [onFilterChange]
   );
 
-  const setTag = useCallback(
-    (tag: string) => {
-      setFilters((prev) => ({ ...prev, tag }));
-      onFilterChange?.();
-    },
-    [onFilterChange]
-  );
-
   const clearFilters = useCallback(() => {
     setFilters({
       startDate: '',
@@ -107,7 +97,6 @@ export function useTransactionFilters(onFilterChange?: () => void) {
       minAmount: '',
       maxAmount: '',
       type: 'all',
-      tag: '',
     });
     onFilterChange?.();
   }, [onFilterChange]);
@@ -119,8 +108,7 @@ export function useTransactionFilters(onFilterChange?: () => void) {
     filters.accountId !== 'all' ||
     filters.minAmount !== '' ||
     filters.maxAmount !== '' ||
-    filters.type !== 'all' ||
-    filters.tag !== '';
+    filters.type !== 'all';
 
   return {
     filters,
@@ -132,7 +120,6 @@ export function useTransactionFilters(onFilterChange?: () => void) {
     setMinAmount,
     setMaxAmount,
     setType,
-    setTag,
     clearFilters,
     hasActiveFilters,
   };
