@@ -73,7 +73,7 @@ export function MonthlyTrendChart({ data, loading = false }: MonthlyTrendChartPr
               }
               tick={{ fontSize: 11 }}
             />
-            <Tooltip formatter={(value: number) => formatCurrency(value)} />
+            <Tooltip formatter={(value) => formatCurrency(Number(value))} />
             <Legend />
             <Bar dataKey="Ingresos" fill="#16a34a" radius={[3, 3, 0, 0]} />
             <Bar dataKey="Gastos" fill="#dc2626" radius={[3, 3, 0, 0]} />
