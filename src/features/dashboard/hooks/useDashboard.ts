@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { dashboardApi } from '../api';
 import { fixedExpensesApi } from '../../fixed-expenses';
 import { creditCardsApi } from '../../credit-cards/api';
@@ -16,21 +16,22 @@ import type {
 } from '../../../types';
 import type { UseDashboardReturn } from '../types';
 
-export function useDashboard(): UseDashboardReturn {
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [byCategory, setByCategory] = useState<CategorySummary[]>([]);
-  const [fixedSummary, setFixedSummary] = useState<FixedExpenseSummary | null>(null);
-  const [fixedVsVariable, setFixedVsVariable] = useState<FixedVsVariable | null>(null);
-  const [projection, setProjection] = useState<ProjectionData | null>(null);
-  const [creditCardsSummary, setCreditCardsSummary] = useState<CreditCardsSummary | null>(null);
-  const [debtsSummary, setDebtsSummary] = useState<DebtsSummary | null>(null);
-  const [budgets, setBudgets] = useState<Budget[]>([]);
-  const [loading, setLoading] = useState(true);
+interface DashboardData {
+  summary: DashboardSummary;
+  byCategory: CategorySummary[];
+  fixedSummary: FixedExpenseSummary;
+  fixedVsVariable: FixedVsVariable;
+  projection: ProjectionData;
+  creditCardsSummary: CreditCardsSummary;
+  debtsSummary: DebtsSummary;
+  budgets: Budget[];
+}
 
-  const loadData = useCallback(async () => {
-    const now = new Date();
-    setLoading(true);
-    try {
+export function useDashboard(): UseDashboardReturn {
+  const query = useQuery<DashboardData, Error>({
+    queryKey: ['dashboard'],
+    queryFn: async () => {
+      const now = new Date();
       const [sum, cat, fixed, fvv, proj, ccSummary, debtSum, budgetList] = await Promise.all([
         dashboardApi.getSummary(),
         dashboardApi.getByCategory('expense'),
@@ -54,50 +55,31 @@ export function useDashboard(): UseDashboardReturn {
         budgetsApi.getAll(now.getMonth() + 1, now.getFullYear()).catch(() => [] as Budget[]),
       ]);
 
-      setSummary(sum);
-      setByCategory(cat);
-      setFixedSummary(fixed);
-      setFixedVsVariable(fvv);
-      setProjection(proj);
-      setCreditCardsSummary(ccSummary);
-      setDebtsSummary(debtSum);
-      setBudgets(budgetList);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-
-    // Reload when tab becomes visible (user returns to the page)
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        loadData();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [loadData]);
-
-  const reload = useCallback(() => {
-    loadData();
-  }, [loadData]);
+      return {
+        summary: sum,
+        byCategory: cat,
+        fixedSummary: fixed,
+        fixedVsVariable: fvv,
+        projection: proj,
+        creditCardsSummary: ccSummary,
+        debtsSummary: debtSum,
+        budgets: budgetList,
+      };
+    },
+  });
 
   return {
-    summary,
-    byCategory,
-    fixedSummary,
-    fixedVsVariable,
-    projection,
-    creditCardsSummary,
-    debtsSummary,
-    budgets,
-    loading,
-    reload,
+    summary: query.data?.summary ?? null,
+    byCategory: query.data?.byCategory ?? [],
+    fixedSummary: query.data?.fixedSummary ?? null,
+    fixedVsVariable: query.data?.fixedVsVariable ?? null,
+    projection: query.data?.projection ?? null,
+    creditCardsSummary: query.data?.creditCardsSummary ?? null,
+    debtsSummary: query.data?.debtsSummary ?? null,
+    budgets: query.data?.budgets ?? [],
+    loading: query.isLoading,
+    reload: () => {
+      void query.refetch();
+    },
   };
 }

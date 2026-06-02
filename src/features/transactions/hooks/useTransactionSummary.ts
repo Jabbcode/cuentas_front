@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { transactionsApi } from '../api';
 import { toast } from 'sonner';
 import type { TransactionCategorySummaryItem, TransactionSummaryFilters } from '../api';
@@ -13,28 +13,24 @@ export function useTransactionSummary(
   filters: TransactionSummaryFilters,
   enabled: boolean = true
 ): UseTransactionSummaryReturn {
-  const [summary, setSummary] = useState<TransactionCategorySummaryItem[]>([]);
-  const [loading, setLoading] = useState(false);
+  const query = useQuery<TransactionCategorySummaryItem[], Error>({
+    queryKey: ['transaction-summary', filters],
+    queryFn: async () => {
+      try {
+        return await transactionsApi.getSummary(filters);
+      } catch {
+        toast.error('No se pudo cargar el resumen de transacciones');
+        throw new Error('Error al cargar el resumen de transacciones');
+      }
+    },
+    enabled,
+  });
 
-  const load = useCallback(async () => {
-    if (!enabled) return;
-    setLoading(true);
-    try {
-      const data = await transactionsApi.getSummary(filters);
-      setSummary(data);
-    } catch {
-      toast.error('No se pudo cargar el resumen de transacciones');
-    } finally {
-      setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, filters.startDate, filters.endDate, filters.accountId, filters.type]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const reload = useCallback(() => load(), [load]);
-
-  return { summary, loading, reload };
+  return {
+    summary: query.data ?? [],
+    loading: query.isLoading,
+    reload: () => {
+      void query.refetch();
+    },
+  };
 }

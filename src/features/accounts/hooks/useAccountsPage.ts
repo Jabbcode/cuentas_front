@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { accountsApi } from '../api';
 import { useAccounts } from './useAccounts';
 import { groupAccountsByType, buildAccountPayload, calculateBalanceTotals } from '../utils';
@@ -33,6 +34,7 @@ const DEFAULT_EXPANDED_SECTIONS: ExpandedSections = {
 export function useAccountsPage({
   fetchSummary,
 }: UseAccountsPageOptions = {}): UseAccountsPageReturn {
+  const queryClient = useQueryClient();
   const { accounts, loading, reload, error: loadError } = useAccounts();
 
   const [statementsMap, setStatementsMap] = useState<Record<string, CreditCardStatement>>({});
@@ -120,7 +122,7 @@ export function useAccountsPage({
           logger.info('account', 'Account created', { name: formData.name });
         }
         setShowForm(false);
-        reload();
+        await queryClient.invalidateQueries({ queryKey: ['accounts'] });
       } catch (err) {
         toast.error('No se pudo guardar la cuenta');
         logger.error('account', 'Failed to save account', err, { name: formData.name });
@@ -128,7 +130,7 @@ export function useAccountsPage({
         setSaving(false);
       }
     },
-    [formData, editingAccount, reload]
+    [formData, editingAccount, queryClient]
   );
 
   const handleDelete = useCallback(async () => {
@@ -139,14 +141,14 @@ export function useAccountsPage({
       toast.success('Cuenta eliminada');
       logger.info('account', 'Account deleted', { id: deleteId });
       setDeleteId(null);
-      reload();
+      await queryClient.invalidateQueries({ queryKey: ['accounts'] });
     } catch (err) {
       toast.error('No se pudo eliminar la cuenta');
       logger.error('account', 'Failed to delete account', err, { id: deleteId });
     } finally {
       setDeleting(false);
     }
-  }, [deleteId, reload]);
+  }, [deleteId, queryClient]);
 
   const toggleSection = useCallback((type: Account['type']) => {
     setExpandedSections((prev) => ({ ...prev, [type]: !prev[type] }));

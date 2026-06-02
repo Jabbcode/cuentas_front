@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { transactionsApi } from '../api';
 import { useTransactions } from './useTransactions';
 import { useTransactionFilters } from './useTransactionFilters';
@@ -101,6 +102,8 @@ export interface UseTransactionsPageReturn {
 }
 
 export function useTransactionsPage(): UseTransactionsPageReturn {
+  const queryClient = useQueryClient();
+
   // 1. Pagination — decoupled
   const pagination = usePagination(ITEMS_PER_PAGE);
 
@@ -253,7 +256,7 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
         handleCloseForm();
         reloadTags();
         reloadTagSummary();
-        reload();
+        await queryClient.invalidateQueries({ queryKey: ['transactions'] });
       } catch (err) {
         toast.error('No se pudo guardar la transacción');
         logger.error('transaction', 'Failed to create transaction', err);
@@ -261,7 +264,7 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
         setSaving(false);
       }
     },
-    [formData, handleCloseForm, reload, reloadTags, reloadTagSummary]
+    [formData, handleCloseForm, queryClient, reloadTags, reloadTagSummary]
   );
 
   const handleScannedReceipt = useCallback(
@@ -311,13 +314,13 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
         setEditingTransaction(null);
         reloadTags();
         reloadTagSummary();
-        reload();
+        await queryClient.invalidateQueries({ queryKey: ['transactions'] });
       } catch (err) {
         toast.error('No se pudo actualizar la transacción');
         logger.error('transaction', 'Failed to update transaction', err, { id });
       }
     },
-    [reload, reloadTags, reloadTagSummary]
+    [queryClient, reloadTags, reloadTagSummary]
   );
 
   const handleDelete = useCallback(async () => {
@@ -327,14 +330,14 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
       await transactionsApi.delete(deleteId);
       logger.info('transaction', 'Transaction deleted', { id: deleteId });
       setDeleteId(null);
-      reload();
+      await queryClient.invalidateQueries({ queryKey: ['transactions'] });
     } catch (err) {
       toast.error('No se pudo eliminar la transacción');
       logger.error('transaction', 'Failed to delete transaction', err, { id: deleteId });
     } finally {
       setDeleting(false);
     }
-  }, [deleteId, reload]);
+  }, [deleteId, queryClient]);
 
   const handleViewItems = useCallback(async (transaction: Transaction) => {
     if (transaction.receiptItems && transaction.receiptItems.length > 0) {

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../../context/AuthContext';
 import { settingsApi } from '../api';
 import type { UserProfile, AccountStatistics } from '../api';
@@ -13,10 +14,14 @@ import { extractApiError } from '../utils';
 
 const MESSAGE_TIMEOUT_MS = 5000;
 
+interface SettingsData {
+  profile: UserProfile;
+  statistics: AccountStatistics;
+}
+
 export function useSettings(): UseSettingsReturn {
   const { logout } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [statistics, setStatistics] = useState<AccountStatistics | null>(null);
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<FeedbackMessage | null>(null);
 
@@ -25,32 +30,26 @@ export function useSettings(): UseSettingsReturn {
     setTimeout(() => setMessage(null), MESSAGE_TIMEOUT_MS);
   }, []);
 
-  const loadData = useCallback(async () => {
-    try {
+  const query = useQuery<SettingsData, Error>({
+    queryKey: ['settings'],
+    queryFn: async () => {
       const [profileData, statsData] = await Promise.all([
         settingsApi.getProfile(),
         settingsApi.getStatistics(),
       ]);
-      setProfile(profileData);
-      setStatistics(statsData);
-    } catch (err: unknown) {
-      showMessage('error', extractApiError(err, 'Error loading data'));
-    }
-  }, [showMessage]);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+      return { profile: profileData, statistics: statsData };
+    },
+  });
 
   const handleUpdateProfile = useCallback(
     async (formData: ProfileFormState) => {
       setIsLoading(true);
       try {
-        const updatedProfile = await settingsApi.updateProfile({
-          ...(formData.name !== profile?.name && { name: formData.name }),
-          ...(formData.email !== profile?.email && { email: formData.email }),
+        await settingsApi.updateProfile({
+          ...(formData.name !== query.data?.profile.name && { name: formData.name }),
+          ...(formData.email !== query.data?.profile.email && { email: formData.email }),
         });
-        setProfile(updatedProfile);
+        await queryClient.invalidateQueries({ queryKey: ['settings'] });
         showMessage('success', 'Profile updated successfully');
       } catch (err: unknown) {
         showMessage('error', extractApiError(err, 'Error updating profile'));
@@ -58,7 +57,7 @@ export function useSettings(): UseSettingsReturn {
         setIsLoading(false);
       }
     },
-    [profile, showMessage]
+    [query.data?.profile, queryClient, showMessage]
   );
 
   const handleChangePassword = useCallback(
@@ -110,8 +109,8 @@ export function useSettings(): UseSettingsReturn {
   );
 
   return {
-    profile,
-    statistics,
+    profile: query.data?.profile ?? null,
+    statistics: query.data?.statistics ?? null,
     isLoading,
     message,
     handleUpdateProfile,
