@@ -12,7 +12,6 @@ export interface UseTransactionsParams {
   endDate?: string;
   accountId?: string;
   type?: 'all' | 'expense' | 'income';
-  tag?: string;
   categoryIds?: string[];
   minAmount?: string;
   maxAmount?: string;
@@ -36,7 +35,6 @@ export function useTransactions(params: UseTransactionsParams): UseTransactionsR
       params.endDate,
       params.accountId,
       params.type,
-      params.tag,
       params.categoryIds?.join(','),
       params.minAmount,
       params.maxAmount,

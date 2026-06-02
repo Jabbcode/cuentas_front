@@ -7,7 +7,6 @@ import { useTransactionSummary } from './useTransactionSummary';
 import { usePagination } from '../../../hooks/usePagination';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useCategories } from '../../categories/hooks/useCategories';
-import { useTags, useTagsSummary } from '../../../hooks/useTags';
 import { toast } from 'sonner';
 import { getClosedPeriodWarning } from '../../../lib/credit-card-utils';
 import { logger } from '../../../lib/logger';
@@ -26,13 +25,10 @@ export interface UseTransactionsPageReturn {
   total: number;
   accounts: ReturnType<typeof useAccounts>['accounts'];
   categories: ReturnType<typeof useCategories>['categories'];
-  availableTags: ReturnType<typeof useTags>['tags'];
-  tagSummary: ReturnType<typeof useTagsSummary>['summary'];
   categorySummary: TransactionCategorySummaryItem[];
 
   // Loading states
   loading: boolean;
-  tagSummaryLoading: boolean;
   categorySummaryLoading: boolean;
   saving: boolean;
   deleting: boolean;
@@ -41,7 +37,6 @@ export interface UseTransactionsPageReturn {
   // UI state
   showForm: boolean;
   showScanner: boolean;
-  showTagSummary: boolean;
   showCategorySummary: boolean;
   deleteId: string | null;
   editingTransaction: Transaction | null;
@@ -71,7 +66,6 @@ export interface UseTransactionsPageReturn {
   setMinAmount: (amount: string) => void;
   setMaxAmount: (amount: string) => void;
   setType: (type: 'all' | 'expense' | 'income') => void;
-  setTag: (tag: string) => void;
   clearFilters: () => void;
 
   // Handlers — pagination
@@ -93,10 +87,8 @@ export interface UseTransactionsPageReturn {
   // Handlers — ui toggles
   setDeleteId: (id: string | null) => void;
   setShowScanner: (show: boolean) => void;
-  setShowTagSummary: (show: boolean) => void;
   setEditingTransaction: (tx: Transaction | null) => void;
   setViewingItems: (tx: Transaction | null) => void;
-  reloadTagSummary: () => void;
   reload: () => void;
   loadError: string | null;
 }
@@ -124,7 +116,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     endDate: filterHook.filters.endDate || undefined,
     accountId: filterHook.filters.accountId !== 'all' ? filterHook.filters.accountId : undefined,
     type: filterHook.filters.type,
-    tag: filterHook.filters.tag || undefined,
     categoryIds:
       filterHook.filters.categoryIds.length > 0 ? filterHook.filters.categoryIds : undefined,
     minAmount: filterHook.filters.minAmount || undefined,
@@ -135,15 +126,7 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
   const { accounts } = useAccounts();
   const { categories } = useCategories();
 
-  // 5. Tags — unchanged
-  const { tags: availableTags, reload: reloadTags } = useTags();
-  const {
-    summary: tagSummary,
-    loading: tagSummaryLoading,
-    reload: reloadTagSummary,
-  } = useTagsSummary();
-
-  // 6. Category summary — only fetched when modal is open
+  // 5. Category summary — only fetched when modal is open
   const [showCategorySummary, setShowCategorySummary] = useState(false);
   const { summary: categorySummary, loading: categorySummaryLoading } = useTransactionSummary(
     {
@@ -158,7 +141,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
   // Modal/UI state
   const [showForm, setShowForm] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
-  const [showTagSummary, setShowTagSummary] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -175,7 +157,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     accountId: '',
     categoryId: '',
     imageHash: undefined,
-    tagNames: [],
     receiptItems: [],
   });
 
@@ -205,7 +186,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
       accountId: accounts.length > 0 ? accounts[0].id : '',
       categoryId: categories.find((c) => c.type === 'expense')?.id ?? '',
       imageHash: undefined,
-      tagNames: [],
       receiptItems: [],
     };
   }, [accounts, categories]);
@@ -246,7 +226,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
           accountId: formData.accountId,
           categoryId: formData.categoryId,
           imageHash: formData.imageHash || undefined,
-          tagNames: formData.tagNames.length > 0 ? formData.tagNames : undefined,
           receiptItems: formData.receiptItems.length > 0 ? formData.receiptItems : undefined,
         });
         logger.info('transaction', 'Transaction created', {
@@ -254,8 +233,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
           description: formData.description,
         });
         handleCloseForm();
-        reloadTags();
-        reloadTagSummary();
         await queryClient.invalidateQueries({ queryKey: ['transactions'] });
       } catch (err) {
         toast.error('No se pudo guardar la transacción');
@@ -264,7 +241,7 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
         setSaving(false);
       }
     },
-    [formData, handleCloseForm, queryClient, reloadTags, reloadTagSummary]
+    [formData, handleCloseForm, queryClient]
   );
 
   const handleScannedReceipt = useCallback(
@@ -287,7 +264,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
         accountId: accounts.length > 0 ? accounts[0].id : '',
         categoryId,
         imageHash: scannedData.imageHash,
-        tagNames: [],
         receiptItems: scannedData.items ?? [],
       });
 
@@ -308,19 +284,16 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
           categoryId: data.categoryId,
           date: new Date(data.date).toISOString(),
           amount: parseFloat(data.amount),
-          tagNames: data.tagNames,
         });
         logger.info('transaction', 'Transaction updated', { id });
         setEditingTransaction(null);
-        reloadTags();
-        reloadTagSummary();
         await queryClient.invalidateQueries({ queryKey: ['transactions'] });
       } catch (err) {
         toast.error('No se pudo actualizar la transacción');
         logger.error('transaction', 'Failed to update transaction', err, { id });
       }
     },
-    [queryClient, reloadTags, reloadTagSummary]
+    [queryClient]
   );
 
   const handleDelete = useCallback(async () => {
@@ -362,13 +335,10 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     total,
     accounts,
     categories,
-    availableTags,
-    tagSummary,
     categorySummary,
 
     // Loading states
     loading,
-    tagSummaryLoading,
     categorySummaryLoading,
     saving,
     deleting,
@@ -377,7 +347,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     // UI state
     showForm,
     showScanner,
-    showTagSummary,
     showCategorySummary,
     deleteId,
     editingTransaction,
@@ -404,7 +373,6 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     setMinAmount: filterHook.setMinAmount,
     setMaxAmount: filterHook.setMaxAmount,
     setType: filterHook.setType,
-    setTag: filterHook.setTag,
     clearFilters: filterHook.clearFilters,
 
     // Pagination handlers
@@ -426,11 +394,9 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
     // UI toggles
     setDeleteId,
     setShowScanner,
-    setShowTagSummary,
     setShowCategorySummary,
     setEditingTransaction,
     setViewingItems,
-    reloadTagSummary,
     reload,
     loadError,
   };

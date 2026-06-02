@@ -10,8 +10,7 @@ import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { CategorySelect } from '../../../components/ui/category-select';
-import { TagInput } from './TagInput';
-import type { Account, Category, Tag } from '../../../types';
+import type { Account, Category } from '../../../types';
 import type { TransactionFormData, DateWarning } from '../types';
 
 export interface TransactionFormDialogProps {
@@ -19,7 +18,6 @@ export interface TransactionFormDialogProps {
   formData: TransactionFormData;
   filteredCategories: Category[];
   accounts: Account[];
-  availableTags: Tag[];
   dateWarning: DateWarning;
   saving: boolean;
   onClose: () => void;
@@ -33,7 +31,6 @@ export function TransactionFormDialog({
   formData,
   filteredCategories,
   accounts,
-  availableTags,
   dateWarning,
   saving,
   onClose,
@@ -154,15 +151,6 @@ export function TransactionFormDialog({
               placeholder="Notas..."
               value={formData.description}
               onChange={(e) => onFormDataChange({ description: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <Label>Etiquetas (opcional)</Label>
-            <TagInput
-              value={formData.tagNames}
-              onChange={(tagNames) => onFormDataChange({ tagNames })}
-              suggestions={availableTags}
             />
           </div>
         </DialogContent>

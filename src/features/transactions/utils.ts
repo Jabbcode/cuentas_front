@@ -55,7 +55,6 @@ export function buildTransactionApiFilters(params: {
   endDate?: string;
   accountId?: string;
   type?: 'all' | 'expense' | 'income';
-  tag?: string;
   categoryIds?: string[];
   minAmount?: string;
   maxAmount?: string;
@@ -67,7 +66,6 @@ export function buildTransactionApiFilters(params: {
     endDate,
     accountId,
     type,
-    tag,
     categoryIds,
     minAmount,
     maxAmount,
@@ -101,10 +99,6 @@ export function buildTransactionApiFilters(params: {
 
   if (type && type !== 'all') {
     filters.type = type;
-  }
-
-  if (tag) {
-    filters.tag = tag;
   }
 
   if (categoryIds?.length) {
@@ -160,7 +154,6 @@ export function getDefaultTransactionFormData(
     accountId: firstAccountId,
     categoryId: defaultExpenseCategoryId,
     imageHash: undefined as string | undefined,
-    tagNames: [] as string[],
     receiptItems: [] as Array<{
       name: string;
       quantity: number;
@@ -181,8 +174,7 @@ export function hasActiveFilters(filters: TransactionFilterState): boolean {
     filters.accountId !== 'all' ||
     filters.minAmount !== '' ||
     filters.maxAmount !== '' ||
-    filters.type !== 'all' ||
-    filters.tag !== ''
+    filters.type !== 'all'
   );
 }
 
@@ -195,5 +187,4 @@ export const DEFAULT_FILTER_STATE: TransactionFilterState = {
   maxAmount: '',
   type: 'all',
   groupByCategory: false,
-  tag: '',
 };
