@@ -1,6 +1,21 @@
-import { describe, it, expect } from 'vitest';
-import type { MonthlySummary } from '../../../types';
-import { getPrevMonth, calcDiffPct, mergeCategories } from '../utils';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type {
+  MonthlySummary,
+  FixedExpense,
+  CreditCardsSummary,
+  DebtsSummary,
+} from '../../../types';
+import {
+  getPrevMonth,
+  calcDiffPct,
+  mergeCategories,
+  calcDaysLeftInMonth,
+  calcSpentPercentage,
+  calcDaysUntilDueDay,
+  filterUpcomingFixedExpenses,
+  hasAlerts,
+  CREDIT_UTILIZATION_ALERT_THRESHOLD,
+} from '../utils';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -138,5 +153,157 @@ describe('mergeCategories', () => {
 
   it('returns empty array for two empty summaries', () => {
     expect(mergeCategories(makeSummary(5, 2024), makeSummary(4, 2024))).toHaveLength(0);
+  });
+});
+
+// ─── calcDaysLeftInMonth ──────────────────────────────────────────────────────
+
+describe('calcDaysLeftInMonth', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('returns a positive number on a normal day of the month', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2024, 4, 15)); // May 15 → 16 days left
+    expect(calcDaysLeftInMonth()).toBe(16);
+  });
+
+  it('returns 0 on the last day of the month', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2024, 4, 31)); // May 31 → 0 days left
+    expect(calcDaysLeftInMonth()).toBe(0);
+  });
+});
+
+// ─── calcSpentPercentage ──────────────────────────────────────────────────────
+
+describe('calcSpentPercentage', () => {
+  it('returns correct percentage in normal case', () => {
+    expect(calcSpentPercentage(500, 1000)).toBe(50);
+  });
+
+  it('returns 0 when income is 0 (no division by zero)', () => {
+    expect(calcSpentPercentage(500, 0)).toBe(0);
+  });
+
+  it('returns more than 100 when expenses exceed income', () => {
+    expect(calcSpentPercentage(1200, 1000)).toBeGreaterThan(100);
+  });
+});
+
+// ─── calcDaysUntilDueDay ──────────────────────────────────────────────────────
+
+describe('calcDaysUntilDueDay', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2024, 4, 15)); // May 15
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('returns dueDay - today when dueDay > today', () => {
+    expect(calcDaysUntilDueDay(20)).toBe(5);
+  });
+
+  it('returns wrap-around when dueDay < today', () => {
+    // hoy=15, dueDay=2, daysInMonth=31 → (31-15)+2 = 18
+    expect(calcDaysUntilDueDay(2)).toBe(18);
+  });
+
+  it('returns 0 when dueDay equals today', () => {
+    expect(calcDaysUntilDueDay(15)).toBe(0);
+  });
+
+  it('returns Infinity for invalid dueDay 0', () => {
+    expect(calcDaysUntilDueDay(0)).toBe(Infinity);
+  });
+
+  it('returns Infinity for invalid dueDay 32', () => {
+    expect(calcDaysUntilDueDay(32)).toBe(Infinity);
+  });
+});
+
+// ─── filterUpcomingFixedExpenses ──────────────────────────────────────────────
+
+describe('filterUpcomingFixedExpenses', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2024, 4, 15)); // May 15
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const makeItem = (
+    dueDay: number,
+    isPaidThisMonth: boolean
+  ): FixedExpense & { isPaidThisMonth: boolean } => ({
+    id: `item-${dueDay}`,
+    name: `Expense ${dueDay}`,
+    amount: 100,
+    type: 'expense',
+    dueDay,
+    isActive: true,
+    autoGenerate: false,
+    accountId: 'acc-1',
+    categoryId: 'cat-1',
+    isPaidThisMonth,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+  });
+
+  it('does not include items with isPaidThisMonth === true', () => {
+    const result = filterUpcomingFixedExpenses([makeItem(17, true)], 7);
+    expect(result).toHaveLength(0);
+  });
+
+  it('includes unpaid items within the window', () => {
+    // dueDay=18 → 3 days from today=15, window=7
+    const result = filterUpcomingFixedExpenses([makeItem(18, false)], 7);
+    expect(result).toHaveLength(1);
+  });
+
+  it('does not include unpaid items outside the window', () => {
+    // dueDay=25 → 10 days from today=15, window=7
+    const result = filterUpcomingFixedExpenses([makeItem(25, false)], 7);
+    expect(result).toHaveLength(0);
+  });
+});
+
+// ─── hasAlerts ────────────────────────────────────────────────────────────────
+
+describe('hasAlerts', () => {
+  it('returns false when all params are null', () => {
+    expect(hasAlerts(null, null, null)).toBe(false);
+  });
+
+  it('returns true when there are overdue debts', () => {
+    const debts: DebtsSummary = {
+      totalActiveDebts: 1,
+      totalOverdueDebts: 1,
+      totalDebtAmount: 500,
+      totalOverdueAmount: 500,
+      debtsDueSoon: 0,
+      upcomingDebts: [],
+    };
+    expect(hasAlerts(debts, null, null)).toBe(true);
+  });
+
+  it('returns true when a card has usagePercentage > threshold', () => {
+    const ccSummary = {
+      totalToPay: 0,
+      upcomingPayments: [],
+      alerts: [],
+      cards: [
+        {
+          usagePercentage: CREDIT_UTILIZATION_ALERT_THRESHOLD + 0.01,
+        },
+      ],
+    } as unknown as CreditCardsSummary;
+    expect(hasAlerts(null, ccSummary, null)).toBe(true);
   });
 });

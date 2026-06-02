@@ -1,38 +1,40 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { dashboardApi } from '../api';
 import { fixedExpensesApi } from '../../fixed-expenses';
 import { creditCardsApi } from '../../credit-cards/api';
 import { debtsApi } from '../../debts/api';
 import type {
   DashboardSummary,
-  CategorySummary,
   FixedExpenseSummary,
-  FixedVsVariable,
   ProjectionData,
   CreditCardsSummary,
   DebtsSummary,
+  MonthlyTrend,
 } from '../../../types';
 import type { UseDashboardReturn } from '../types';
 
 interface DashboardData {
   summary: DashboardSummary;
-  byCategory: CategorySummary[];
   fixedSummary: FixedExpenseSummary;
-  fixedVsVariable: FixedVsVariable;
   projection: ProjectionData;
   creditCardsSummary: CreditCardsSummary;
   debtsSummary: DebtsSummary;
 }
 
 export function useDashboard(): UseDashboardReturn {
+  const queryClient = useQueryClient();
+
+  const trendQuery = useQuery<MonthlyTrend[], Error>({
+    queryKey: ['dashboard', 'trend'],
+    queryFn: () => dashboardApi.getMonthlyTrend(6),
+  });
+
   const query = useQuery<DashboardData, Error>({
     queryKey: ['dashboard'],
     queryFn: async () => {
-      const [sum, cat, fixed, fvv, proj, ccSummary, debtSum] = await Promise.all([
+      const [sum, fixed, proj, ccSummary, debtSum] = await Promise.all([
         dashboardApi.getSummary(),
-        dashboardApi.getByCategory('expense'),
         fixedExpensesApi.getSummary(),
-        dashboardApi.getFixedVsVariable(),
         dashboardApi.getNextMonthProjection(),
         creditCardsApi.getSummary().catch(() => ({
           totalToPay: 0,
@@ -52,9 +54,7 @@ export function useDashboard(): UseDashboardReturn {
 
       return {
         summary: sum,
-        byCategory: cat,
         fixedSummary: fixed,
-        fixedVsVariable: fvv,
         projection: proj,
         creditCardsSummary: ccSummary,
         debtsSummary: debtSum,
@@ -64,15 +64,15 @@ export function useDashboard(): UseDashboardReturn {
 
   return {
     summary: query.data?.summary ?? null,
-    byCategory: query.data?.byCategory ?? [],
     fixedSummary: query.data?.fixedSummary ?? null,
-    fixedVsVariable: query.data?.fixedVsVariable ?? null,
     projection: query.data?.projection ?? null,
     creditCardsSummary: query.data?.creditCardsSummary ?? null,
     debtsSummary: query.data?.debtsSummary ?? null,
+    monthlyTrend: trendQuery.data ?? [],
+    trendLoading: trendQuery.isLoading,
     loading: query.isLoading,
     reload: () => {
-      void query.refetch();
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   };
 }
