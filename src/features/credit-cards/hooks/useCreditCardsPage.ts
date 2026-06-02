@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '../../../lib/logger';
 import { useCreditCards } from './useCreditCards';
 import { creditCardsApi } from '../api';
@@ -13,6 +14,7 @@ import type {
 } from '../types';
 
 export function useCreditCardsPage(): UseCreditCardsPageReturn {
+  const queryClient = useQueryClient();
   const { statements, accounts, loading, reload, error: loadError } = useCreditCards();
 
   const [paying, setPaying] = useState(false);
@@ -108,7 +110,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
           amount: paymentFormData.amount,
         });
         handleClosePayment();
-        reload();
+        await queryClient.invalidateQueries({ queryKey: ['credit-card-statements'] });
       } catch (err) {
         toast.error('No se pudo registrar el pago de la tarjeta');
         logger.error('credit-card', 'Failed to pay credit card statement', err);
@@ -116,7 +118,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
         setPaying(false);
       }
     },
-    [paymentModal.statement, paymentFormData, handleClosePayment, reload]
+    [paymentModal.statement, paymentFormData, handleClosePayment, queryClient]
   );
 
   return {

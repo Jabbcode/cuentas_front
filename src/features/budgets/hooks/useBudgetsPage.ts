@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { useBudgets } from './useBudgets';
 import { logger } from '../../../lib/logger';
 import { budgetsApi } from '../api';
@@ -9,6 +10,7 @@ import type { Budget, Category } from '../../../types';
 import type { BudgetFormData, UseBudgetsPageReturn } from '../types';
 
 export function useBudgetsPage(): UseBudgetsPageReturn {
+  const queryClient = useQueryClient();
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
@@ -97,7 +99,7 @@ export function useBudgetsPage(): UseBudgetsPageReturn {
         }
 
         setShowForm(false);
-        reload();
+        await queryClient.invalidateQueries({ queryKey: ['budgets'] });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al guardar');
         logger.error('budget', 'Failed to save budget', err);
@@ -105,7 +107,7 @@ export function useBudgetsPage(): UseBudgetsPageReturn {
         setSaving(false);
       }
     },
-    [formData, month, year, editingBudget, reload]
+    [formData, month, year, editingBudget, queryClient]
   );
 
   const handleDelete = useCallback(async () => {
@@ -115,14 +117,14 @@ export function useBudgetsPage(): UseBudgetsPageReturn {
       await budgetsApi.delete(deleteId);
       logger.info('budget', 'Budget deleted', { id: deleteId });
       setDeleteId(null);
-      reload();
+      await queryClient.invalidateQueries({ queryKey: ['budgets'] });
     } catch (err) {
       toast.error('No se pudo eliminar el presupuesto');
       logger.error('budget', 'Failed to delete budget', err, { id: deleteId });
     } finally {
       setDeleting(false);
     }
-  }, [deleteId, reload]);
+  }, [deleteId, queryClient]);
 
   const prevMonth = useCallback(() => {
     const next = getPrevMonthYear(month, year);

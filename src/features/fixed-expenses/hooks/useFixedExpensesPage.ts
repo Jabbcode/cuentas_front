@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '../../../lib/logger';
 import { useFixedExpenses } from './useFixedExpenses';
 import {
@@ -15,6 +16,7 @@ import {
 import type { UseFixedExpensesPageReturn } from '../types';
 
 export function useFixedExpensesPage(): UseFixedExpensesPageReturn {
+  const queryClient = useQueryClient();
   const {
     summary,
     loading,
@@ -80,8 +82,8 @@ export function useFixedExpensesPage(): UseFixedExpensesPageReturn {
   const handleFormSuccess = useCallback(() => {
     setShowForm(false);
     setEditingId(null);
-    reload();
-  }, [reload]);
+    void queryClient.invalidateQueries({ queryKey: ['fixed-expenses'] });
+  }, [queryClient]);
 
   const requestDelete = useCallback((id: string) => {
     setDeleteId(id);

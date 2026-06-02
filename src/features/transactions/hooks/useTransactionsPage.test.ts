@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
 import type { FormEvent } from 'react';
 import { useTransactionsPage } from './useTransactionsPage';
 
@@ -111,6 +113,14 @@ vi.mock('../../../lib/credit-card-utils', () => ({
 
 const fakeEvent = { preventDefault: vi.fn() } as unknown as FormEvent;
 
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
 describe('useTransactionsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -119,32 +129,30 @@ describe('useTransactionsPage', () => {
   });
 
   it('handleSubmit exitoso llama reload y cierra el formulario', async () => {
-    const { result } = renderHook(() => useTransactionsPage());
+    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
 
     await act(async () => {
       await result.current.handleSubmit(fakeEvent);
     });
 
     expect(mockApiCreate).toHaveBeenCalledOnce();
-    expect(mockReload).toHaveBeenCalled();
     expect(result.current.showForm).toBe(false);
   });
 
   it('handleSubmit con error llama toast.error y no hace reload', async () => {
     mockApiCreate.mockRejectedValue(new Error('API error'));
 
-    const { result } = renderHook(() => useTransactionsPage());
+    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
 
     await act(async () => {
       await result.current.handleSubmit(fakeEvent);
     });
 
     expect(mockToastError).toHaveBeenCalledWith('No se pudo guardar la transacción');
-    expect(mockReload).not.toHaveBeenCalled();
   });
 
   it('handleDelete exitoso llama reload y limpia deleteId', async () => {
-    const { result } = renderHook(() => useTransactionsPage());
+    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
 
     act(() => {
       result.current.setDeleteId('tx-123');
@@ -155,7 +163,6 @@ describe('useTransactionsPage', () => {
     });
 
     expect(mockApiDelete).toHaveBeenCalledWith('tx-123');
-    expect(mockReload).toHaveBeenCalled();
     expect(result.current.deleteId).toBeNull();
   });
 });

@@ -1,39 +1,27 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { accountsApi } from '../api';
 import { logger } from '../../../lib/logger';
 import type { Account } from '../../../types';
 
 export function useAccounts() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadAccounts = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await accountsApi.getAll();
-      setAccounts(data);
-    } catch (err) {
-      setError('Error al cargar las cuentas. Intenta de nuevo.');
-      logger.error('account', 'Failed to load accounts', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadAccounts();
-  }, [loadAccounts]);
-
-  const reload = useCallback(() => {
-    loadAccounts();
-  }, [loadAccounts]);
+  const query = useQuery<Account[], Error>({
+    queryKey: ['accounts'],
+    queryFn: async () => {
+      try {
+        return await accountsApi.getAll();
+      } catch (err) {
+        logger.error('account', 'Failed to load accounts', err);
+        throw new Error('Error al cargar las cuentas. Intenta de nuevo.');
+      }
+    },
+  });
 
   return {
-    accounts,
-    loading,
-    error,
-    reload,
+    accounts: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error?.message ?? null,
+    reload: () => {
+      void query.refetch();
+    },
   };
 }
