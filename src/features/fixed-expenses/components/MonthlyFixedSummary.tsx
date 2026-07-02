@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
+﻿import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
 import { formatCurrency } from '../../../lib/utils';
 import type { FixedExpenseSummary } from '../../../types';
 import { TrendingDown, TrendingUp, CheckCircle2, Clock, CalendarClock } from 'lucide-react';
@@ -21,7 +21,7 @@ export function MonthlyFixedSummary({ summary }: MonthlyFixedSummaryProps) {
           </div>
           <div>
             <CardTitle>Resumen del Mes</CardTitle>
-            <p className="text-sm text-gray-500">Control de gastos e ingresos fijos</p>
+            <p className="text-sm text-gray-600">Control de gastos e ingresos fijos</p>
           </div>
         </div>
       </CardHeader>
@@ -52,18 +52,18 @@ export function MonthlyFixedSummary({ summary }: MonthlyFixedSummaryProps) {
           </div>
 
           {/* Balance Neto Fijo */}
-          <div className={`rounded-xl p-4 ${netFixed >= 0 ? 'bg-blue-50' : 'bg-orange-50'}`}>
+          <div className={`rounded-xl p-4 ${netFixed >= 0 ? 'bg-blue-50' : 'bg-amber-50'}`}>
             <span
-              className={`text-sm font-medium ${netFixed >= 0 ? 'text-blue-700' : 'text-orange-700'}`}
+              className={`text-sm font-medium ${netFixed >= 0 ? 'text-blue-700' : 'text-amber-700'}`}
             >
               Balance Fijo Neto
             </span>
             <p
-              className={`mt-2 text-2xl font-bold ${netFixed >= 0 ? 'text-blue-600' : 'text-orange-600'}`}
+              className={`mt-2 text-2xl font-bold ${netFixed >= 0 ? 'text-blue-600' : 'text-amber-600'}`}
             >
               {formatCurrency(netFixed)}
             </p>
-            <p className={`text-xs ${netFixed >= 0 ? 'text-blue-500' : 'text-orange-500'}`}>
+            <p className={`text-xs ${netFixed >= 0 ? 'text-blue-500' : 'text-amber-500'}`}>
               {netFixed >= 0 ? 'superávit mensual' : 'déficit mensual'}
             </p>
           </div>
@@ -80,7 +80,7 @@ export function MonthlyFixedSummary({ summary }: MonthlyFixedSummaryProps) {
             {/* Progress Bar */}
             <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-gray-200">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-500"
+                className="h-full rounded-full bg-green-600 duration-500 motion-safe:transition-all"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -90,7 +90,7 @@ export function MonthlyFixedSummary({ summary }: MonthlyFixedSummaryProps) {
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 {summary.paidCount} pagados
               </span>
-              <span className="flex items-center gap-1 text-orange-600">
+              <span className="flex items-center gap-1 text-amber-600">
                 <Clock className="h-3.5 w-3.5" />
                 {summary.pendingCount} pendientes
               </span>

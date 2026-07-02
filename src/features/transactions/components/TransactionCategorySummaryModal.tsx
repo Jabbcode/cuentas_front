@@ -29,12 +29,12 @@ export function TransactionCategorySummaryModal({
       <DialogContent>
         {loading ? (
           <div className="flex h-40 items-center justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+            <div className="h-8 w-8 motion-safe:animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
           </div>
         ) : summary.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-12 text-center">
             <BarChart3 className="h-10 w-10 text-gray-300" />
-            <p className="text-gray-500">Sin transacciones para el período seleccionado</p>
+            <p className="text-gray-600">Sin transacciones para el período seleccionado</p>
           </div>
         ) : (
           <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
@@ -58,7 +58,7 @@ export function TransactionCategorySummaryModal({
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {item.category.name}
                     </p>
-                    <p className="text-xs text-gray-400">{item.count} transacciones</p>
+                    <p className="text-xs text-gray-500">{item.count} transacciones</p>
                   </div>
                   <div className="text-right shrink-0 space-y-0.5">
                     {item.expenseTotal > 0 && (
@@ -72,7 +72,7 @@ export function TransactionCategorySummaryModal({
                       </p>
                     )}
                     {item.expenseTotal > 0 && totalExpenses > 0 && (
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-500">
                         {Math.round((item.expenseTotal / totalExpenses) * 100)}% del gasto
                       </p>
                     )}

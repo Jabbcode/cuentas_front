@@ -78,11 +78,11 @@ export function TransactionCard({
               size="icon"
               onClick={() => onViewItems(tx)}
               disabled={isLoadingItems}
-              className="h-8 w-8 text-gray-400 hover:text-purple-600 pointer"
+              className="h-8 w-8 text-gray-500 hover:text-purple-600 pointer"
               title={isLoadingItems ? 'Cargando items...' : `Ver detalle (${itemsLength} items)`}
             >
               {isLoadingItems ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
               ) : (
                 <Receipt className="h-4 w-4" />
               )}
@@ -92,7 +92,7 @@ export function TransactionCard({
             variant="ghost"
             size="icon"
             onClick={() => onEdit(tx)}
-            className="h-8 w-8 text-gray-400 hover:text-blue-600"
+            className="h-8 w-8 text-gray-500 hover:text-blue-600"
             title="Editar transacción"
           >
             <Pencil className="h-4 w-4" />
@@ -101,7 +101,7 @@ export function TransactionCard({
             variant="ghost"
             size="icon"
             onClick={() => onDelete(tx.id)}
-            className="h-8 w-8 text-gray-400 hover:text-red-600"
+            className="h-8 w-8 text-gray-500 hover:text-red-600"
             title="Eliminar transacción"
           >
             <Trash2 className="h-4 w-4" />

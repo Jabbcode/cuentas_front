@@ -254,7 +254,7 @@ export function RecurringPaymentModal({
               value={formData.endDate}
               onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               Si no se especifica, los pagos continuarán hasta que la deuda esté pagada
             </p>
           </div>

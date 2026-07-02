@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Calendar } from 'lucide-react';
+﻿import { TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 import { Card, CardContent } from '../../../components/ui/card';
 import { formatCurrency, cn } from '../../../lib/utils';
 import { calcDaysLeftInMonth, calcSpentPercentage } from '../utils';
@@ -19,7 +19,7 @@ export function DashboardHeroCard({ summary }: DashboardHeroCardProps) {
   const cappedPercentage = Math.min(spentPercentage, 100);
 
   return (
-    <Card className={cn('border-l-4', isPositive ? 'border-l-green-500' : 'border-l-red-500')}>
+    <Card>
       <CardContent className="p-4 lg:p-6">
         <div className="flex flex-col gap-4">
           {/* Balance neto grande */}
@@ -53,11 +53,11 @@ export function DashboardHeroCard({ summary }: DashboardHeroCardProps) {
             <div className="h-2 w-full rounded-full bg-gray-200">
               <div
                 className={cn(
-                  'h-2 rounded-full transition-all',
+                  'h-2 rounded-full motion-safe:transition-all',
                   spentPercentage > 100
                     ? 'bg-red-500'
                     : spentPercentage > 80
-                      ? 'bg-orange-500'
+                      ? 'bg-amber-500'
                       : 'bg-green-500'
                 )}
                 style={{ width: `${cappedPercentage}%` }}
@@ -68,19 +68,19 @@ export function DashboardHeroCard({ summary }: DashboardHeroCardProps) {
           {/* Ingresos / Gastos / Días restantes */}
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-lg bg-green-50 p-3">
-              <p className="text-xs text-gray-500">Ingresos</p>
+              <p className="text-xs text-green-800">Ingresos</p>
               <p className="mt-1 text-sm font-bold text-green-600 lg:text-base">
                 {formatCurrency(monthlyIncome)}
               </p>
             </div>
             <div className="rounded-lg bg-red-50 p-3">
-              <p className="text-xs text-gray-500">Gastos</p>
+              <p className="text-xs text-red-800">Gastos</p>
               <p className="mt-1 text-sm font-bold text-red-600 lg:text-base">
                 {formatCurrency(monthlyExpenses)}
               </p>
             </div>
             <div className="rounded-lg bg-blue-50 p-3">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-xs text-blue-800">
                 <Calendar className="h-3 w-3" />
                 <span>Días restantes</span>
               </div>

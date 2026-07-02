@@ -58,7 +58,7 @@ export function CategoryLimitBadge({
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
         <div
-          className={`h-full transition-all ${getProgressColor()}`}
+          className={`h-full motion-safe:transition-all ${getProgressColor()}`}
           style={{ width: `${Math.min(percentage || 0, 100)}%` }}
         />
       </div>

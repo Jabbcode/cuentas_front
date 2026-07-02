@@ -79,7 +79,7 @@ export function TransferModal({ accounts, onClose, onSuccess }: Props) {
                 )}
               </div>
 
-              <ArrowRight className="mb-4 h-5 w-5 shrink-0 text-gray-400" />
+              <ArrowRight className="mb-4 h-5 w-5 shrink-0 text-gray-500" />
 
               <div className="space-y-1">
                 <Label>Destino</Label>

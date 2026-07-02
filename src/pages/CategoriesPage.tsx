@@ -31,7 +31,7 @@ export function CategoriesPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 motion-safe:animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
   }
@@ -45,7 +45,7 @@ export function CategoriesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Categorías</h1>
-          <p className="text-gray-500">Organiza tus transacciones</p>
+          <p className="text-gray-600">Organiza tus transacciones</p>
         </div>
         <Button onClick={() => openForm()}>
           <Plus className="mr-2 h-4 w-4" /> Nueva Categoría

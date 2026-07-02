@@ -64,7 +64,7 @@ export function LoginForm({
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -76,7 +76,7 @@ export function LoginForm({
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </Button>
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-center text-sm text-gray-600">
               ¿No tienes cuenta?{' '}
               <Link to="/register" className="font-medium text-blue-600 hover:underline">
                 Regístrate

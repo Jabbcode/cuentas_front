@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { CreditCard, AlertCircle, AlertTriangle, Info, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
@@ -20,7 +20,7 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
       case 'error':
         return <AlertCircle className="h-4 w-4 text-red-600" />;
       case 'warning':
-        return <AlertTriangle className="h-4 w-4 text-orange-600" />;
+        return <AlertTriangle className="h-4 w-4 text-amber-600" />;
       case 'info':
         return <Info className="h-4 w-4 text-blue-600" />;
     }
@@ -31,18 +31,18 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
       case 'error':
         return 'border-red-200 bg-red-50 text-red-800';
       case 'warning':
-        return 'border-orange-200 bg-orange-50 text-orange-800';
+        return 'border-amber-200 bg-amber-50 text-amber-800';
       case 'info':
         return 'border-blue-200 bg-blue-50 text-blue-800';
     }
   };
 
   return (
-    <Card className="border-l-4 border-l-purple-500">
+    <Card>
       <CardHeader className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between lg:p-6">
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-purple-100 p-2">
-            <CreditCard className="h-4 w-4 text-purple-600 lg:h-5 lg:w-5" />
+          <div className="rounded-full bg-blue-50 p-2">
+            <CreditCard className="h-4 w-4 text-blue-600 lg:h-5 lg:w-5" />
           </div>
           <div>
             <CardTitle className="text-base lg:text-lg">Tarjetas de Crédito</CardTitle>
@@ -61,9 +61,9 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
       <CardContent className="p-4 pt-0 lg:p-6 lg:pt-0 space-y-4">
         {/* Total to pay */}
         {summary.totalToPay > 0 && (
-          <div className="rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 p-4">
+          <div className="rounded-lg bg-gray-50 p-4">
             <p className="text-sm font-medium text-gray-600">Total a pagar este mes</p>
-            <p className="mt-1 text-2xl font-bold text-purple-600 lg:text-3xl">
+            <p className="mt-1 text-xl font-bold tabular-nums text-gray-900 lg:text-2xl">
               {formatCurrency(summary.totalToPay)}
             </p>
           </div>
@@ -81,7 +81,7 @@ export function CreditCardsSummaryCard({ summary }: CreditCardsSummaryProps) {
                     payment.daysUntilDue <= 3
                       ? 'border-red-200 bg-red-50'
                       : payment.daysUntilDue <= 7
-                        ? 'border-orange-200 bg-orange-50'
+                        ? 'border-amber-200 bg-amber-50'
                         : 'border-gray-200 bg-white'
                   }`}
                 >

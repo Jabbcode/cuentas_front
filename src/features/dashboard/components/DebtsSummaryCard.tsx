@@ -1,4 +1,4 @@
-import { Receipt, AlertCircle, TrendingDown, Calendar } from 'lucide-react';
+﻿import { Receipt, AlertCircle, TrendingDown, Calendar } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { formatCurrency, cn } from '../../../lib/utils';
@@ -43,8 +43,8 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={cn('rounded-full p-2', hasOverdue ? 'bg-red-100' : 'bg-orange-100')}>
-              <Receipt className={cn('h-5 w-5', hasOverdue ? 'text-red-600' : 'text-orange-600')} />
+            <div className={cn('rounded-full p-2', hasOverdue ? 'bg-red-100' : 'bg-amber-100')}>
+              <Receipt className={cn('h-5 w-5', hasOverdue ? 'text-red-600' : 'text-amber-600')} />
             </div>
             <div>
               <CardTitle className="text-lg font-semibold text-gray-900">
@@ -75,8 +75,8 @@ export function DebtsSummaryCard({ summary }: DebtsSummaryCardProps) {
                 {formatCurrency(Number(summary.totalDebtAmount))}
               </p>
             </div>
-            <div className="rounded-full bg-orange-100 p-3">
-              <TrendingDown className="h-6 w-6 text-orange-600" />
+            <div className="rounded-full bg-amber-100 p-3">
+              <TrendingDown className="h-6 w-6 text-amber-600" />
             </div>
           </div>
         </div>

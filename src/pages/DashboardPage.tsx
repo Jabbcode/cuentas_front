@@ -39,7 +39,7 @@ export function DashboardPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 motion-safe:animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
   }
@@ -59,7 +59,7 @@ export function DashboardPage() {
           disabled={loading}
           className="flex items-center gap-2"
         >
-          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${loading ? 'motion-safe:animate-spin' : ''}`} />
           Actualizar
         </Button>
       </div>
@@ -79,7 +79,7 @@ export function DashboardPage() {
       {/* 3. Tendencia mensual */}
       <MonthlyTrendChart data={monthlyTrend} loading={trendLoading} />
 
-      {/* 4. Summary cards — detalle secundario */}
+      {/* 4. Balance total en cuentas */}
       <DashboardSummaryCards summary={summary} />
 
       {/* 5. Tarjetas de crédito — colapsado */}

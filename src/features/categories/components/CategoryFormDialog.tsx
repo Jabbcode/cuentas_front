@@ -152,7 +152,7 @@ function MonthlyLimitField({ value, onChange }: MonthlyLimitFieldProps) {
           <button
             type="button"
             onClick={() => onChange('')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-600"
             title="Quitar límite"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -166,7 +166,7 @@ function MonthlyLimitField({ value, onChange }: MonthlyLimitFieldProps) {
           </button>
         )}
       </div>
-      <p className="mt-1 text-xs text-gray-500">
+      <p className="mt-1 text-xs text-gray-600">
         Establece un límite mensual de gasto para esta categoría. Puedes dejarlo vacío para quitar
         el límite.
       </p>

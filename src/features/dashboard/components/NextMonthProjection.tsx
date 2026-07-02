@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+﻿import { TrendingUp, TrendingDown, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
 import { CategoryIcon } from '../../../components/ui/category-icon';
 import { formatCurrency } from '../../../lib/utils';
@@ -29,14 +29,14 @@ export function NextMonthProjection({ projection, isOpen, onToggle }: NextMonthP
   });
 
   return (
-    <Card className="border-l-4 border-l-purple-500">
+    <Card>
       <CardHeader
         className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between lg:p-6 cursor-pointer select-none"
         onClick={onToggle}
       >
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-purple-100 p-2">
-            <Calendar className="h-4 w-4 text-purple-600 lg:h-5 lg:w-5" />
+          <div className="rounded-full bg-blue-50 p-2">
+            <Calendar className="h-4 w-4 text-blue-600 lg:h-5 lg:w-5" />
           </div>
           <div>
             <CardTitle className="text-base lg:text-lg">Proyección {monthName}</CardTitle>
@@ -57,7 +57,7 @@ export function NextMonthProjection({ projection, isOpen, onToggle }: NextMonthP
           {/* Resumen */}
           <div className="grid grid-cols-3 gap-2 lg:gap-4">
             <div className="rounded-lg bg-green-50 p-2 lg:p-4">
-              <p className="text-xs font-medium text-gray-500 lg:text-sm">Ingresos</p>
+              <p className="text-xs font-medium text-green-800 lg:text-sm">Ingresos</p>
               <p className="mt-1 text-sm font-bold text-green-600 lg:text-xl">
                 {formatCurrency(projection.totalIncome)}
               </p>
@@ -70,7 +70,7 @@ export function NextMonthProjection({ projection, isOpen, onToggle }: NextMonthP
             </div>
 
             <div className="rounded-lg bg-red-50 p-2 lg:p-4">
-              <p className="text-xs font-medium text-gray-500 lg:text-sm">Gastos</p>
+              <p className="text-xs font-medium text-red-800 lg:text-sm">Gastos</p>
               <p className="mt-1 text-sm font-bold text-red-600 lg:text-xl">
                 {formatCurrency(projection.totalExpenses)}
               </p>
@@ -83,11 +83,15 @@ export function NextMonthProjection({ projection, isOpen, onToggle }: NextMonthP
             </div>
 
             <div
-              className={`rounded-lg p-2 lg:p-4 ${projection.netBalance >= 0 ? 'bg-blue-50' : 'bg-orange-50'}`}
+              className={`rounded-lg p-2 lg:p-4 ${projection.netBalance >= 0 ? 'bg-green-50' : 'bg-amber-50'}`}
             >
-              <p className="text-xs font-medium text-gray-500 lg:text-sm">Balance</p>
               <p
-                className={`mt-1 text-sm font-bold lg:text-xl ${projection.netBalance >= 0 ? 'text-blue-600' : 'text-orange-600'}`}
+                className={`text-xs font-medium lg:text-sm ${projection.netBalance >= 0 ? 'text-green-800' : 'text-amber-800'}`}
+              >
+                Balance
+              </p>
+              <p
+                className={`mt-1 text-sm font-bold lg:text-xl ${projection.netBalance >= 0 ? 'text-green-600' : 'text-amber-600'}`}
               >
                 {formatCurrency(projection.netBalance)}
               </p>

@@ -1,4 +1,4 @@
-import { Dialog, DialogHeader, DialogTitle, DialogContent } from '../../../components/ui/dialog';
+﻿import { Dialog, DialogHeader, DialogTitle, DialogContent } from '../../../components/ui/dialog';
 import { Button } from '../../../components/ui/button';
 import { formatCurrency } from '../../../lib/utils';
 import { formatDateWithTime } from '../utils';
@@ -56,7 +56,7 @@ export function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps)
               </div>
               <div>
                 <p className="text-gray-600">Intereses</p>
-                <p className="font-bold text-orange-600">{formatCurrency(totalInterest)}</p>
+                <p className="font-bold text-amber-600">{formatCurrency(totalInterest)}</p>
               </div>
             </div>
           </div>
@@ -104,7 +104,7 @@ export function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps)
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Interés</p>
-                    <p className="text-sm font-semibold text-orange-600">
+                    <p className="text-sm font-semibold text-amber-600">
                       {formatCurrency(Number(payment.interest))}
                     </p>
                   </div>
@@ -121,7 +121,7 @@ export function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps)
           </div>
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500">No hay pagos registrados para esta deuda</p>
+            <p className="text-gray-600">No hay pagos registrados para esta deuda</p>
           </div>
         )}
       </DialogContent>

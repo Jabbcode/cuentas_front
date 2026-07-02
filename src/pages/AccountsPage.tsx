@@ -55,7 +55,7 @@ export function AccountsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 motion-safe:animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
   }
@@ -70,7 +70,7 @@ export function AccountsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Cuentas</h1>
-          <p className="text-gray-500">
+          <p className="text-gray-600">
             Balance total:{' '}
             <span className="font-semibold text-gray-900">{formatCurrency(totalBalance)}</span>
           </p>

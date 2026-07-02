@@ -70,11 +70,11 @@ export function TransactionRow({
             size="icon"
             onClick={() => onViewItems(tx)}
             disabled={isLoadingItems}
-            className="h-6 w-6 text-gray-400 hover:text-purple-600"
+            className="h-6 w-6 text-gray-500 hover:text-purple-600"
             title={isLoadingItems ? 'Cargando items...' : `Ver detalle (${itemsLength} items)`}
           >
             {isLoadingItems ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
+              <Loader2 className="h-3 w-3 motion-safe:animate-spin" />
             ) : (
               <Receipt className="h-3 w-3" />
             )}
@@ -84,7 +84,7 @@ export function TransactionRow({
           variant="ghost"
           size="icon"
           onClick={() => onEdit(tx)}
-          className="h-6 w-6 text-gray-400 hover:text-blue-600"
+          className="h-6 w-6 text-gray-500 hover:text-blue-600"
           title="Editar transacción"
         >
           <Pencil className="h-3 w-3" />
@@ -93,7 +93,7 @@ export function TransactionRow({
           variant="ghost"
           size="icon"
           onClick={() => onDelete(tx.id)}
-          className="h-6 w-6 text-gray-400 hover:text-red-600"
+          className="h-6 w-6 text-gray-500 hover:text-red-600"
           title="Eliminar transacción"
         >
           <Trash2 className="h-3 w-3" />

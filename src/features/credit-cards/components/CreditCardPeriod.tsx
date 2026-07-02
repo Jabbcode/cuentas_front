@@ -1,4 +1,4 @@
-import { Button } from '../../../components/ui/button';
+﻿import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import { getDaysColor } from '../../../lib/credit-card-utils';
@@ -54,9 +54,9 @@ export function CreditCardPeriod({ type, period, onPayClick }: CreditCardPeriodP
             className={`text-lg font-bold ${
               isClosed
                 ? period.balance === 0
-                  ? 'text-gray-400'
+                  ? 'text-gray-500'
                   : 'text-red-600'
-                : 'text-orange-600'
+                : 'text-amber-600'
             }`}
           >
             {isClosed && period.balance === 0 ? 'Sin saldo' : formatCurrency(period.balance)}
