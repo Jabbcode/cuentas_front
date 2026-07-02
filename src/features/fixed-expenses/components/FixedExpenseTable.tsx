@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { Check, MoreVertical, Pencil, Trash2, Power, Calendar, Zap } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
@@ -84,6 +84,18 @@ export function FixedExpenseTable({
     }
   };
 
+  const closeMenu = () => {
+    setMenuOpen(null);
+    setMenuPosition(null);
+  };
+
+  const handleMenuKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Escape') return;
+    const triggerId = menuOpen;
+    closeMenu();
+    if (triggerId) buttonRefs.current[triggerId]?.focus();
+  };
+
   const getStatusBadge = (item: FixedExpenseWithStatus) => {
     const isCreditCard = !!item.creditCardAccountId;
     const daysUntil = getDaysUntilDue(item.dueDay, item.isPaidThisMonth, isCreditCard);
@@ -119,7 +131,7 @@ export function FixedExpenseTable({
           !item.isActive && 'opacity-50',
           item.isPaidThisMonth && 'border-green-200 bg-green-50/50',
           overdue && 'border-red-200 bg-red-50/50',
-          dueSoon && 'border-orange-200 bg-orange-50/50',
+          dueSoon && 'border-amber-200 bg-amber-50/50',
           !item.isPaidThisMonth && !overdue && !dueSoon && 'border-gray-200 bg-white'
         )}
       >
@@ -165,6 +177,10 @@ export function FixedExpenseTable({
               variant="ghost"
               size="icon"
               className="h-7 w-7"
+              aria-label={`Opciones de ${item.name}`}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen === item.id}
+              onKeyDown={handleMenuKeyDown}
               onClick={(e) => {
                 e.stopPropagation();
                 if (e.currentTarget instanceof HTMLButtonElement) {
@@ -172,7 +188,7 @@ export function FixedExpenseTable({
                 }
               }}
             >
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -214,7 +230,7 @@ export function FixedExpenseTable({
           !item.isActive && 'opacity-50',
           item.isPaidThisMonth && 'bg-green-50/50',
           overdue && 'bg-red-50/50',
-          dueSoon && 'bg-orange-50/50'
+          dueSoon && 'bg-amber-50/50'
         )}
       >
         <td className="px-3 py-2">
@@ -277,6 +293,10 @@ export function FixedExpenseTable({
               variant="ghost"
               size="icon"
               className="h-6 w-6"
+              aria-label={`Opciones de ${item.name}`}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen === item.id}
+              onKeyDown={handleMenuKeyDown}
               onClick={(e) => {
                 e.stopPropagation();
                 if (e.currentTarget instanceof HTMLButtonElement) {
@@ -284,7 +304,7 @@ export function FixedExpenseTable({
                 }
               }}
             >
-              <MoreVertical className="h-3 w-3" />
+              <MoreVertical className="h-3 w-3" aria-hidden="true" />
             </Button>
           </div>
         </td>
@@ -344,7 +364,7 @@ export function FixedExpenseTable({
               </div>
             </>
           ) : (
-            <div className="py-8 text-center text-sm text-gray-500">
+            <div className="py-8 text-center text-sm text-gray-600">
               No tienes {type === 'expense' ? 'gastos' : 'ingresos'} fijos
             </div>
           )}
@@ -354,14 +374,11 @@ export function FixedExpenseTable({
       {/* Floating Menu */}
       {menuOpen && menuPosition && currentItem && (
         <>
+          <div className="fixed inset-0 z-40" onClick={closeMenu} />
           <div
-            className="fixed inset-0 z-40"
-            onClick={() => {
-              setMenuOpen(null);
-              setMenuPosition(null);
-            }}
-          />
-          <div
+            role="menu"
+            aria-label={`Opciones de ${currentItem.name}`}
+            onKeyDown={handleMenuKeyDown}
             className="fixed z-50 w-32 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
             style={{
               top: `${menuPosition.top}px`,
@@ -369,35 +386,35 @@ export function FixedExpenseTable({
             }}
           >
             <button
+              role="menuitem"
               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
               onClick={() => {
-                setMenuOpen(null);
-                setMenuPosition(null);
+                closeMenu();
                 onEdit(currentItem.id);
               }}
             >
-              <Pencil className="h-3 w-3" /> Editar
+              <Pencil className="h-3 w-3" aria-hidden="true" /> Editar
             </button>
             <button
+              role="menuitem"
               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-100"
               onClick={() => {
-                setMenuOpen(null);
-                setMenuPosition(null);
+                closeMenu();
                 onToggleActive(currentItem.id, currentItem.isActive);
               }}
             >
-              <Power className="h-3 w-3" />
+              <Power className="h-3 w-3" aria-hidden="true" />
               {currentItem.isActive ? 'Pausar' : 'Activar'}
             </button>
             <button
+              role="menuitem"
               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-red-600 hover:bg-red-50"
               onClick={() => {
-                setMenuOpen(null);
-                setMenuPosition(null);
+                closeMenu();
                 onDelete(currentItem.id);
               }}
             >
-              <Trash2 className="h-3 w-3" /> Eliminar
+              <Trash2 className="h-3 w-3" aria-hidden="true" /> Eliminar
             </button>
           </div>
         </>
