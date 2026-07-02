@@ -30,7 +30,7 @@ export function CategoryLimitDisplay({ categoryId }: CategoryLimitDisplayProps) 
   }, [categoryId]);
 
   if (loading) {
-    return <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />;
+    return <div className="h-4 w-16 motion-safe:animate-pulse rounded bg-gray-200" />;
   }
 
   if (!spending) return null;

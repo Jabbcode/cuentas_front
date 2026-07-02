@@ -11,7 +11,7 @@ export function TransactionEmpty({ onCreateClick }: TransactionEmptyProps) {
     <Card>
       <CardContent className="py-12 text-center">
         <ArrowLeftRight className="mx-auto h-12 w-12 text-gray-300" />
-        <p className="mt-4 text-gray-500">
+        <p className="mt-4 text-gray-600">
           No se encontraron transacciones con los filtros seleccionados.
         </p>
         <Button onClick={onCreateClick} className="mt-4">

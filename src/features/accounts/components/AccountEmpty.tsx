@@ -11,7 +11,7 @@ export function AccountEmpty({ onCreateClick }: AccountEmptyProps) {
     <Card className="sm:col-span-2 lg:col-span-3">
       <CardContent className="py-12 text-center">
         <Wallet className="mx-auto h-12 w-12 text-gray-300" />
-        <p className="mt-4 text-gray-500">No tienes cuentas. Crea una para empezar.</p>
+        <p className="mt-4 text-gray-600">No tienes cuentas. Crea una para empezar.</p>
         <Button onClick={onCreateClick} className="mt-4">
           <Plus className="mr-2 h-4 w-4" /> Crear primera cuenta
         </Button>

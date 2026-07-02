@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Calendar, Check, MoreVertical, Pencil, Trash2, Power, CreditCard } from 'lucide-react';
 import { Card, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
@@ -56,7 +56,7 @@ export function FixedExpenseCard({
           !item.isActive && 'opacity-60',
           item.isPaidThisMonth && 'border-green-200 bg-green-50/30',
           overdue && !item.isPaidThisMonth && 'border-red-200 bg-red-50/30',
-          dueSoon && !overdue && !item.isPaidThisMonth && 'border-orange-200 bg-orange-50/30'
+          dueSoon && !overdue && !item.isPaidThisMonth && 'border-amber-200 bg-amber-50/30'
         )}
       >
         <CardContent className="p-4">
@@ -88,7 +88,7 @@ export function FixedExpenseCard({
                 </div>
 
                 {item.description && (
-                  <p className="mt-1 truncate text-sm text-gray-400">{item.description}</p>
+                  <p className="mt-1 truncate text-sm text-gray-500">{item.description}</p>
                 )}
               </div>
             </div>

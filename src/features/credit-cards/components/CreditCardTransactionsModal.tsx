@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogHeader, DialogTitle, DialogContent } from '../../../components/ui/dialog';
 import { Badge } from '../../../components/ui/badge';
 import { CategoryIcon } from '../../../components/ui/category-icon';
@@ -146,7 +146,7 @@ export function CreditCardTransactionsModal({
                 onClick={() => setPeriodFilter('closed')}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                   periodFilter === 'closed'
-                    ? 'bg-orange-100 text-orange-700'
+                    ? 'bg-amber-100 text-amber-700'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -214,11 +214,11 @@ export function CreditCardTransactionsModal({
         {/* Transactions list */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-600 border-t-transparent" />
+            <div className="h-8 w-8 motion-safe:animate-spin rounded-full border-4 border-purple-600 border-t-transparent" />
           </div>
         ) : filteredTransactions.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">
+            <p className="text-gray-600">
               {categoryFilter !== 'all'
                 ? 'No hay transacciones para esta categoría'
                 : 'No hay transacciones en este período'}

@@ -30,7 +30,7 @@ export function CreditCardsPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-purple-600 border-t-transparent" />
+        <div className="h-10 w-10 motion-safe:animate-spin rounded-full border-4 border-purple-600 border-t-transparent" />
       </div>
     );
   }
@@ -44,7 +44,7 @@ export function CreditCardsPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Tarjetas de Crédito</h1>
-          <p className="text-gray-500">Gestiona tus tarjetas de crédito</p>
+          <p className="text-gray-600">Gestiona tus tarjetas de crédito</p>
         </div>
         <CreditCardEmpty />
       </div>
@@ -55,7 +55,7 @@ export function CreditCardsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Tarjetas de Crédito</h1>
-        <p className="text-gray-500">Gestiona tus tarjetas y pagos</p>
+        <p className="text-gray-600">Gestiona tus tarjetas y pagos</p>
       </div>
 
       <CreditCardSummary statements={statements} />

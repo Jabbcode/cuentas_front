@@ -23,7 +23,7 @@ export function SettingsPage() {
   if (!profile || !statistics) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 motion-safe:animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
   }
@@ -32,7 +32,7 @@ export function SettingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Configuración</h1>
-        <p className="text-gray-500">Gestiona tu cuenta y preferencias</p>
+        <p className="text-gray-600">Gestiona tu cuenta y preferencias</p>
       </div>
 
       {message && <SettingsFeedback message={message} />}

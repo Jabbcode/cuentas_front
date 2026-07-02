@@ -62,17 +62,15 @@ export function CategorySelect({
       >
         {selectedCategory ? (
           <div className="flex items-center gap-2">
-            <CategoryIcon
-              icon={selectedCategory.icon}
-              color={selectedCategory.color}
-              size="md"
-            />
+            <CategoryIcon icon={selectedCategory.icon} color={selectedCategory.color} size="md" />
             <span className="text-gray-900">{selectedCategory.name}</span>
           </div>
         ) : (
           <span className="text-gray-500">{placeholder}</span>
         )}
-        <ChevronDown className={cn('h-4 w-4 text-gray-400 transition-transform', isOpen && 'rotate-180')} />
+        <ChevronDown
+          className={cn('h-4 w-4 text-gray-500 transition-transform', isOpen && 'rotate-180')}
+        />
       </button>
 
       {/* Dropdown */}
@@ -80,7 +78,7 @@ export function CategorySelect({
         <div className="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white py-1 shadow-lg">
           <div className="max-h-60 overflow-y-auto">
             {categories.length === 0 ? (
-              <div className="px-3 py-2 text-sm text-gray-500">No hay categorías</div>
+              <div className="px-3 py-2 text-sm text-gray-600">No hay categorías</div>
             ) : (
               categories.map((category) => (
                 <button
@@ -96,16 +94,10 @@ export function CategorySelect({
                   )}
                 >
                   <div className="flex items-center gap-2">
-                    <CategoryIcon
-                      icon={category.icon}
-                      color={category.color}
-                      size="md"
-                    />
+                    <CategoryIcon icon={category.icon} color={category.color} size="md" />
                     <span className="text-gray-900">{category.name}</span>
                   </div>
-                  {value === category.id && (
-                    <Check className="h-4 w-4 text-blue-600" />
-                  )}
+                  {value === category.id && <Check className="h-4 w-4 text-blue-600" />}
                 </button>
               ))
             )}

@@ -1,4 +1,4 @@
-import { ArrowUpCircle, ArrowDownCircle, AlertTriangle } from 'lucide-react';
+﻿import { ArrowUpCircle, ArrowDownCircle, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogHeader,
@@ -125,17 +125,17 @@ export function TransactionFormDialog({
                 className={`mt-2 flex items-start gap-2 rounded-lg border p-3 ${
                   dateWarning.type === 'error'
                     ? 'border-red-200 bg-red-50'
-                    : 'border-orange-200 bg-orange-50'
+                    : 'border-amber-200 bg-amber-50'
                 }`}
               >
                 <AlertTriangle
                   className={`mt-0.5 h-4 w-4 flex-shrink-0 ${
-                    dateWarning.type === 'error' ? 'text-red-600' : 'text-orange-600'
+                    dateWarning.type === 'error' ? 'text-red-600' : 'text-amber-600'
                   }`}
                 />
                 <p
                   className={`text-xs ${
-                    dateWarning.type === 'error' ? 'text-red-800' : 'text-orange-800'
+                    dateWarning.type === 'error' ? 'text-red-800' : 'text-amber-800'
                   }`}
                 >
                   {dateWarning.message}

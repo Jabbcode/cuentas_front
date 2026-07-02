@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-01T00:00:00Z",
+  "title": "Design System: MisCuentas",
+  "extensions": {
+    "colorMeta": {
+      "azul-tinta": {
+        "role": "primary",
+        "displayName": "Azul Tinta",
+        "canonical": "#2563eb",
+        "tonalRamp": [
+          "#172554",
+          "#1e3a8a",
+          "#1d4ed8",
+          "#2563eb",
+          "#3b82f6",
+          "#93c5fd",
+          "#dbeafe",
+          "#eff6ff"
+        ]
+      },
+      "tinta-negra": {
+        "role": "neutral",
+        "displayName": "Tinta Negra",
+        "canonical": "#111827",
+        "tonalRamp": [
+          "#030712",
+          "#111827",
+          "#1f2937",
+          "#4b5563",
+          "#6b7280",
+          "#9ca3af",
+          "#e5e7eb",
+          "#f9fafb"
+        ]
+      },
+      "verde-ingreso": {
+        "role": "semantic-success",
+        "displayName": "Verde Ingreso",
+        "canonical": "#16a34a",
+        "tonalRamp": [
+          "#052e16",
+          "#14532d",
+          "#15803d",
+          "#16a34a",
+          "#22c55e",
+          "#86efac",
+          "#dcfce7",
+          "#f0fdf4"
+        ]
+      },
+      "rojo-gasto": {
+        "role": "semantic-danger",
+        "displayName": "Rojo Gasto",
+        "canonical": "#dc2626",
+        "tonalRamp": [
+          "#450a0a",
+          "#7f1d1d",
+          "#b91c1c",
+          "#dc2626",
+          "#ef4444",
+          "#fca5a5",
+          "#fee2e2",
+          "#fef2f2"
+        ]
+      },
+      "ambar-alerta": {
+        "role": "semantic-warning",
+        "displayName": "Ámbar Alerta",
+        "canonical": "#854d0e",
+        "tonalRamp": [
+          "#422006",
+          "#713f12",
+          "#854d0e",
+          "#a16207",
+          "#ca8a04",
+          "#facc15",
+          "#fef08a",
+          "#fef9c3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "El número protagonista — balance neto, total de deuda. Uno por vista."
+      },
+      "body": { "displayName": "Body", "purpose": "Texto general, filas, formularios (0.875rem)." }
+    },
+    "shadows": [
+      {
+        "name": "ambiental",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "purpose": "Cards, inputs y botones secundarios en reposo."
+      },
+      {
+        "name": "realce",
+        "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+        "purpose": "Botones primarios."
+      },
+      {
+        "name": "overlay",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "Modales y menús flotantes, con scrim negro 50%."
+      }
+    ],
+    "motion": [
+      {
+        "name": "transition-colors",
+        "value": "color, background-color, border-color 150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Estados hover/focus de botones, nav y badges."
+      },
+      {
+        "name": "drawer",
+        "value": "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Apertura del sidebar en móvil. Instantáneo con prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [{ "name": "lg", "value": "1024px" }]
+  },
+  "components": [
+    {
+      "name": "Botón Primario",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción principal — Azul Tinta, sombra Realce, foco anillado.",
+      "html": "<button class=\"ds-btn-primary\">Nueva transacción</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 8px 16px; background: #2563eb; color: #ffffff; font: 500 0.875rem/1 Inter, system-ui, sans-serif; border: none; border-radius: 6px; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); cursor: pointer; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-primary:hover { background: #1d4ed8; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #3b82f6; }"
+    },
+    {
+      "name": "Botón Outline",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Acción secundaria — borde gris sobre blanco.",
+      "html": "<button class=\"ds-btn-outline\">Cancelar</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 8px 16px; background: #ffffff; color: #111827; font: 500 0.875rem/1 Inter, system-ui, sans-serif; border: 1px solid #d1d5db; border-radius: 6px; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); cursor: pointer; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-outline:hover { background: #f9fafb; } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #3b82f6; }"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo de formulario — borde gris, foco anillo Azul Tinta.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"0,00 €\" />",
+      "css": ".ds-input { display: flex; height: 40px; width: 100%; max-width: 280px; padding: 8px 12px; background: #ffffff; color: #111827; font: 400 0.875rem/1.5 Inter, system-ui, sans-serif; border: 1px solid #d1d5db; border-radius: 6px; } .ds-input::placeholder { color: #6b7280; } .ds-input:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #3b82f6; }"
+    },
+    {
+      "name": "Badge de estado",
+      "kind": "chip",
+      "refersTo": "badge-status",
+      "description": "Píldora semántica — tinte de fondo + texto oscuro del mismo hue.",
+      "html": "<span class=\"ds-badge ds-badge-success\">Pagado</span> <span class=\"ds-badge ds-badge-warning\">Vence pronto</span> <span class=\"ds-badge ds-badge-danger\">Vencido</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; padding: 2px 10px; font: 600 0.75rem/1.4 Inter, system-ui, sans-serif; border: 1px solid transparent; border-radius: 9999px; } .ds-badge-success { background: #dcfce7; color: #166534; } .ds-badge-warning { background: #fef9c3; color: #854d0e; } .ds-badge-danger { background: #fee2e2; color: #991b1b; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Contenedor base — blanco, borde gris, sombra Ambiental.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Balance neto del mes</h3><p class=\"ds-card-value\">+1.240,50 €</p><p class=\"ds-card-meta\">Ingresos 3.100 € · Gastos 1.859,50 €</p></div>",
+      "css": ".ds-card { max-width: 320px; padding: 24px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); font-family: Inter, system-ui, sans-serif; } .ds-card-title { margin: 0; font-size: 0.875rem; font-weight: 500; color: #4b5563; } .ds-card-value { margin: 4px 0 8px; font-size: 1.875rem; font-weight: 700; line-height: 1.2; color: #16a34a; } .ds-card-meta { margin: 0; font-size: 0.75rem; color: #4b5563; }"
+    },
+    {
+      "name": "Ítem de navegación",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Ítem del sidebar — activo con Azul Superficie, reposo gris.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item ds-nav-item-active\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"9\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"5\"/><rect x=\"14\" y=\"12\" width=\"7\" height=\"9\"/><rect x=\"3\" y=\"16\" width=\"7\" height=\"5\"/></svg>Dashboard</a><a class=\"ds-nav-item\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12V7H5a2 2 0 0 1 0-4h14v4\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h16v-5\"/><path d=\"M18 12a2 2 0 0 0 0 4h4v-4Z\"/></svg>Cuentas</a></nav>",
+      "css": ".ds-nav { display: flex; flex-direction: column; gap: 4px; width: 224px; font-family: Inter, system-ui, sans-serif; } .ds-nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; font-size: 0.875rem; font-weight: 500; color: #4b5563; text-decoration: none; border-radius: 8px; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-nav-item:hover { background: #f3f4f6; color: #111827; } .ds-nav-item-active { background: #eff6ff; color: #1d4ed8; } .ds-nav-item:focus-visible { outline: none; box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #3b82f6; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Libro Mayor",
+    "overview": "MisCuentas es un libro mayor contable moderno: cada cifra en su sitio, cero ornamento, confianza por claridad. La jerarquía visual la dictan los datos, nunca la decoración. Fintech seria en tono doméstico: densidad de información con respiro, tema claro, una sola familia tipográfica.",
+    "keyCharacteristics": [
+      "Tema claro único: fondo blanco, tinta casi negra, un solo acento azul.",
+      "Color solo con significado: verde = ingreso, rojo = gasto, ámbar = alerta.",
+      "Componentes refinados y contenidos — la UI cede protagonismo al dato.",
+      "Elevación ambiental sutil: sombras mínimas omnipresentes, nunca dramáticas."
+    ],
+    "rules": [
+      {
+        "name": "La Regla del Semáforo",
+        "body": "Verde es ingreso, rojo es gasto, ámbar es alerta — siempre y solo eso. El color semántico nunca aparece solo: lo acompaña un signo (+/−) o un icono, porque el color no es el único portador de significado (AAA).",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla de la Tinta",
+        "body": "El Azul Tinta marca acción e identidad, nunca decoración. Si un elemento azul no es clickeable ni es la marca, está mal pintado.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Protagonista",
+        "body": "El tamaño tipográfico es proporcional a la importancia del dato, no a la del componente. Un solo Display por vista; si todo grita, nada se oye.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regla del Papel",
+        "body": "Todo vive a un milímetro de la mesa. Nada flota alto salvo lo que interrumpe (modal); si una card proyecta más sombra que un modal, está rota.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do usar los tintes semánticos (verde-tinte, rojo-tinte, ámbar-tinte) como fondo y su tono oscuro como texto — siempre el par completo, nunca mezclado entre hues.",
+      "Do acompañar todo color semántico con signo o icono (Regla del Semáforo, AAA).",
+      "Do mantener un solo número Display por vista; el resto en Title o Body.",
+      "Do conservar el anillo de foco visible (ring-2 azul, offset 2) en todo elemento interactivo.",
+      "Do respetar prefers-reduced-motion: las transiciones de drawer y progreso pasan a instantáneas."
+    ],
+    "donts": [
+      "Don't construir un dashboard SaaS genérico: grids de cards idénticas con icono + cifra + label repetidos.",
+      "Don't caer en banca tradicional: el Azul Tinta es de acción, no un azul-banco que baña la interfaz.",
+      "Don't gamificar: nada de confeti, medallas ni tono infantil, ni siquiera al saldar una deuda.",
+      "Don't usar Gris Medio (#6b7280) en párrafos — 4.6:1 incumple el objetivo AAA; mínimo Gris Secundario.",
+      "Don't añadir nuevos border-l-4 de color como acento lateral (el Hero de Balance actual es la excepción legada).",
+      "Don't usar clases de paleta cruda nuevas (purple-*, pink-*...): todo color nuevo entra primero a esta paleta con rol y nombre.",
+      "Don't introducir una segunda familia tipográfica ni dark mode parcial; el sistema es Inter + tema claro, completo o nada."
+    ]
+  }
+}

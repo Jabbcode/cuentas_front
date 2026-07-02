@@ -149,7 +149,7 @@ export function TransactionFilters({
               </span>
             )}
             <ChevronDown
-              className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isFiltersOpen ? 'rotate-180' : ''}`}
+              className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isFiltersOpen ? 'rotate-180' : ''}`}
             />
           </button>
           {hasActiveFilters && (
@@ -237,7 +237,7 @@ export function TransactionFilters({
                     ? 'Todas las categorías'
                     : `${categoryIds.length} categoría${categoryIds.length > 1 ? 's' : ''}`}
                 </span>
-                <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0 text-gray-400" />
+                <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0 text-gray-500" />
               </button>
               {categoryDropdownOpen && (
                 <div className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md border border-gray-200 bg-white shadow-lg">

@@ -1,4 +1,4 @@
-import { Calendar, Pencil, Trash2, PlayCircle, PauseCircle } from 'lucide-react';
+﻿import { Calendar, Pencil, Trash2, PlayCircle, PauseCircle } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { formatCurrency } from '../../../lib/utils';
 import { getScheduleText } from '../utils';
@@ -50,7 +50,7 @@ export function RecurringPaymentsList({
               <div className="mb-1 flex items-center gap-2">
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    payment.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                    payment.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'
                   }`}
                 >
                   {payment.isActive ? 'Activo' : 'Pausado'}
@@ -85,7 +85,7 @@ export function RecurringPaymentsList({
                 title={payment.isActive ? 'Pausar' : 'Reanudar'}
               >
                 {payment.isActive ? (
-                  <PauseCircle className="h-4 w-4 text-orange-600" />
+                  <PauseCircle className="h-4 w-4 text-amber-600" />
                 ) : (
                   <PlayCircle className="h-4 w-4 text-green-600" />
                 )}

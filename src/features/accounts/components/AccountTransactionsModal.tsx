@@ -59,7 +59,7 @@ function CategoryFilterSelect({ categories, value, onChange }: CategoryFilterSel
           <span className="text-gray-500">Todas las categorías</span>
         )}
         <ChevronDown
-          className={cn('h-4 w-4 text-gray-400 transition-transform', isOpen && 'rotate-180')}
+          className={cn('h-4 w-4 text-gray-500 transition-transform', isOpen && 'rotate-180')}
         />
       </button>
 
@@ -258,11 +258,11 @@ export function AccountTransactionsModal({
         {/* List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-purple-600 border-t-transparent" />
+            <div className="h-8 w-8 motion-safe:animate-spin rounded-full border-4 border-purple-600 border-t-transparent" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">No hay transacciones para mostrar</p>
+            <p className="text-gray-600">No hay transacciones para mostrar</p>
           </div>
         ) : groupByCategory ? (
           <div className="space-y-3">

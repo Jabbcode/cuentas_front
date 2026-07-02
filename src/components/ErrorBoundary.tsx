@@ -6,7 +6,7 @@ function ErrorFallback() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
       <p className="text-lg font-semibold text-gray-800">Algo salió mal</p>
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-gray-600">
         Ocurrió un error inesperado. Puedes intentar recargar la página.
       </p>
       <button

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogHeader,
@@ -178,7 +178,7 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
               </p>
               <p className="text-gray-900 font-medium">
                 Nuevo saldo restante:{' '}
-                <span className={newRemaining <= 0 ? 'text-green-600' : 'text-orange-600'}>
+                <span className={newRemaining <= 0 ? 'text-green-600' : 'text-amber-600'}>
                   {formatCurrency(Math.max(0, newRemaining))}
                 </span>
                 {newRemaining <= 0 && ' Deuda liquidada'}
@@ -226,7 +226,7 @@ export function DebtPaymentModal({ debt, onClose, onPay }: DebtPaymentModalProps
 
           {/* Overpayment Warning */}
           {paymentAmount > Number(debt.remainingAmount) + interest && (
-            <div className="rounded-lg border border-orange-200 bg-orange-50 p-2 text-xs text-orange-700">
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-700">
               El monto ingresado es mayor al monto restante + interés
             </div>
           )}

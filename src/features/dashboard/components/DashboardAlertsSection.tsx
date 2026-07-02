@@ -1,4 +1,4 @@
-import { AlertCircle, CreditCard, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+﻿import { AlertCircle, CreditCard, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatCurrency } from '../../../lib/utils';
 import {
   hasAlerts,
@@ -84,14 +84,14 @@ export function DashboardAlertsSection({
           {highUtilizationCards.map((card) => (
             <div
               key={card.account.id}
-              className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3"
+              className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3"
             >
-              <CreditCard className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+              <CreditCard className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-orange-900">
+                <p className="text-sm font-medium text-amber-900">
                   {card.account.name} — uso al {Math.round(card.usagePercentage * 100)}%
                 </p>
-                <p className="text-xs text-orange-700 mt-0.5">
+                <p className="text-xs text-amber-700 mt-0.5">
                   Disponible: {formatCurrency(card.available)}
                 </p>
               </div>

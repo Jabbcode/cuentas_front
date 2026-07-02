@@ -1,7 +1,12 @@
-import { useEffect } from 'react';
-import type { ReactNode } from 'react';
+import { createContext, useContext, useEffect, useId, useRef } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
+
+const DialogContext = createContext<{ titleId: string } | null>(null);
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 interface DialogProps {
   open: boolean;
@@ -11,6 +16,9 @@ interface DialogProps {
 }
 
 export function Dialog({ open, onClose, children, className }: DialogProps) {
+  const titleId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -27,27 +35,72 @@ export function Dialog({ open, onClose, children, className }: DialogProps) {
     };
   }, [open, onClose]);
 
+  // Foco inicial al abrir y restauración al elemento disparador al cerrar
+  useEffect(() => {
+    if (!open) return;
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    panelRef.current?.focus();
+    return () => {
+      previouslyFocused?.focus();
+    };
+  }, [open]);
+
+  const handleKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Tab') return;
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    const focusables = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (!first || !last) {
+      e.preventDefault();
+      return;
+    }
+
+    const active = document.activeElement;
+    if (e.shiftKey) {
+      if (active === first || active === panel) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else if (active === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div
-        className={cn(
-          'relative z-50 my-8 w-full max-w-lg rounded-lg border border-gray-200 bg-white p-6 shadow-xl',
-          className
-        )}
-      >
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded-sm p-1 text-gray-400 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <DialogContext.Provider value={{ titleId }}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          tabIndex={-1}
+          onKeyDown={handleKeyDown}
+          className={cn(
+            'relative z-50 my-8 w-full max-w-lg rounded-lg border border-gray-200 bg-white p-6 shadow-xl focus:outline-none',
+            className
+          )}
         >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </button>
-        {children}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="absolute right-2 top-2 inline-flex items-center justify-center rounded-md p-3 text-gray-500 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+          {children}
+        </div>
       </div>
-    </div>
+    </DialogContext.Provider>
   );
 }
 
@@ -60,14 +113,24 @@ export function DialogHeader({ children, className }: { children: ReactNode; cla
 }
 
 export function DialogTitle({ children, className }: { children: ReactNode; className?: string }) {
+  const context = useContext(DialogContext);
   return (
-    <h2 className={cn('text-lg font-semibold leading-none tracking-tight text-gray-900', className)}>
+    <h2
+      id={context?.titleId}
+      className={cn('text-lg font-semibold leading-none tracking-tight text-gray-900', className)}
+    >
       {children}
     </h2>
   );
 }
 
-export function DialogContent({ children, className }: { children: ReactNode; className?: string }) {
+export function DialogContent({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return <div className={cn('mt-4', className)}>{children}</div>;
 }
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+﻿import { useState, useRef } from 'react';
 import { Camera, Upload, AlertTriangle, CheckCircle, X, Eye, Package } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -123,13 +123,13 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
               onClick={() => fileInputRef.current?.click()}
               className="w-full flex flex-col items-center justify-center gap-3 p-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors"
             >
-              <Upload className="h-12 w-12 text-gray-400" />
+              <Upload className="h-12 w-12 text-gray-500" />
               <div className="text-center">
                 <p className="text-sm font-medium text-gray-900">Sube una imagen de tu factura</p>
-                <p className="text-xs text-gray-500 mt-1">JPG, PNG o WEBP - Máximo 10MB</p>
+                <p className="text-xs text-gray-600 mt-1">JPG, PNG o WEBP - Máximo 10MB</p>
               </div>
             </button>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2 text-xs text-gray-600">
               <Camera className="h-4 w-4" />
               <span>Tip: Asegúrate que la foto esté clara y bien iluminada</span>
             </div>
@@ -154,7 +154,7 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
 
             {scanning && (
               <div className="flex flex-col items-center gap-3 py-4">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+                <div className="h-8 w-8 motion-safe:animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
                 <p className="text-sm text-gray-600">Procesando factura...</p>
               </div>
             )}
@@ -164,14 +164,14 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                 {scanResult.duplicate &&
                   scanResult.matchType === 'exact' &&
                   scanResult.existingTransaction && (
-                    <div className="rounded-lg border-2 border-orange-200 bg-orange-50 p-4">
+                    <div className="rounded-lg border-2 border-amber-200 bg-amber-50 p-4">
                       <div className="flex items-start gap-3">
-                        <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                        <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
-                          <h3 className="font-semibold text-orange-900 mb-2">
+                          <h3 className="font-semibold text-amber-900 mb-2">
                             Factura ya registrada
                           </h3>
-                          <p className="text-sm text-orange-800 mb-3">
+                          <p className="text-sm text-amber-800 mb-3">
                             Esta factura fue escaneada el{' '}
                             {format(
                               new Date(scanResult.existingTransaction.createdAt),
@@ -429,7 +429,7 @@ export function ReceiptScanner({ open, onClose, onScanned, onViewExisting }: Rec
                                         0
                                       ) - scanResult.scannedData.amount
                                     ) > 0.01 && (
-                                      <tr className="text-xs text-orange-600">
+                                      <tr className="text-xs text-amber-600">
                                         <td colSpan={4} className="pt-1 text-right">
                                           La suma no coincide con el total de la factura
                                         </td>

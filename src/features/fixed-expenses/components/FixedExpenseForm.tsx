@@ -131,7 +131,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
     return (
       <Dialog open onClose={onClose}>
         <DialogContent className="flex h-32 items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+          <div className="h-8 w-8 motion-safe:animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
         </DialogContent>
       </Dialog>
     );
@@ -277,7 +277,7 @@ export function FixedExpenseForm({ editId, onClose, onSuccess }: FixedExpenseFor
               <Zap className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" />
               <div>
                 <p className="text-sm font-medium text-gray-900">Auto-generar transaccion</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-600">
                   Se creara automaticamente en el dia {formData.dueDay} de cada mes
                 </p>
               </div>

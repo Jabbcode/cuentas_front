@@ -1,4 +1,4 @@
-import { Plus, TrendingDown, TrendingUp } from 'lucide-react';
+﻿import { Plus, TrendingDown, TrendingUp } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { ErrorCard } from '../components/ui/ErrorCard';
 import { Card, CardContent } from '../components/ui/card';
@@ -26,7 +26,7 @@ const CREDIT_CARD_ICON = (
 );
 
 const DEBT_ICON = (
-  <div className="rounded-full bg-orange-100 p-1.5">
+  <div className="rounded-full bg-amber-100 p-1.5">
     <span className="text-base">💰</span>
   </div>
 );
@@ -72,7 +72,7 @@ export function FixedExpensesPage() {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+        <div className="h-10 w-10 motion-safe:animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
       </div>
     );
   }
@@ -86,7 +86,7 @@ export function FixedExpensesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Gastos Fijos</h1>
-          <p className="text-gray-500">Gestiona tus gastos e ingresos recurrentes mensuales</p>
+          <p className="text-gray-600">Gestiona tus gastos e ingresos recurrentes mensuales</p>
         </div>
         <Button onClick={openCreateForm}>
           <Plus className="mr-2 h-4 w-4" /> Nuevo Gasto Fijo
@@ -96,12 +96,12 @@ export function FixedExpensesPage() {
       {summary && <MonthlyFixedSummary summary={summary} />}
 
       {summary && summary.pendingCount > 0 && (
-        <Card className="border-orange-200 bg-orange-50">
+        <Card className="border-amber-200 bg-amber-50">
           <CardContent className="py-4">
-            <p className="font-medium text-orange-800">
+            <p className="font-medium text-amber-800">
               Tienes {summary.pendingCount} pago(s) pendiente(s) este mes
             </p>
-            <p className="text-sm text-orange-600">
+            <p className="text-sm text-amber-600">
               Total pendiente: {formatCurrency(pendingAmount)}
             </p>
           </CardContent>
