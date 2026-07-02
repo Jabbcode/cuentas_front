@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -149,14 +149,14 @@ export function EditTransactionModal({
             {errors.amount && <p className="text-sm text-red-600 mt-1">{errors.amount.message}</p>}
 
             {showAmountWarning && account && (
-              <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-start gap-2">
-                  <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="flex-1 text-sm">
-                    <p className="font-medium text-orange-900 mb-2">
+                    <p className="font-medium text-amber-900 mb-2">
                       Cambiar el monto afectará el balance de tu cuenta
                     </p>
-                    <div className="space-y-1 text-orange-800">
+                    <div className="space-y-1 text-amber-800">
                       <p>
                         <span className="font-medium">Monto original:</span>{' '}
                         {formatCurrency(originalAmount)}
@@ -172,7 +172,7 @@ export function EditTransactionModal({
                           {formatCurrency(Math.abs(amountDiff))}
                         </span>
                       </p>
-                      <div className="pt-2 mt-2 border-t border-orange-300">
+                      <div className="pt-2 mt-2 border-t border-amber-300">
                         <p className="font-medium">Balance de {account.name}:</p>
                         <p>
                           {formatCurrency(Number(account.balance))} → {formatCurrency(newBalance)}
@@ -196,7 +196,7 @@ export function EditTransactionModal({
               Cuenta: <span className="font-medium">{transaction.account?.name}</span>
             </p>
             {transaction.fixedExpenseId && (
-              <p className="text-xs text-orange-600 mt-1">
+              <p className="text-xs text-amber-600 mt-1">
                 Esta transacción está vinculada a un gasto fijo
               </p>
             )}

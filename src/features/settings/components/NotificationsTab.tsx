@@ -31,7 +31,7 @@ export function NotificationsTab() {
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-1">Preferencias de Notificaciones</h2>
-      <p className="text-sm text-gray-500 mb-6">Elige qué notificaciones quieres recibir.</p>
+      <p className="text-sm text-gray-600 mb-6">Elige qué notificaciones quieres recibir.</p>
       {preferences ? (
         <div className="space-y-4">
           {NOTIFICATION_ITEMS.map(({ key, label, desc }) => (
@@ -41,7 +41,7 @@ export function NotificationsTab() {
             >
               <div>
                 <p className="text-sm font-medium text-gray-900">{label}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+                <p className="text-xs text-gray-600 mt-0.5">{desc}</p>
               </div>
               <button
                 role="switch"
@@ -61,7 +61,7 @@ export function NotificationsTab() {
           ))}
         </div>
       ) : (
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mx-auto" />
+        <div className="h-8 w-8 motion-safe:animate-spin rounded-full border-2 border-blue-600 border-t-transparent mx-auto" />
       )}
     </Card>
   );

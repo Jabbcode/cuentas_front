@@ -47,7 +47,7 @@ export function CategoryList({ items, title, onEdit, onDelete }: CategoryListPro
                     variant="ghost"
                     size="icon"
                     onClick={() => onDelete(cat.id)}
-                    className="text-gray-400 hover:text-red-600"
+                    className="text-gray-500 hover:text-red-600"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -66,14 +66,14 @@ export function CategoryList({ items, title, onEdit, onDelete }: CategoryListPro
                   variant="ghost"
                   size="icon"
                   onClick={() => onDelete(cat.id)}
-                  className="text-gray-400 hover:text-red-600"
+                  className="text-gray-500 hover:text-red-600"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           ))}
-          {items.length === 0 && <p className="py-8 text-center text-gray-500">Sin categorías</p>}
+          {items.length === 0 && <p className="py-8 text-center text-gray-600">Sin categorías</p>}
         </div>
       </CardContent>
     </Card>

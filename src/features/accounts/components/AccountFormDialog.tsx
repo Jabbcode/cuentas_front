@@ -163,7 +163,7 @@ function CreditCardFields({
           value={formData.creditLimit}
           onChange={(e) => onChange({ creditLimit: e.target.value })}
         />
-        <p className="mt-1 text-xs text-gray-500">Monto máximo disponible en la tarjeta</p>
+        <p className="mt-1 text-xs text-gray-600">Monto máximo disponible en la tarjeta</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -178,7 +178,7 @@ function CreditCardFields({
             value={formData.cutoffDay}
             onChange={(e) => onChange({ cutoffDay: e.target.value })}
           />
-          <p className="mt-1 text-xs text-gray-500">Día que cierra el período (1-31)</p>
+          <p className="mt-1 text-xs text-gray-600">Día que cierra el período (1-31)</p>
         </div>
 
         <div>
@@ -192,7 +192,7 @@ function CreditCardFields({
             value={formData.paymentDueDay}
             onChange={(e) => onChange({ paymentDueDay: e.target.value })}
           />
-          <p className="mt-1 text-xs text-gray-500">Día de vencimiento del pago (1-31)</p>
+          <p className="mt-1 text-xs text-gray-600">Día de vencimiento del pago (1-31)</p>
         </div>
       </div>
 
@@ -210,7 +210,7 @@ function CreditCardFields({
             </option>
           ))}
         </Select>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-gray-600">
           Cuenta desde la cual se descontará el pago de la tarjeta
         </p>
       </div>

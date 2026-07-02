@@ -115,7 +115,7 @@ export function DebtForm({ debt, onClose, onSuccess }: DebtFormProps) {
               disabled={!!debt}
             />
             {debt && (
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 El monto total no se puede modificar después de crear la deuda
               </p>
             )}
@@ -167,7 +167,7 @@ export function DebtForm({ debt, onClose, onSuccess }: DebtFormProps) {
               </div>
             </div>
 
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-600 mt-2">
               El interés se aplicará sobre el monto restante en cada pago
             </p>
           </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Wallet,
   CreditCard,
@@ -42,6 +42,7 @@ export function AccountCard({
   statement,
 }: AccountCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const Icon = accountTypeIcons[account.type];
 
   return (
@@ -61,45 +62,64 @@ export function AccountCard({
             </div>
           </div>
 
-          <div className="relative">
+          <div
+            className="relative"
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setMenuOpen(false);
+                menuTriggerRef.current?.focus();
+              }
+            }}
+          >
             <Button
+              ref={menuTriggerRef}
               variant="ghost"
               size="icon"
               className="h-8 w-8"
+              aria-label={`Opciones de ${account.name}`}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </Button>
             {menuOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-8 z-20 w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+                <div
+                  role="menu"
+                  aria-label={`Opciones de ${account.name}`}
+                  className="absolute right-0 top-8 z-20 w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg"
+                >
                   <button
+                    role="menuitem"
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => {
                       setMenuOpen(false);
                       onViewTransactions(account.id);
                     }}
                   >
-                    <ListOrdered className="h-4 w-4" /> Transacciones
+                    <ListOrdered className="h-4 w-4" aria-hidden="true" /> Transacciones
                   </button>
                   <button
+                    role="menuitem"
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => {
                       setMenuOpen(false);
                       onEdit(account);
                     }}
                   >
-                    <Pencil className="h-4 w-4" /> Editar
+                    <Pencil className="h-4 w-4" aria-hidden="true" /> Editar
                   </button>
                   <button
+                    role="menuitem"
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                     onClick={() => {
                       setMenuOpen(false);
                       onDelete(account.id);
                     }}
                   >
-                    <Trash2 className="h-4 w-4" /> Eliminar
+                    <Trash2 className="h-4 w-4" aria-hidden="true" /> Eliminar
                   </button>
                 </div>
               </>
@@ -153,7 +173,7 @@ export function AccountCard({
 
                     <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
                       <div
-                        className="h-full bg-gray-600 transition-all"
+                        className="h-full bg-gray-600 motion-safe:transition-all"
                         style={{ width: `${pct}%` }}
                       />
                     </div>

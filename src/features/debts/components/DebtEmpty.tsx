@@ -12,7 +12,7 @@ export function DebtEmpty({ onAction }: DebtEmptyProps) {
       <CardContent className="py-12 text-center">
         <Landmark className="mx-auto h-12 w-12 text-gray-300" />
         <p className="mt-4 text-lg font-medium text-gray-900">No tienes deudas registradas</p>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-600">
           Registra tus deudas para llevar control de pagos e intereses
         </p>
         <Button onClick={onAction} className="mt-4">

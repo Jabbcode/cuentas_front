@@ -47,21 +47,22 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-gray-200 bg-white transition-transform duration-300 lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-gray-200 bg-white duration-300 motion-safe:transition-transform lg:static lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex h-14 items-center justify-between border-b border-gray-200 px-4 lg:h-16 lg:px-6">
-          <h1 className="text-xl font-bold text-blue-600">MisCuentas</h1>
+          <span className="text-xl font-bold text-blue-600">MisCuentas</span>
           <div className="flex items-center gap-1">
             <span className="hidden lg:block">
               <NotificationBell />
             </span>
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 lg:hidden"
+              aria-label="Cerrar menú"
+              className="rounded-lg p-2.5 text-gray-500 hover:bg-gray-100 lg:hidden"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
         </div>

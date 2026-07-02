@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import { CalendarClock, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
@@ -11,7 +11,7 @@ interface FixedExpensesSummaryCardProps {
 
 export function FixedExpensesSummaryCard({ summary }: FixedExpensesSummaryCardProps) {
   return (
-    <Card className="border-l-4 border-l-blue-500">
+    <Card>
       <CardHeader className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between lg:p-6">
         <div className="flex items-center gap-3">
           <div className="rounded-full bg-blue-100 p-2">
@@ -37,22 +37,22 @@ export function FixedExpensesSummaryCard({ summary }: FixedExpensesSummaryCardPr
             </p>
           </div>
           <div className="rounded-lg bg-green-50 p-2 text-center lg:p-4">
-            <p className="text-xs font-medium text-gray-500 lg:text-sm">Pagados</p>
+            <p className="text-xs font-medium text-green-800 lg:text-sm">Pagados</p>
             <p className="mt-1 text-base font-bold text-green-600 lg:text-2xl">
               {summary.paidCount}/{summary.totalCount}
             </p>
           </div>
-          <div className="rounded-lg bg-orange-50 p-2 text-center lg:p-4">
-            <p className="text-xs font-medium text-gray-500 lg:text-sm">Pendientes</p>
-            <p className="mt-1 text-base font-bold text-orange-600 lg:text-2xl">
+          <div className="rounded-lg bg-amber-50 p-2 text-center lg:p-4">
+            <p className="text-xs font-medium text-amber-800 lg:text-sm">Pendientes</p>
+            <p className="mt-1 text-base font-bold text-amber-600 lg:text-2xl">
               {summary.pendingCount}
             </p>
           </div>
         </div>
 
         {summary.pendingCount > 0 && (
-          <div className="mt-3 rounded-lg border border-orange-200 bg-orange-50 p-2 lg:mt-4 lg:p-3">
-            <p className="text-xs font-medium text-orange-800 lg:text-sm">
+          <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-2 lg:mt-4 lg:p-3">
+            <p className="text-xs font-medium text-amber-800 lg:text-sm">
               {summary.pendingCount} gasto(s) pendiente(s) este mes
             </p>
           </div>

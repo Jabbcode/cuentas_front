@@ -1,4 +1,4 @@
-import { AlertCircle, Calendar, TrendingUp } from 'lucide-react';
+﻿import { AlertCircle, Calendar, TrendingUp } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/card';
 import { formatCurrency } from '../../../lib/utils';
 import type { CreditCardStatement } from '../../../types';
@@ -43,12 +43,12 @@ export function CreditCardSummary({ statements }: CreditCardSummaryProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between p-4 pb-2 lg:p-6 lg:pb-2">
           <CardTitle className="text-sm font-medium text-gray-500">Período Actual</CardTitle>
-          <div className="rounded-full bg-orange-100 p-2">
-            <Calendar className="h-4 w-4 text-orange-600" />
+          <div className="rounded-full bg-amber-100 p-2">
+            <Calendar className="h-4 w-4 text-amber-600" />
           </div>
         </CardHeader>
         <CardContent className="p-4 pt-0 lg:p-6 lg:pt-0">
-          <div className="text-2xl font-bold text-orange-600">
+          <div className="text-2xl font-bold text-amber-600">
             {formatCurrency(currentPeriodTotal)}
           </div>
           <p className="text-xs text-gray-500 mt-1">Acumulado este período</p>

@@ -1,4 +1,4 @@
-import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
+﻿import { CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import { CardHeader, CardTitle } from '../../../components/ui/card';
 import { formatCurrency } from '../../../lib/utils';
 import type { CreditCardStatement } from '../../../types';
@@ -23,11 +23,11 @@ export function CreditCardHeader({
   const closedBalance = statement.closedPeriod.isPaid ? 0 : statement.closedPeriod.balance;
 
   return (
-    <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 lg:p-6">
+    <CardHeader className="border-b border-gray-100 p-4 lg:p-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1">
-          <div className="rounded-full bg-purple-100 p-2">
-            <CreditCard className="h-5 w-5 text-purple-600" />
+          <div className="rounded-full bg-blue-50 p-2">
+            <CreditCard className="h-5 w-5 text-blue-600" />
           </div>
           <div>
             <CardTitle className="text-lg">{statement.account.name}</CardTitle>
@@ -39,13 +39,13 @@ export function CreditCardHeader({
         {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
-            className="p-2 hover:bg-purple-100 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             aria-label={isCollapsed ? 'Expandir tarjeta' : 'Colapsar tarjeta'}
           >
             {isCollapsed ? (
-              <ChevronDown className="h-5 w-5 text-purple-600" />
+              <ChevronDown className="h-5 w-5 text-gray-600" />
             ) : (
-              <ChevronUp className="h-5 w-5 text-purple-600" />
+              <ChevronUp className="h-5 w-5 text-gray-600" />
             )}
           </button>
         )}
@@ -73,11 +73,11 @@ export function CreditCardHeader({
 
         <div className="h-4 w-full rounded-full bg-gray-200 overflow-hidden flex">
           <div
-            className={`h-full transition-all ${
+            className={`h-full motion-safe:transition-all ${
               usagePercentage >= 90
                 ? 'bg-red-500'
                 : usagePercentage >= 80
-                  ? 'bg-orange-500'
+                  ? 'bg-amber-500'
                   : 'bg-blue-500'
             }`}
             style={{ width: `${usagePercentage}%` }}
@@ -91,7 +91,7 @@ export function CreditCardHeader({
             Usado: <span className="font-medium text-gray-900">{usagePercentage}%</span>
           </span>
           {!statement.closedPeriod.isPaid && closedBalance > 0 && (
-            <span className="text-orange-600 font-medium">
+            <span className="text-amber-600 font-medium">
               ⚠ Periodo cerrado sin pagar: {formatCurrency(closedBalance)}
             </span>
           )}

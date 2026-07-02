@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { Bell, X, Check, CheckCheck, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -14,7 +14,7 @@ function NotificationItem({
   onDelete: (id: string) => void;
 }) {
   const typeColors: Record<string, string> = {
-    category_limit: 'bg-orange-100 text-orange-700',
+    category_limit: 'bg-amber-100 text-amber-700',
     debt_due: 'bg-red-100 text-red-700',
     monthly_summary: 'bg-blue-100 text-blue-700',
     auto_generated: 'bg-amber-100 text-amber-700',
@@ -56,10 +56,10 @@ function NotificationItem({
           {!notification.read && (
             <span className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
           )}
-          <span className="text-xs text-gray-400 ml-auto">{timeAgo(notification.createdAt)}</span>
+          <span className="text-xs text-gray-500 ml-auto">{timeAgo(notification.createdAt)}</span>
         </div>
         <p className="text-sm font-medium text-gray-900 truncate">{notification.title}</p>
-        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2" title={notification.message}>
+        <p className="text-xs text-gray-600 mt-0.5 line-clamp-2" title={notification.message}>
           {notification.message}
         </p>
       </div>
@@ -67,7 +67,7 @@ function NotificationItem({
         {!notification.read && (
           <button
             onClick={() => onRead(notification.id)}
-            className="p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+            className="p-1 rounded text-gray-500 hover:text-blue-600 hover:bg-blue-50"
             title="Marcar como leída"
           >
             <Check className="h-3.5 w-3.5" />
@@ -75,7 +75,7 @@ function NotificationItem({
         )}
         <button
           onClick={() => onDelete(notification.id)}
-          className="p-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50"
+          className="p-1 rounded text-gray-500 hover:text-red-600 hover:bg-red-50"
           title="Eliminar"
         >
           <Trash2 className="h-3.5 w-3.5" />
@@ -140,7 +140,7 @@ export function NotificationBell() {
               )}
               <button
                 onClick={() => setOpen(false)}
-                className="p-1 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                className="p-1 rounded text-gray-500 hover:text-gray-600 hover:bg-gray-100"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -149,7 +149,7 @@ export function NotificationBell() {
 
           <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
             {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-gray-400">
+              <div className="px-4 py-8 text-center text-sm text-gray-500">
                 No tienes notificaciones
               </div>
             ) : (

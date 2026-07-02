@@ -1,4 +1,4 @@
-import { AlertCircle } from 'lucide-react';
+﻿import { AlertCircle } from 'lucide-react';
 
 interface Alert {
   type: string;
@@ -22,7 +22,7 @@ export function CreditCardAlerts({ alerts }: CreditCardAlertsProps) {
             alert.severity === 'error'
               ? 'border-red-200 bg-red-50 text-red-800'
               : alert.severity === 'warning'
-                ? 'border-orange-200 bg-orange-50 text-orange-800'
+                ? 'border-amber-200 bg-amber-50 text-amber-800'
                 : 'border-blue-200 bg-blue-50 text-blue-800'
           }`}
         >
