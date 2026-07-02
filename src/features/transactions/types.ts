@@ -28,6 +28,7 @@ export interface TransactionFilterState {
   maxAmount: string;
   type: 'all' | 'expense' | 'income';
   groupByCategory: boolean;
+  tag?: string;
 }
 
 export interface TransactionPaginationState {
