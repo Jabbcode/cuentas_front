@@ -1,8 +1,11 @@
 import type { FeedbackMessage } from './types';
-import { getApiErrorMessage } from '../../lib/api-errors';
 
 export function extractApiError(err: unknown, fallback: string): string {
-  return getApiErrorMessage(err, fallback);
+  if (err != null && typeof err === 'object' && 'response' in err) {
+    const response = (err as { response?: { data?: { error?: string } } }).response;
+    if (response?.data?.error) return response.data.error;
+  }
+  return fallback;
 }
 
 /**

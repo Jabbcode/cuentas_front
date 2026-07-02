@@ -174,7 +174,8 @@ export function hasActiveFilters(filters: TransactionFilterState): boolean {
     filters.accountId !== 'all' ||
     filters.minAmount !== '' ||
     filters.maxAmount !== '' ||
-    filters.type !== 'all'
+    filters.type !== 'all' ||
+    (filters.tag !== undefined && filters.tag !== '')
   );
 }
 
@@ -187,4 +188,5 @@ export const DEFAULT_FILTER_STATE: TransactionFilterState = {
   maxAmount: '',
   type: 'all',
   groupByCategory: false,
+  tag: '',
 };
