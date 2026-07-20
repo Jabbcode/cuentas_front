@@ -5,22 +5,22 @@
 ### Componentes React
 
 - **Formato:** PascalCase
-- **Ubicación:** `src/components/`
+- **Ubicación:** `src/features/<module>/components/` (por feature) o `src/components/` (compartidos entre features)
 - **Ejemplos:** `AccountCard.tsx`, `TransactionForm.tsx`, `DashboardSummary.tsx`
 - **Estructura:** Un componente principal por archivo
 
 ### Custom Hooks
 
 - **Formato:** camelCase con prefijo `use`
-- **Ubicación:** `src/hooks/`
-- **Ejemplos:** `useAccounts.ts`, `useTransactions.ts`, `useDashboard.ts`
+- **Ubicación:** `src/features/<module>/hooks/`
+- **Ejemplos:** `useAccounts.ts` (fetch base), `useAccountsPage.ts` (estado completo de página)
 - **Regla:** Siempre comienzan con "use"
 
 ### Archivos API
 
-- **Formato:** `<recurso>.api.ts`
-- **Ubicación:** `src/api/`
-- **Ejemplos:** `accounts.api.ts`, `transactions.api.ts`, `auth.api.ts`
+- **Formato:** `api.ts` (único cliente HTTP por módulo)
+- **Ubicación:** `src/features/<module>/api.ts`
+- **Ejemplos:** `features/accounts/api.ts`, `features/transactions/api.ts`, `features/auth/api.ts`
 - **Exportación:** Named export de función `<recursoPlural>Api` con métodos
 
 ### Variables y Funciones
@@ -52,26 +52,27 @@
 
 ```
 src/
-├── api/                          # HTTP clients
-│   ├── client.ts                 # Configuración Axios
-│   ├── accounts.api.ts
-│   ├── transactions.api.ts
-│   └── *.api.ts
-├── components/                   # Componentes reutilizables
-│   ├── AccountCard.tsx
-│   ├── TransactionForm.tsx
+├── api/                          # Cliente Axios base compartido
+│   └── client.ts
+├── features/<module>/            # Dominio — ver ADR-008
+│   ├── index.ts                  # barrel — único entry point público
+│   ├── types.ts
+│   ├── utils.ts
+│   ├── api.ts                    # cliente HTTP del módulo
+│   ├── hooks/
+│   │   ├── use<Resource>.ts      # fetch + estado base
+│   │   └── use<Resource>Page.ts  # estado completo de página
+│   └── components/
+│       └── ...
+├── components/                   # Componentes UI compartidos entre features
 │   └── ...
-├── pages/                        # Páginas/rutas
+├── pages/                        # Páginas/rutas — importan desde el barrel del feature
 │   ├── DashboardPage.tsx
 │   ├── AccountsPage.tsx
 │   └── ...
-├── hooks/                        # Custom hooks
-│   ├── useAccounts.ts
-│   ├── useTransactions.ts
-│   └── ...
 ├── context/                      # Context providers
 │   └── AuthContext.tsx
-├── types/                        # TypeScript definitions
+├── types/                        # TypeScript definitions compartidas
 │   └── index.ts
 ├── lib/                          # Utilidades
 │   └── *.ts
@@ -135,8 +136,8 @@ export function TransactionForm({ onSubmit, isLoading = false }: Props) {
 ### Patrón de API Client
 
 ```typescript
-import { api } from './client';
-import type { Account } from '../types';
+import { api } from '../../api/client';
+import type { Account } from '../../types';
 
 export const accountsApi = {
   getAll: () => api.get<Account[]>('/accounts').then((r) => r.data),
@@ -248,9 +249,9 @@ export function AccountCard({ account, onEdit, isSelected = false }: Props) {
 
 ### Token JWT
 
-- Almacenado en `localStorage.token`
-- Añadido automáticamente por interceptor en header `Authorization: Bearer <token>`
-- Si expira (401), se elimina y redirige a /login
+- Vive en cookie **httpOnly** gestionada por el backend — nunca en localStorage ni en Context
+- Enviado automáticamente por el browser vía `withCredentials: true` en Axios
+- Si expira (401), el response interceptor dispara `auth:unauthorized` → `AuthContext` limpia sesión y redirige a /login
 
 ### Seguridad
 

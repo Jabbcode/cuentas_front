@@ -27,37 +27,11 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  localStorage.clear();
   vi.restoreAllMocks();
 });
 
 afterEach(() => {
   api.defaults.adapter = originalAdapter;
-});
-
-// ─── Request interceptor ──────────────────────────────────────────────────────
-
-describe('request interceptor', () => {
-  it('adds Authorization header when token exists in localStorage', async () => {
-    localStorage.setItem('token', 'test-token-abc');
-    const adapter = mockAdapter(200);
-    api.defaults.adapter = adapter;
-
-    await api.get('/test');
-
-    const config = (adapter as ReturnType<typeof vi.fn>).mock.calls[0][0];
-    expect(config.headers.Authorization).toBe('Bearer test-token-abc');
-  });
-
-  it('does not add Authorization header when no token in localStorage', async () => {
-    const adapter = mockAdapter(200);
-    api.defaults.adapter = adapter;
-
-    await api.get('/test');
-
-    const config = (adapter as ReturnType<typeof vi.fn>).mock.calls[0][0];
-    expect(config.headers?.Authorization).toBeUndefined();
-  });
 });
 
 // ─── Response interceptor ─────────────────────────────────────────────────────

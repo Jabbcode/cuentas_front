@@ -4,11 +4,10 @@
 
 Al comenzar cualquier conversación en este proyecto, carga automáticamente:
 
-1. `.claude/system-prompt.md` — instrucciones del meta-agente
-2. `.claude/context.md` — stack, estructura y flujo del proyecto
-3. `.claude/conventions.md` — patrones de código y convenciones
-4. `.claude/decisions/ADR-decisions.md` — decisiones arquitectónicas
-5. `.claude/project-state.md` — estado actual del proyecto
+1. `.claude/context.md` — stack, estructura y flujo del proyecto
+2. `.claude/conventions.md` — patrones de código y convenciones
+3. `.claude/decisions/ADR-decisions.md` — decisiones arquitectónicas
+4. `.claude/project-state.md` — estado actual del proyecto
 
 Luego espera instrucciones del usuario.
 
@@ -16,17 +15,7 @@ Luego espera instrucciones del usuario.
 
 ## Flujo de trabajo
 
-```
-Usuario: "Lee la tarea FEAT-XXX de Notion"
-Claude:  → Lee Notion vía MCP → genera PROPUESTA (10 líneas máx)
-
-Usuario: "OK" / "Cambio: ..."
-Claude:  → IMPLEMENTA (componente + hook + API client si aplica)
-         → Verifica TypeScript sin errores antes de reportar
-
-Usuario: "OK"
-Claude:  → LISTO — pide revisión, no auto-valida
-```
+Sigue el flujo de PROPUESTA → confirmación → IMPLEMENTACIÓN definido en el CLAUDE.md global. Las specs de features/refactors viven en `~/vault/workspaces/cuentas-app/specs/<feature>/spec.md` — consultarlas antes de proponer cambios que toquen código ya especificado.
 
 ## Reglas críticas
 
@@ -53,3 +42,14 @@ React 19 + TypeScript 5.9 + Vite 8 + TailwindCSS 4 + Axios + Zod + React Hook Fo
 ## Estado actual
 
 Ver `.claude/project-state.md`
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
