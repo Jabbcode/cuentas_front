@@ -4,11 +4,11 @@ Documento vivo del estado actual del proyecto. Actualizar regularmente.
 
 ## 📅 Fecha de Actualización
 
-**Última actualización:** 2026-06-01
+**Última actualización:** 2026-07-20
 
 ## 🚀 Estado General
 
-Aplicación en producción activa. Arquitectura feature-module completa. Observabilidad con Sentry + logger operativa. JWT migrado a httpOnly cookies.
+Aplicación en producción activa. Arquitectura feature-module completa. Observabilidad con Sentry + logger operativa. JWT migrado a httpOnly cookies. Features Budgets y Tags eliminadas (2026-06-02).
 
 ## 📋 Funcionalidades Implementadas
 
@@ -24,7 +24,6 @@ Aplicación en producción activa. Arquitectura feature-module completa. Observa
 - [x] Tarjetas de Crédito (límites, fechas de corte)
 - [x] Dashboard de resumen + gráficos Recharts
 - [x] Validación con Zod + React Hook Form
-- [x] **Presupuestos mensuales** (FEAT-011)
 - [x] **Notificaciones** (FEAT-013) — campana navbar, panel dropdown, toasts Sonner, preferencias
 - [x] **FIX-011:** AccountCard disponible período actual; balance descuenta períodos vencidos
 - [x] **Refactor accounts** (2026-05-01) — Pure UI Rule; AccountFormDialog, AccountTypeSection, useAccountsPage
@@ -33,7 +32,6 @@ Aplicación en producción activa. Arquitectura feature-module completa. Observa
 - [x] **FEAT-018:** AccountTransactionsModal — historial por cuenta desde AccountCard
 - [x] **FEAT-009:** Transferencias entre cuentas
 - [x] **FEAT-010:** Filtros avanzados en TransactionsPage (server-side)
-- [x] **FEAT-016:** Tags — input autocompletado, TagBadge, filtro por tag
 - [x] **Refactor Feature-Module (PRs #22–#25):** migración completa a `src/features/<module>/` — auth, budgets, credit-cards, debts, fixed-expenses, settings, transactions, dashboard
 - [x] **FEAT-banking-sync (PR #28):** useBanking, useBankMapping, BankConnectionBadge, BankingMapPage
 - [x] **FIX-019 (PR #33):** Error Boundary global + design polish (lang, font, touch targets)
@@ -53,7 +51,6 @@ Aplicación en producción activa. Arquitectura feature-module completa. Observa
 ### 📝 Pendiente
 
 - [ ] **FEAT-004** — Modo dark (PR #7 abierto desde 2026-04-12)
-- [ ] **REFACTOR-FE-003** — BudgetEmpty + DebtEmpty empty states con CTA
 - [ ] **FEAT-014** — Metas de ahorro
 - [ ] **FEAT-012** — Exportación CSV/PDF
 - [ ] FEAT-banking-sync: Bloqueado en prod (providers España pendientes en TrueLayer)
@@ -87,6 +84,7 @@ Aplicación en producción activa. Arquitectura feature-module completa. Observa
 
 ## 📊 Cambios Recientes
 
+- **chore (PR #57 — 2026-06-02):** Eliminadas las features Budgets y Tags del frontend (incluye `BudgetEmpty`, ya removido en REFACTOR-FE-003 del día anterior)
 - **FIX-032 (PR #52 — 2026-06-01):** JWT a httpOnly cookie; AuthContext sin localStorage; authApi.logout(); AuthResponse sin token; 7 tests actualizados
 - **FIX-031 (PR #51 — 2026-06-01):** 10 tests nuevos con renderHook + vi.hoisted; patrón de mocks para hooks con muchas dependencias
 - **CHORE-010 (PR #49 — 2026-06-01):** logger.info/error en 8 page hooks (accounts, categories, transactions, budgets, debts, credit-cards, fixed-expenses)
