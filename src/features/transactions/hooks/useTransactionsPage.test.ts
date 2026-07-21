@@ -123,7 +123,7 @@ describe('useTransactionsPage', () => {
     expect(result.current.showForm).toBe(false);
   });
 
-  it('handleSubmit con error llama toast.error y no hace reload', async () => {
+  it('handleSubmit con error llama toast.error con el mensaje real del backend y no hace reload', async () => {
     mockApiCreate.mockRejectedValue(new Error('API error'));
 
     const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
@@ -132,7 +132,7 @@ describe('useTransactionsPage', () => {
       await result.current.handleSubmit(fakeEvent);
     });
 
-    expect(mockToastError).toHaveBeenCalledWith('No se pudo guardar la transacción');
+    expect(mockToastError).toHaveBeenCalledWith('API error');
   });
 
   it('handleDelete exitoso llama reload y limpia deleteId', async () => {
