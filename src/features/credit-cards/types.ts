@@ -26,6 +26,18 @@ export interface TransactionsModalState {
   statement: import('../../types').CreditCardStatement | null;
 }
 
+export interface ExpenseFormData {
+  amount: string;
+  categoryId: string;
+  date: string;
+  description: string;
+}
+
+export interface ExpenseModalState {
+  open: boolean;
+  statement: import('../../types').CreditCardStatement | null;
+}
+
 export interface UseCreditCardsReturn {
   statements: import('../../types').CreditCardStatement[];
   accounts: import('../../types').Account[];
@@ -43,6 +55,10 @@ export interface UseCreditCardsPageReturn {
   paymentModal: PaymentModalState;
   paymentFormData: PaymentFormData;
   transactionsModal: TransactionsModalState;
+  expenseModal: ExpenseModalState;
+  expenseFormData: ExpenseFormData;
+  savingExpense: boolean;
+  expenseCategories: import('../../types').Category[];
   toggleCardCollapse: (accountId: string) => void;
   handleOpenPayment: (statement: import('../../types').CreditCardStatement) => void;
   handleClosePayment: () => void;
@@ -50,6 +66,10 @@ export interface UseCreditCardsPageReturn {
   handleCloseTransactions: () => void;
   handlePay: (e: React.FormEvent) => Promise<void>;
   updatePaymentFormData: (data: Partial<PaymentFormData>) => void;
+  handleOpenExpense: (statement: import('../../types').CreditCardStatement) => void;
+  handleCloseExpense: () => void;
+  handleExpenseFormChange: (data: Partial<ExpenseFormData>) => void;
+  handleSubmitExpense: (e: React.FormEvent) => Promise<void>;
   reload: () => void;
   loadError: string | null;
 }
