@@ -5,6 +5,8 @@ export type {
   PaymentFormData,
   PaymentModalState,
   TransactionsModalState,
+  ExpenseFormData,
+  ExpenseModalState,
   UseCreditCardsReturn,
   UseCreditCardsPageReturn,
 } from './types';
@@ -27,3 +29,4 @@ export { useCreditCardsPage } from './hooks/useCreditCardsPage';
 
 // Components (feature-owned)
 export { CreditCardPaymentModal } from './components/CreditCardPaymentModal';
+export { CreditCardExpenseModal } from './components/CreditCardExpenseModal';

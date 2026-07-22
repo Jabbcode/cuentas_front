@@ -1,6 +1,7 @@
 import { useCreditCardsPage } from '../features/credit-cards/hooks/useCreditCardsPage';
 import { ErrorCard } from '../components/ui/ErrorCard';
 import { CreditCardPaymentModal } from '../features/credit-cards/components/CreditCardPaymentModal';
+import { CreditCardExpenseModal } from '../features/credit-cards/components/CreditCardExpenseModal';
 import { CreditCardEmpty } from '../features/credit-cards/components/CreditCardEmpty';
 import { CreditCardSummary } from '../features/credit-cards/components/CreditCardSummary';
 import { CreditCardItem } from '../features/credit-cards/components/CreditCardItem';
@@ -16,6 +17,10 @@ export function CreditCardsPage() {
     paymentModal,
     paymentFormData,
     transactionsModal,
+    expenseModal,
+    expenseFormData,
+    savingExpense,
+    expenseCategories,
     toggleCardCollapse,
     handleOpenPayment,
     handleClosePayment,
@@ -23,6 +28,10 @@ export function CreditCardsPage() {
     handleCloseTransactions,
     handlePay,
     updatePaymentFormData,
+    handleOpenExpense,
+    handleCloseExpense,
+    handleExpenseFormChange,
+    handleSubmitExpense,
     reload,
     loadError,
   } = useCreditCardsPage();
@@ -69,6 +78,7 @@ export function CreditCardsPage() {
             onToggleCollapse={() => toggleCardCollapse(statement.account.id)}
             onPayClick={handleOpenPayment}
             onViewTransactions={handleOpenTransactions}
+            onCreateExpense={handleOpenExpense}
           />
         ))}
       </div>
@@ -88,6 +98,17 @@ export function CreditCardsPage() {
         open={transactionsModal.open}
         statement={transactionsModal.statement}
         onClose={handleCloseTransactions}
+      />
+
+      <CreditCardExpenseModal
+        open={expenseModal.open}
+        statement={expenseModal.statement}
+        formData={expenseFormData}
+        categories={expenseCategories}
+        saving={savingExpense}
+        onClose={handleCloseExpense}
+        onSubmit={handleSubmitExpense}
+        onFormChange={handleExpenseFormChange}
       />
     </div>
   );
