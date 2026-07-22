@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '../../../lib/logger';
+import { getApiErrorMessage } from '../../../lib/api-errors';
 import { useDebts } from './useDebts';
 import { useRecurringDebtPayments } from './useRecurringDebtPayments';
 import { groupDebtsByStatus, calculateDebtTotals, filterRecurringByDebt } from '../utils';
@@ -68,7 +69,7 @@ export function useDebtsPage(): UseDebtsPageReturn {
         await payDebt(payingDebt.id, amount, accountId, notes);
         logger.info('debt', 'Debt payment registered', { id: payingDebt.id, amount });
       } catch (err) {
-        toast.error('No se pudo registrar el pago de la deuda');
+        toast.error(getApiErrorMessage(err, 'No se pudo registrar el pago de la deuda'));
         logger.error('debt', 'Failed to pay debt', err, { id: payingDebt.id, amount });
       }
     },
