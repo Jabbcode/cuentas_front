@@ -33,3 +33,6 @@ docs
 graphify-out/
 .claude/settings.json
 .claude/scheduled_tasks.lock
+.vercel
+.env*
+!.env.example
