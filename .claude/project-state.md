@@ -4,7 +4,7 @@ Documento vivo del estado actual del proyecto. Actualizar regularmente.
 
 ## 📅 Fecha de Actualización
 
-**Última actualización:** 2026-07-20
+**Última actualización:** 2026-07-23
 
 ## 🚀 Estado General
 
@@ -78,9 +78,28 @@ Aplicación en producción activa. Arquitectura feature-module completa. Observa
 
 ## 🌐 Despliegue
 
-- **Frontend:** Vercel — https://cuentas-front-amber.vercel.app
+### Producción
+
+- **Frontend:** Vercel — https://cuentas-front-amber.vercel.app (rama `main`)
 - **Backend:** Render — https://cuentas-back-fgep.onrender.com
 - **VITE_API_URL:** https://cuentas-back-fgep.onrender.com/api
+
+### Staging / pre-producción (2026-07-23) — validado end-to-end
+
+Preview de Vercel para la rama `develop`, apuntando al backend de staging
+(`cuentas-back-staging` en Render — ver `project-state.md` de `cuentas-backend` para
+el detalle completo de Neon/Render).
+
+- **Preview:** cuentas-front-git-develop-jabbcodes-projects.vercel.app
+- `vercel.json` tenía `ignoreCommand`/`git.deploymentEnabled` limitados a `main` —
+  cancelaba automáticamente todo build de `develop` (PR #64, fix: se amplió a `main` +
+  `develop`).
+- `VITE_API_URL` scoped a `Preview` + rama `develop` en el dashboard de Vercel,
+  apuntando a `https://cuentas-back-staging.onrender.com/api` — coexiste sin
+  conflicto con el `VITE_API_URL` genérico de Production/Preview/Development (el
+  scoped a rama tiene prioridad).
+- Validado: registro + cookie httpOnly cross-origin + `/auth/me` autenticado, todo
+  contra el backend de staging.
 
 ## 📊 Cambios Recientes
 
