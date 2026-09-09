@@ -17,13 +17,11 @@ test.describe('Gastos Fijos', () => {
 
     await page.getByLabel('Nombre').fill('Netflix');
     await page.getByLabel('Monto').fill('15');
-    const autoGenerateToggle = page.locator('div.flex.items-start.justify-between.rounded-lg', {
-      hasText: 'Auto-generar transaccion',
-    });
-    await autoGenerateToggle.locator('button').click();
+    await page.getByRole('switch', { name: 'Auto-generar transacción' }).click();
     await page.getByRole('button', { name: 'Crear', exact: true }).click();
 
-    // La tabla se renderiza dos veces (vista móvil oculta + desktop visible a este viewport).
-    await expect(page.locator('span:visible', { hasText: 'Netflix' }).first()).toBeVisible();
+    // Solo la tabla desktop usa <tr> real (la vista mobile son cards, no filas) —
+    // no hace falta filtrar por visibilidad.
+    await expect(page.getByRole('row', { name: /Netflix/ })).toBeVisible();
   });
 });

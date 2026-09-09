@@ -19,6 +19,9 @@ test.describe('Transacciones', () => {
     await page.getByRole('button', { name: 'Crear', exact: true }).click();
 
     await page.goto('/accounts');
+    // Con una sola cuenta, "Balance total" (suma de todas) coincide con el
+    // balance de esa cuenta individual — el mismo texto aparece dos veces
+    // en la página (encabezado + card de la cuenta), no es un bug.
     await expect(page.getByText(/850,00/).first()).toBeVisible();
   });
 
@@ -30,6 +33,8 @@ test.describe('Transacciones', () => {
     await page.getByRole('button', { name: 'Crear', exact: true }).click();
 
     await page.goto('/accounts');
+    // Mismo motivo que en el test anterior: "Balance total" + card de la
+    // única cuenta muestran el mismo número.
     await expect(page.getByText(/1\.?300,00/).first()).toBeVisible();
   });
 });

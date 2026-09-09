@@ -13,7 +13,9 @@ test.describe('Categorías', () => {
   test('crear una categoría de gasto la agrega a la lista', async ({ page }) => {
     await page.goto('/categories');
     await page.getByRole('button', { name: 'Nueva Categoría' }).click();
-    await page.getByLabel('Nombre').fill('Mascotas');
+    // getByLabel('Nombre') colisiona con los aria-label "Editar/Eliminar Nombre..."
+    // de las card ya existentes (substring match) — se usa el rol de textbox.
+    await page.getByRole('textbox', { name: 'Nombre' }).fill('Mascotas');
     await page.getByRole('button', { name: 'Crear', exact: true }).click();
 
     await expect(page.getByText('Mascotas')).toBeVisible();
@@ -22,17 +24,20 @@ test.describe('Categorías', () => {
   test('editar una categoría existente actualiza su nombre', async ({ page }) => {
     await page.goto('/categories');
     await page.getByRole('button', { name: 'Nueva Categoría' }).click();
-    await page.getByLabel('Nombre').fill('Nombre Original');
+    await page.getByRole('textbox', { name: 'Nombre' }).fill('Nombre Original');
     await page.getByRole('button', { name: 'Crear', exact: true }).click();
     await expect(page.getByText('Nombre Original')).toBeVisible();
 
-    const row = page.locator('.rounded-lg.border.border-gray-200.p-3', {
-      hasText: 'Nombre Original',
-    });
-    await row.locator('button:visible').first().click();
+    // El componente renderiza dos copias del botón (desktop/mobile, alternadas
+    // por CSS) con el mismo aria-label — se filtra por la que esté visible en
+    // vez de depender de posición o de clases de estilo.
+    await page
+      .getByRole('button', { name: 'Editar Nombre Original' })
+      .and(page.locator(':visible'))
+      .click();
 
     await expect(page.getByRole('heading', { name: 'Editar Categoría' })).toBeVisible();
-    await page.getByLabel('Nombre').fill('Nombre Editado');
+    await page.getByRole('textbox', { name: 'Nombre' }).fill('Nombre Editado');
     await page.getByRole('button', { name: 'Guardar', exact: true }).click();
 
     await expect(page.getByText('Nombre Editado')).toBeVisible();
@@ -46,10 +51,10 @@ test.describe('Categorías', () => {
     await page.getByRole('button', { name: 'Crear', exact: true }).click();
     await expect(page.getByText('Categoría a Borrar')).toBeVisible();
 
-    const row = page.locator('.rounded-lg.border.border-gray-200.p-3', {
-      hasText: 'Categoría a Borrar',
-    });
-    await row.locator('button:visible').nth(1).click();
+    await page
+      .getByRole('button', { name: 'Eliminar Categoría a Borrar' })
+      .and(page.locator(':visible'))
+      .click();
 
     await page.getByRole('button', { name: 'Eliminar', exact: true }).click();
 

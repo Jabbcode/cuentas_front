@@ -256,7 +256,13 @@ describe('useTransactionsPage', () => {
       error: null,
       reload: vi.fn(),
     });
-    mockGetClosedPeriodWarning.mockReturnValue({ type: 'warning', message: 'cerca del corte' });
+    // getClosedPeriodWarning real solo puede devolver { type: 'error', ... } o null
+    // (ver src/lib/credit-card-utils.ts) — se usa ese valor real, no uno que la
+    // función jamás produce, para no dar falsa confianza sobre una rama muerta.
+    mockGetClosedPeriodWarning.mockReturnValue({
+      type: 'error',
+      message: 'período ya cerrado',
+    });
 
     const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
 
@@ -265,7 +271,7 @@ describe('useTransactionsPage', () => {
     });
 
     expect(mockGetClosedPeriodWarning).toHaveBeenCalledWith('2026-01-01', account);
-    expect(result.current.dateWarning).toEqual({ type: 'warning', message: 'cerca del corte' });
+    expect(result.current.dateWarning).toEqual({ type: 'error', message: 'período ya cerrado' });
   });
 
   it('handleScannedReceipt precarga el formulario con los datos del OCR y abre el modal', () => {

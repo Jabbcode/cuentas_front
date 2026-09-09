@@ -107,10 +107,7 @@ describe('FixedExpenseCard', () => {
       />
     );
 
-    // El botón de menú (icono MoreVertical) no tiene aria-label propio; es el
-    // único botón visible antes de que exista el diálogo de pago, así que
-    // basta con tomar el primer botón renderizado en la card.
-    const menuTrigger = screen.getAllByRole('button')[0];
+    const menuTrigger = screen.getByRole('button', { name: `Opciones de ${item.name}` });
     await user.click(menuTrigger);
     await user.click(screen.getByRole('button', { name: 'Editar' }));
     expect(onEdit).toHaveBeenCalledTimes(1);

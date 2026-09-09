@@ -20,6 +20,8 @@ test.describe('Dashboard', () => {
 
     await page.goto('/');
     await expect(page.getByText('Balance neto del mes')).toBeVisible();
+    // El monto de 300 aparece más de una vez en el dashboard (balance neto del
+    // mes + resumen de ingresos), no es un bug de doble render.
     await expect(page.getByText(/300,00/).first()).toBeVisible();
   });
 });

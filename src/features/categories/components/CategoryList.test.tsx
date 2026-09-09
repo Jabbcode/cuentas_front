@@ -49,7 +49,9 @@ describe('CategoryList', () => {
     const category = makeCategory();
     render(<CategoryList items={[category]} title="Gastos" onEdit={onEdit} onDelete={vi.fn()} />);
 
-    const editButtons = screen.getAllByRole('button', { name: '' });
+    // El componente renderiza dos copias (desktop/mobile, alternadas por CSS) con
+    // el mismo aria-label y el mismo handler — cualquiera de las dos es correcta.
+    const editButtons = screen.getAllByRole('button', { name: `Editar ${category.name}` });
     await user.click(editButtons[0]);
 
     expect(onEdit).toHaveBeenCalledWith(category);
@@ -58,18 +60,11 @@ describe('CategoryList', () => {
   it('click en eliminar llama a onDelete con el id', async () => {
     const user = userEvent.setup();
     const onDelete = vi.fn();
-    render(
-      <CategoryList
-        items={[makeCategory({ id: 'cat-9' })]}
-        title="Gastos"
-        onEdit={vi.fn()}
-        onDelete={onDelete}
-      />
-    );
+    const category = makeCategory({ id: 'cat-9' });
+    render(<CategoryList items={[category]} title="Gastos" onEdit={vi.fn()} onDelete={onDelete} />);
 
-    // segundo botón visible (desktop) es "eliminar"
-    const buttons = screen.getAllByRole('button');
-    await user.click(buttons[1]);
+    const deleteButtons = screen.getAllByRole('button', { name: `Eliminar ${category.name}` });
+    await user.click(deleteButtons[0]);
 
     expect(onDelete).toHaveBeenCalledWith('cat-9');
   });
