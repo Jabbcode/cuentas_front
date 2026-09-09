@@ -40,7 +40,12 @@ export function CategoryList({ items, title, onEdit, onDelete }: CategoryListPro
                   )}
                 </div>
                 <div className="flex gap-1 lg:hidden">
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(cat)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(cat)}
+                    aria-label={`Editar ${cat.name}`}
+                  >
                     <Pencil className="h-4 w-4" />
                   </Button>
                   <Button
@@ -48,6 +53,7 @@ export function CategoryList({ items, title, onEdit, onDelete }: CategoryListPro
                     size="icon"
                     onClick={() => onDelete(cat.id)}
                     className="text-gray-500 hover:text-red-600"
+                    aria-label={`Eliminar ${cat.name}`}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -59,7 +65,12 @@ export function CategoryList({ items, title, onEdit, onDelete }: CategoryListPro
                 </div>
               )}
               <div className="hidden gap-1 lg:flex">
-                <Button variant="ghost" size="icon" onClick={() => onEdit(cat)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onEdit(cat)}
+                  aria-label={`Editar ${cat.name}`}
+                >
                   <Pencil className="h-4 w-4" />
                 </Button>
                 <Button
@@ -67,6 +78,7 @@ export function CategoryList({ items, title, onEdit, onDelete }: CategoryListPro
                   size="icon"
                   onClick={() => onDelete(cat.id)}
                   className="text-gray-500 hover:text-red-600"
+                  aria-label={`Eliminar ${cat.name}`}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

@@ -264,4 +264,57 @@ describe('calculateBalanceTotals', () => {
     const { unpaidClosedTotal } = calculateBalanceTotals([cc], { 'cc-1': stmt });
     expect(unpaidClosedTotal).toBe(0);
   });
+
+  it('does not accumulate unpaid when closedPeriod.balance is 0, even if unpaid', () => {
+    const cc = makeCreditCard({ id: 'cc-1', creditLimit: 5000 });
+    const stmt = makeStatement('cc-1', {
+      closedPeriod: {
+        balance: 0,
+        isPaid: false,
+        startDate: '',
+        endDate: '',
+        paymentDueDate: '',
+        daysUntilDue: 0,
+        transactions: [],
+      },
+    });
+
+    const { totalBalance, unpaidClosedTotal } = calculateBalanceTotals([cc], { 'cc-1': stmt });
+    expect(unpaidClosedTotal).toBe(0);
+    // No debe restarse un closedPeriod.balance de 0 — total = creditLimit - currentPeriod.balance
+    expect(totalBalance).toBe(stmt.creditLimit - stmt.currentPeriod.balance);
+  });
+
+  it('aggregates mixed account types correctly in a single call', () => {
+    const bank = makeBankAccount({ balance: 1000 });
+    const cash = makeCashAccount({ balance: 200 });
+    const cc = makeCreditCard({ id: 'cc-1', creditLimit: 5000 });
+    const stmt = makeStatement('cc-1', {
+      creditLimit: 5000,
+      currentPeriod: {
+        balance: 500,
+        startDate: '',
+        endDate: '',
+        daysUntilCutoff: 0,
+        transactions: [],
+      },
+      closedPeriod: {
+        balance: 300,
+        isPaid: false,
+        startDate: '',
+        endDate: '',
+        paymentDueDate: '',
+        daysUntilDue: 0,
+        transactions: [],
+      },
+    });
+
+    const { totalBalance, unpaidClosedTotal } = calculateBalanceTotals([bank, cash, cc], {
+      'cc-1': stmt,
+    });
+
+    // 1000 (bank) + 200 (cash) + (5000 - 500 - 300) (tarjeta con cerrado sin pagar)
+    expect(totalBalance).toBe(1000 + 200 + 4200);
+    expect(unpaidClosedTotal).toBe(300);
+  });
 });

@@ -128,6 +128,9 @@ export function FixedExpenseCard({
                   size="icon"
                   className="h-8 w-8"
                   onClick={() => setShowMenu(!showMenu)}
+                  aria-label={`Opciones de ${item.name}`}
+                  aria-haspopup="menu"
+                  aria-expanded={showMenu}
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>

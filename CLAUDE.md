@@ -39,6 +39,13 @@ React 19 + TypeScript 5.9 + Vite 8 + TailwindCSS 4 + Axios + Zod + React Hook Fo
 | `api-integration-agent`     | Cliente API + hook para un endpoint del backend |
 | `validation-schema-agent`   | Schema Zod para formulario                      |
 
+## Verificación
+
+- Tests: `npm test`
+- Lint: `npm run lint`
+- Types: `npx tsc --noEmit`
+- E2E (manual, requiere Docker Desktop corriendo): `npm run test:e2e` — orquesta el backend (Postgres de test + API en `:3001`) y el frontend (`:5173`) vía Playwright `webServer`. Cubre Auth, Transacciones y Dashboard. No se ejecuta en el flujo normal de verificación.
+
 ## Estado actual
 
 Ver `.claude/project-state.md`
