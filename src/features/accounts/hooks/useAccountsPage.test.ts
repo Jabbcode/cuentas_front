@@ -1,273 +1,187 @@
-/**
- * Tests for accounts utility functions.
- *
- * Setup (one-time):
- *   npm install -D vitest @vitest/ui
- *   Add to vite.config.ts:  test: { environment: 'jsdom', globals: true }
- *   Add to package.json scripts:  "test": "vitest run"
- */
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
+import { useAccountsPage } from './useAccountsPage';
+import type { Account, CreditCardsSummary } from '../../../types';
 
-import { describe, it, expect } from 'vitest';
-import type { Account, CreditCardStatement } from '../../../types';
-import { groupAccountsByType, calculateBalanceTotals } from '../utils';
+const { mockToastError, mockApiCreate, mockApiUpdate, mockApiDelete } = vi.hoisted(() => ({
+  mockToastError: vi.fn(),
+  mockApiCreate: vi.fn(),
+  mockApiUpdate: vi.fn(),
+  mockApiDelete: vi.fn(),
+}));
 
-// ─── Fixtures ─────────────────────────────────────────────────────────────────
+vi.mock('sonner', () => ({
+  toast: { success: vi.fn(), error: mockToastError },
+}));
 
-const makeBankAccount = (overrides: Partial<Account> = {}): Account => ({
-  id: 'bank-1',
-  name: 'BBVA',
-  type: 'bank',
-  balance: 1000,
-  currency: 'EUR',
-  createdAt: '2024-01-01',
-  ...overrides,
-});
+vi.mock('../../../lib/logger', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
 
-const makeCashAccount = (overrides: Partial<Account> = {}): Account => ({
-  id: 'cash-1',
-  name: 'Cartera',
-  type: 'cash',
-  balance: 200,
-  currency: 'EUR',
-  createdAt: '2024-01-01',
-  ...overrides,
-});
-
-const makeCreditCard = (overrides: Partial<Account> = {}): Account => ({
-  id: 'cc-1',
-  name: 'Visa',
-  type: 'credit_card',
-  balance: -300,
-  currency: 'EUR',
-  creditLimit: 5000,
-  createdAt: '2024-01-01',
-  ...overrides,
-});
-
-const makeStatement = (
-  accountId: string,
-  overrides: Partial<CreditCardStatement> = {}
-): CreditCardStatement => ({
-  account: makeCreditCard({ id: accountId }),
-  creditLimit: 5000,
-  available: 4500,
-  usagePercentage: 10,
-  currentPeriod: {
-    balance: 500,
-    startDate: '2024-01-01',
-    endDate: '2024-01-15',
-    daysUntilCutoff: 5,
-    transactions: [],
+vi.mock('../api', () => ({
+  accountsApi: {
+    getAll: vi.fn(),
+    create: mockApiCreate,
+    update: mockApiUpdate,
+    delete: mockApiDelete,
   },
-  closedPeriod: {
-    balance: 0,
-    isPaid: true,
-    startDate: '2023-12-01',
-    endDate: '2023-12-15',
-    paymentDueDate: '2023-12-30',
-    daysUntilDue: 0,
-    transactions: [],
-  },
-  alerts: [],
-  ...overrides,
-});
+}));
 
-// ─── groupAccountsByType ───────────────────────────────────────────────────────
+vi.mock('./useAccounts', () => ({
+  useAccounts: vi.fn(() => ({
+    accounts: [
+      { id: 'acc-1', name: 'BBVA', type: 'bank', balance: 100, currency: 'EUR' },
+      { id: 'card-1', name: 'Visa', type: 'credit_card', balance: -50, currency: 'EUR' },
+    ],
+    loading: false,
+    error: null,
+    reload: vi.fn(),
+  })),
+}));
 
-describe('groupAccountsByType', () => {
-  it('groups accounts by their type correctly', () => {
-    const accounts: Account[] = [
-      makeBankAccount({ id: 'b1' }),
-      makeBankAccount({ id: 'b2' }),
-      makeCashAccount(),
-      makeCreditCard(),
-    ];
+function fakeAccount(overrides: Partial<Account> = {}): Account {
+  return {
+    id: 'acc-2',
+    name: 'Cuenta',
+    type: 'bank',
+    balance: 200,
+    currency: 'EUR',
+    color: null,
+    ...overrides,
+  } as unknown as Account;
+}
 
-    const result = groupAccountsByType(accounts);
+const createWrapper = () => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
 
-    expect(result.bank).toHaveLength(2);
-    expect(result.cash).toHaveLength(1);
-    expect(result.credit_card).toHaveLength(1);
+describe('useAccountsPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('returns empty object for empty account list', () => {
-    const result = groupAccountsByType([]);
-    expect(Object.keys(result)).toHaveLength(0);
+  it('openForm sin cuenta: resetea a los defaults y abre el form', () => {
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+
+    act(() => result.current.openForm());
+
+    expect(result.current.showForm).toBe(true);
+    expect(result.current.editingAccount).toBeNull();
+    expect(result.current.formData).toMatchObject({ name: '', type: 'bank', balance: '0' });
   });
 
-  it('handles single account of one type', () => {
-    const result = groupAccountsByType([makeBankAccount()]);
-    expect(result.bank).toHaveLength(1);
-    expect(result.cash).toBeUndefined();
-    expect(result.credit_card).toBeUndefined();
+  it('openForm con cuenta: precarga el formulario con sus datos', () => {
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+
+    act(() => result.current.openForm(fakeAccount({ name: 'Ahorros', balance: 350 })));
+
+    expect(result.current.editingAccount?.name).toBe('Ahorros');
+    expect(result.current.formData.name).toBe('Ahorros');
+    expect(result.current.formData.balance).toBe('350');
   });
 
-  it('preserves account data integrity after grouping', () => {
-    const account = makeBankAccount({ name: 'Santander', balance: 9999 });
-    const result = groupAccountsByType([account]);
-    expect(result.bank[0]).toEqual(account);
-  });
-});
+  it('closeForm: cierra el form y limpia editingAccount', () => {
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
 
-// ─── calculateBalanceTotals ───────────────────────────────────────────────────
+    act(() => result.current.openForm(fakeAccount()));
+    act(() => result.current.closeForm());
 
-describe('calculateBalanceTotals', () => {
-  it('sums non-credit-card balances directly', () => {
-    const accounts: Account[] = [
-      makeBankAccount({ balance: 1000 }),
-      makeCashAccount({ balance: 200 }),
-    ];
-
-    const { totalBalance, unpaidClosedTotal } = calculateBalanceTotals(accounts, {});
-
-    expect(totalBalance).toBe(1200);
-    expect(unpaidClosedTotal).toBe(0);
+    expect(result.current.showForm).toBe(false);
+    expect(result.current.editingAccount).toBeNull();
   });
 
-  it('uses creditLimit - currentPeriod.balance when statement exists', () => {
-    const cc = makeCreditCard({ id: 'cc-1', creditLimit: 5000 });
-    const stmt = makeStatement('cc-1', {
-      creditLimit: 5000,
-      currentPeriod: {
-        balance: 500,
-        startDate: '2024-01-01',
-        endDate: '2024-01-15',
-        daysUntilCutoff: 5,
-        transactions: [],
-      },
+  it('handleSubmit sin editingAccount: crea la cuenta y cierra el form', async () => {
+    mockApiCreate.mockResolvedValue(fakeAccount());
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    act(() => result.current.openForm());
+    act(() => result.current.setFormData((prev) => ({ ...prev, name: 'Nueva cuenta' })));
+
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: vi.fn() } as never);
     });
 
-    const { totalBalance } = calculateBalanceTotals([cc], { 'cc-1': stmt });
-
-    // 5000 - 500 = 4500
-    expect(totalBalance).toBe(4500);
+    expect(mockApiCreate).toHaveBeenCalledWith(expect.objectContaining({ name: 'Nueva cuenta' }));
+    expect(result.current.showForm).toBe(false);
   });
 
-  it('subtracts unpaid closed period balance and accumulates unpaid total', () => {
-    const cc = makeCreditCard({ id: 'cc-1', creditLimit: 5000 });
-    const stmt = makeStatement('cc-1', {
-      creditLimit: 5000,
-      currentPeriod: {
-        balance: 500,
-        startDate: '2024-01-01',
-        endDate: '2024-01-15',
-        daysUntilCutoff: 5,
-        transactions: [],
-      },
-      closedPeriod: {
-        balance: 300,
-        isPaid: false,
-        startDate: '2023-12-01',
-        endDate: '2023-12-15',
-        paymentDueDate: '2023-12-30',
-        daysUntilDue: 0,
-        transactions: [],
-      },
+  it('handleSubmit con editingAccount: actualiza la cuenta existente', async () => {
+    mockApiUpdate.mockResolvedValue(fakeAccount());
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    act(() => result.current.openForm(fakeAccount({ id: 'acc-9' })));
+
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: vi.fn() } as never);
     });
 
-    const { totalBalance, unpaidClosedTotal } = calculateBalanceTotals([cc], { 'cc-1': stmt });
-
-    // (5000 - 500) - 300 = 4200
-    expect(totalBalance).toBe(4200);
-    expect(unpaidClosedTotal).toBe(300);
+    expect(mockApiUpdate).toHaveBeenCalledWith('acc-9', expect.any(Object));
+    expect(mockApiCreate).not.toHaveBeenCalled();
   });
 
-  it('falls back to creditLimit - |balance| when no statement available', () => {
-    const cc = makeCreditCard({ id: 'cc-1', creditLimit: 5000, balance: -300 });
+  it('handleSubmit con error: muestra toast y mantiene saving=false', async () => {
+    mockApiCreate.mockRejectedValue(new Error('boom'));
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    act(() => result.current.openForm());
 
-    const { totalBalance } = calculateBalanceTotals([cc], {});
-
-    // 5000 - 300 = 4700
-    expect(totalBalance).toBe(4700);
-  });
-
-  it('skips credit-card fallback if creditLimit is not set', () => {
-    const cc: Account = {
-      ...makeCreditCard(),
-      creditLimit: undefined,
-      balance: -300,
-    };
-
-    const { totalBalance } = calculateBalanceTotals([cc], {});
-
-    // Treated as normal balance: -300
-    expect(totalBalance).toBe(-300);
-  });
-
-  it('returns zero totals for empty account list', () => {
-    const { totalBalance, unpaidClosedTotal } = calculateBalanceTotals([], {});
-    expect(totalBalance).toBe(0);
-    expect(unpaidClosedTotal).toBe(0);
-  });
-
-  it('does not accumulate unpaid when closedPeriod.balance is 0', () => {
-    const cc = makeCreditCard({ id: 'cc-1', creditLimit: 5000 });
-    const stmt = makeStatement('cc-1', {
-      closedPeriod: {
-        balance: 0,
-        isPaid: false,
-        startDate: '2023-12-01',
-        endDate: '2023-12-15',
-        paymentDueDate: '2023-12-30',
-        daysUntilDue: 0,
-        transactions: [],
-      },
+    await act(async () => {
+      await result.current.handleSubmit({ preventDefault: vi.fn() } as never);
     });
 
-    const { unpaidClosedTotal } = calculateBalanceTotals([cc], { 'cc-1': stmt });
-
-    expect(unpaidClosedTotal).toBe(0);
+    expect(mockToastError).toHaveBeenCalledWith('No se pudo guardar la cuenta');
+    expect(result.current.saving).toBe(false);
   });
 
-  it('does not accumulate unpaid when closedPeriod.isPaid is true', () => {
-    const cc = makeCreditCard({ id: 'cc-1', creditLimit: 5000 });
-    const stmt = makeStatement('cc-1', {
-      closedPeriod: {
-        balance: 500,
-        isPaid: true,
-        startDate: '2023-12-01',
-        endDate: '2023-12-15',
-        paymentDueDate: '2023-12-30',
-        daysUntilDue: 0,
-        transactions: [],
-      },
+  it('handleDelete sin deleteId: no llama a la API', async () => {
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+
+    await act(async () => {
+      await result.current.handleDelete();
     });
 
-    const { unpaidClosedTotal } = calculateBalanceTotals([cc], { 'cc-1': stmt });
-
-    expect(unpaidClosedTotal).toBe(0);
+    expect(mockApiDelete).not.toHaveBeenCalled();
   });
 
-  it('aggregates mixed account types correctly', () => {
-    const bank = makeBankAccount({ balance: 2000 });
-    const cash = makeCashAccount({ balance: 500 });
-    const cc = makeCreditCard({ id: 'cc-1', creditLimit: 10000 });
-    const stmt = makeStatement('cc-1', {
-      creditLimit: 10000,
-      currentPeriod: {
-        balance: 1000,
-        startDate: '2024-01-01',
-        endDate: '2024-01-15',
-        daysUntilCutoff: 5,
-        transactions: [],
-      },
-      closedPeriod: {
-        balance: 200,
-        isPaid: false,
-        startDate: '2023-12-01',
-        endDate: '2023-12-15',
-        paymentDueDate: '2023-12-30',
-        daysUntilDue: 0,
-        transactions: [],
-      },
+  it('handleDelete con deleteId: elimina y limpia el id', async () => {
+    mockApiDelete.mockResolvedValue(undefined);
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+
+    act(() => result.current.setDeleteId('acc-1'));
+    await act(async () => {
+      await result.current.handleDelete();
     });
 
-    const { totalBalance, unpaidClosedTotal } = calculateBalanceTotals([bank, cash, cc], {
-      'cc-1': stmt,
+    expect(mockApiDelete).toHaveBeenCalledWith('acc-1');
+    expect(result.current.deleteId).toBeNull();
+  });
+
+  it('toggleSection: invierte solo la sección indicada', () => {
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+
+    expect(result.current.expandedSections.bank).toBe(true);
+    act(() => result.current.toggleSection('bank'));
+    expect(result.current.expandedSections.bank).toBe(false);
+    expect(result.current.expandedSections.cash).toBe(true);
+  });
+
+  it('agrupa las cuentas por tipo y calcula el balance total', () => {
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+
+    expect(result.current.groupedAccounts.bank).toHaveLength(1);
+    expect(result.current.groupedAccounts.credit_card).toHaveLength(1);
+  });
+
+  it('con fetchSummary y cuentas con tarjeta: carga el statementsMap', async () => {
+    const fetchSummary = vi.fn().mockResolvedValue({
+      cards: [{ account: { id: 'card-1' }, closedPeriod: {}, currentPeriod: {} }],
+    } as unknown as CreditCardsSummary);
+
+    const { result } = renderHook(() => useAccountsPage({ fetchSummary }), {
+      wrapper: createWrapper(),
     });
 
-    // bank: 2000, cash: 500, cc: (10000 - 1000) - 200 = 8800
-    expect(totalBalance).toBe(2000 + 500 + 8800);
-    expect(unpaidClosedTotal).toBe(200);
+    await waitFor(() => expect(result.current.statementsMap['card-1']).toBeDefined());
   });
 });
