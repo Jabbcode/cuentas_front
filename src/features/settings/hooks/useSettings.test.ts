@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useSettings } from './useSettings';
 import type { UserProfile, AccountStatistics } from '../api';
 
@@ -26,14 +25,6 @@ import { settingsApi } from '../api';
 const fakeProfile = { id: 'u1', name: 'Usuario', email: 'u@test.com' } as unknown as UserProfile;
 const fakeStats = { accounts: 2 } as unknown as AccountStatistics;
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -42,7 +33,7 @@ describe('useSettings', () => {
   });
 
   it('carga profile y statistics', async () => {
-    const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
     expect(result.current.statistics).toEqual(fakeStats);
@@ -51,7 +42,7 @@ describe('useSettings', () => {
   describe('handleUpdateProfile', () => {
     it('éxito: muestra mensaje de éxito', async () => {
       vi.mocked(settingsApi.updateProfile).mockResolvedValue(fakeProfile);
-      const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
       await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
 
       await act(async () => {
@@ -67,7 +58,7 @@ describe('useSettings', () => {
 
     it('solo envía los campos que cambiaron respecto al perfil actual', async () => {
       vi.mocked(settingsApi.updateProfile).mockResolvedValue(fakeProfile);
-      const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
       await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
 
       await act(async () => {
@@ -81,7 +72,7 @@ describe('useSettings', () => {
       vi.mocked(settingsApi.updateProfile).mockRejectedValue({
         response: { data: { error: 'Email ya en uso' } },
       });
-      const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
       await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
 
       await act(async () => {
@@ -95,7 +86,7 @@ describe('useSettings', () => {
   describe('handleChangePassword', () => {
     it('éxito: muestra mensaje de éxito', async () => {
       vi.mocked(settingsApi.changePassword).mockResolvedValue(undefined as never);
-      const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
       await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
 
       await act(async () => {
@@ -111,7 +102,7 @@ describe('useSettings', () => {
 
     it('error: usa el fallback cuando el backend no manda mensaje', async () => {
       vi.mocked(settingsApi.changePassword).mockRejectedValue(new Error('fail'));
-      const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
       await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
 
       await act(async () => {
@@ -139,7 +130,7 @@ describe('useSettings', () => {
     });
 
     it('confirmación de texto incorrecta: no pide window.confirm ni llama a la API', async () => {
-      const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
       await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
 
       await act(async () => {
@@ -153,7 +144,7 @@ describe('useSettings', () => {
 
     it('usuario cancela el window.confirm: no llama a la API', async () => {
       confirmSpy.mockReturnValue(false);
-      const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
       await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
 
       await act(async () => {
@@ -166,7 +157,7 @@ describe('useSettings', () => {
     it('éxito: elimina la cuenta y hace logout 2s después', async () => {
       confirmSpy.mockReturnValue(true);
       vi.mocked(settingsApi.deleteAccount).mockResolvedValue(undefined as never);
-      const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
       await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
 
       vi.useFakeTimers();
@@ -190,7 +181,7 @@ describe('useSettings', () => {
     it('error de la API: muestra el mensaje y deja isLoading=false', async () => {
       confirmSpy.mockReturnValue(true);
       vi.mocked(settingsApi.deleteAccount).mockRejectedValue(new Error('fail'));
-      const { result } = renderHook(() => useSettings(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useSettings(), { wrapper: createQueryClientWrapper() });
       await waitFor(() => expect(result.current.profile).toEqual(fakeProfile));
 
       await act(async () => {

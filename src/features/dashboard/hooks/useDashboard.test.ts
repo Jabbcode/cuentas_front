@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useDashboard } from './useDashboard';
 import type { DashboardSummary, FixedExpenseSummary, ProjectionData } from '../../../types';
 
@@ -30,12 +29,6 @@ const fakeSummary = { totalBalance: 100 } as unknown as DashboardSummary;
 const fakeFixedSummary = { totalMonthlyExpenses: 50 } as unknown as FixedExpenseSummary;
 const fakeProjection = { netProjection: 10 } as unknown as ProjectionData;
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useDashboard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -51,7 +44,7 @@ describe('useDashboard', () => {
     } as never);
     vi.mocked(debtsApi.getSummary).mockResolvedValue({ totalActiveDebts: 2 } as never);
 
-    const { result } = renderHook(() => useDashboard(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDashboard(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -66,7 +59,7 @@ describe('useDashboard', () => {
     vi.mocked(creditCardsApi.getSummary).mockRejectedValue(new Error('boom'));
     vi.mocked(debtsApi.getSummary).mockResolvedValue({ totalActiveDebts: 0 } as never);
 
-    const { result } = renderHook(() => useDashboard(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDashboard(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -82,7 +75,7 @@ describe('useDashboard', () => {
     vi.mocked(creditCardsApi.getSummary).mockResolvedValue({ totalToPay: 0 } as never);
     vi.mocked(debtsApi.getSummary).mockRejectedValue(new Error('boom'));
 
-    const { result } = renderHook(() => useDashboard(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDashboard(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -101,7 +94,7 @@ describe('useDashboard', () => {
     vi.mocked(creditCardsApi.getSummary).mockResolvedValue({ totalToPay: 0 } as never);
     vi.mocked(debtsApi.getSummary).mockResolvedValue({ totalActiveDebts: 0 } as never);
 
-    const { result } = renderHook(() => useDashboard(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDashboard(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.trendLoading).toBe(false));
 

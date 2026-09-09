@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useCategories } from './useCategories';
 import type { Category } from '../../../types';
 
@@ -24,12 +23,6 @@ const makeCategory = (overrides: Partial<Category> = {}): Category => ({
   ...overrides,
 });
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useCategories', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -39,7 +32,7 @@ describe('useCategories', () => {
     const categories = [makeCategory()];
     vi.mocked(categoriesApi.getAll).mockResolvedValue(categories);
 
-    const { result } = renderHook(() => useCategories(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategories(), { wrapper: createQueryClientWrapper() });
 
     expect(result.current.loading).toBe(true);
 
@@ -52,7 +45,7 @@ describe('useCategories', () => {
   it('setea error y deja categories vacío si la API falla', async () => {
     vi.mocked(categoriesApi.getAll).mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderHook(() => useCategories(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategories(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -62,7 +55,7 @@ describe('useCategories', () => {
 
   it('reload dispara un refetch', async () => {
     vi.mocked(categoriesApi.getAll).mockResolvedValue([]);
-    const { result } = renderHook(() => useCategories(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategories(), { wrapper: createQueryClientWrapper() });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     result.current.reload();

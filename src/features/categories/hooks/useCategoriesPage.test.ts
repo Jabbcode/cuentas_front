@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useCategoriesPage } from './useCategoriesPage';
 import type { Category } from '../../../types';
 
@@ -47,26 +46,24 @@ function fakeCategory(overrides: Partial<Category> = {}): Category {
   } as unknown as Category;
 }
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useCategoriesPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('separa categorías de expense e income', () => {
-    const { result } = renderHook(() => useCategoriesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategoriesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     expect(result.current.expenseCategories.map((c) => c.id)).toEqual(['c1']);
     expect(result.current.incomeCategories.map((c) => c.id)).toEqual(['c2']);
   });
 
   it('openForm con categoría: precarga el form y limpia el error previo', () => {
-    const { result } = renderHook(() => useCategoriesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategoriesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.openForm(fakeCategory({ name: 'Transporte' })));
 
@@ -77,7 +74,9 @@ describe('useCategoriesPage', () => {
 
   it('handleSubmit sin editingCategory: crea la categoría', async () => {
     mockApiCreate.mockResolvedValue(fakeCategory());
-    const { result } = renderHook(() => useCategoriesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategoriesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
     act(() => result.current.openForm());
 
     await act(async () => {
@@ -90,7 +89,9 @@ describe('useCategoriesPage', () => {
 
   it('handleSubmit con editingCategory: actualiza', async () => {
     mockApiUpdate.mockResolvedValue(fakeCategory());
-    const { result } = renderHook(() => useCategoriesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategoriesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
     act(() => result.current.openForm(fakeCategory({ id: 'c9' })));
 
     await act(async () => {
@@ -102,7 +103,9 @@ describe('useCategoriesPage', () => {
 
   it('handleSubmit con error: muestra toast, no rompe', async () => {
     mockApiCreate.mockRejectedValue(new Error('boom'));
-    const { result } = renderHook(() => useCategoriesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategoriesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
     act(() => result.current.openForm());
 
     await act(async () => {
@@ -114,7 +117,9 @@ describe('useCategoriesPage', () => {
 
   it('handleDelete: error genérico limpia deleteId sin setear el mensaje de "transacciones"', async () => {
     mockApiDelete.mockRejectedValue(new Error('otro error'));
-    const { result } = renderHook(() => useCategoriesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategoriesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.setDeleteId('c1'));
     await act(async () => {
@@ -127,7 +132,9 @@ describe('useCategoriesPage', () => {
 
   it('handleDelete: error con "transacciones" en el mensaje setea el error explicativo', async () => {
     mockApiDelete.mockRejectedValue(new Error('Tiene transacciones asociadas'));
-    const { result } = renderHook(() => useCategoriesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategoriesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.setDeleteId('c1'));
     await act(async () => {
@@ -141,7 +148,9 @@ describe('useCategoriesPage', () => {
 
   it('handleDelete exitoso: elimina y limpia deleteId', async () => {
     mockApiDelete.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useCategoriesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCategoriesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.setDeleteId('c1'));
     await act(async () => {

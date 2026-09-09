@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import type { FormEvent } from 'react';
 import { useTransactionsPage } from './useTransactionsPage';
 
@@ -106,14 +105,6 @@ import { useCategories } from '../../categories/hooks/useCategories';
 
 const fakeEvent = { preventDefault: vi.fn() } as unknown as FormEvent;
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useTransactionsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -122,7 +113,9 @@ describe('useTransactionsPage', () => {
   });
 
   it('handleSubmit exitoso llama reload y cierra el formulario', async () => {
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     await act(async () => {
       await result.current.handleSubmit(fakeEvent);
@@ -135,7 +128,9 @@ describe('useTransactionsPage', () => {
   it('handleSubmit con error llama toast.error con el mensaje real del backend y no hace reload', async () => {
     mockApiCreate.mockRejectedValue(new Error('API error'));
 
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     await act(async () => {
       await result.current.handleSubmit(fakeEvent);
@@ -145,7 +140,9 @@ describe('useTransactionsPage', () => {
   });
 
   it('handleDelete exitoso llama reload y limpia deleteId', async () => {
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => {
       result.current.setDeleteId('tx-123');
@@ -176,7 +173,9 @@ describe('useTransactionsPage', () => {
       reload: vi.fn(),
     });
 
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => {
       result.current.handleOpenForm();
@@ -188,7 +187,9 @@ describe('useTransactionsPage', () => {
   });
 
   it('handleCloseForm cierra el formulario y lo resetea', () => {
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => {
       result.current.handleOpenForm();
@@ -215,7 +216,9 @@ describe('useTransactionsPage', () => {
       reload: vi.fn(),
     });
 
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => {
       result.current.handleTypeChange('income');
@@ -236,13 +239,17 @@ describe('useTransactionsPage', () => {
       reload: vi.fn(),
     });
 
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     expect(result.current.filteredCategories).toEqual([{ id: 'cat-expense', type: 'expense' }]);
   });
 
   it('dateWarning es null si no hay accountId, fecha o el tipo no es expense', () => {
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     expect(result.current.dateWarning).toBeNull();
     expect(mockGetClosedPeriodWarning).not.toHaveBeenCalled();
@@ -264,7 +271,9 @@ describe('useTransactionsPage', () => {
       message: 'período ya cerrado',
     });
 
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => {
       result.current.handleFormDataChange({ accountId: 'acc-1', date: '2026-01-01' });
@@ -288,7 +297,9 @@ describe('useTransactionsPage', () => {
       reload: vi.fn(),
     });
 
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => {
       result.current.handleScannedReceipt({
@@ -319,7 +330,9 @@ describe('useTransactionsPage', () => {
       reload: vi.fn(),
     });
 
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => {
       result.current.handleScannedReceipt({
@@ -335,7 +348,9 @@ describe('useTransactionsPage', () => {
   });
 
   it('handleEdit setea la transacción en edición', () => {
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
     const tx = { id: 'tx-1' } as never;
 
     act(() => {
@@ -346,7 +361,9 @@ describe('useTransactionsPage', () => {
   });
 
   it('handleSaveEdit exitoso limpia editingTransaction', async () => {
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => {
       result.current.handleEdit({ id: 'tx-1' } as never);
@@ -367,7 +384,9 @@ describe('useTransactionsPage', () => {
   it('handleSaveEdit con error muestra el mensaje real y no limpia editingTransaction', async () => {
     const { transactionsApi } = await import('../api');
     vi.mocked(transactionsApi.update).mockRejectedValueOnce(new Error('update failed'));
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => {
       result.current.handleEdit({ id: 'tx-1' } as never);
@@ -387,7 +406,9 @@ describe('useTransactionsPage', () => {
   });
 
   it('handleDelete sin deleteId no llama a la API', async () => {
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     await act(async () => {
       await result.current.handleDelete();
@@ -398,7 +419,9 @@ describe('useTransactionsPage', () => {
 
   it('handleViewItems con items ya cargados no vuelve a pedirlos a la API', async () => {
     const { transactionsApi } = await import('../api');
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
     const tx = { id: 'tx-1', receiptItems: [{ id: 'item-1' }] } as never;
 
     await act(async () => {
@@ -412,7 +435,9 @@ describe('useTransactionsPage', () => {
   it('handleViewItems sin items los pide a la API y los agrega a la transacción', async () => {
     const { transactionsApi } = await import('../api');
     vi.mocked(transactionsApi.getReceiptItems).mockResolvedValueOnce([{ id: 'item-1' }] as never);
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
     const tx = { id: 'tx-1', receiptItems: [] } as never;
 
     await act(async () => {
@@ -426,7 +451,9 @@ describe('useTransactionsPage', () => {
   it('handleViewItems con error en la API muestra el toast y limpia loadingItemsId', async () => {
     const { transactionsApi } = await import('../api');
     vi.mocked(transactionsApi.getReceiptItems).mockRejectedValueOnce(new Error('boom'));
-    const { result } = renderHook(() => useTransactionsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
     const tx = { id: 'tx-1', receiptItems: [] } as never;
 
     await act(async () => {

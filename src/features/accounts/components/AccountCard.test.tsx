@@ -2,19 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AccountCard } from './AccountCard';
-import type { Account, CreditCardStatement } from '../../../types';
-
-function fakeAccount(overrides: Partial<Account> = {}): Account {
-  return {
-    id: 'a1',
-    name: 'Cuenta 1',
-    type: 'bank',
-    balance: 100,
-    currency: 'EUR',
-    createdAt: '2026-01-01',
-    ...overrides,
-  };
-}
+import type { CreditCardStatement } from '../../../types';
+import { fakeAccount } from '../../../test-utils/fixtures';
 
 function fakeStatement(overrides: Partial<CreditCardStatement> = {}): CreditCardStatement {
   return {

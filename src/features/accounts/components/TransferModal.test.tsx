@@ -2,23 +2,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TransferModal } from './TransferModal';
-import type { Account } from '../../../types';
 import { useTransfer } from '../../../hooks/useTransfer';
+import { fakeAccount } from '../../../test-utils/fixtures';
 
 vi.mock('../../../hooks/useTransfer');
 const mockedUseTransfer = vi.mocked(useTransfer);
-
-function fakeAccount(overrides: Partial<Account> = {}): Account {
-  return {
-    id: 'a1',
-    name: 'Cuenta 1',
-    type: 'bank',
-    balance: 100,
-    currency: 'EUR',
-    createdAt: '2026-01-01',
-    ...overrides,
-  };
-}
 
 describe('TransferModal', () => {
   it('preselecciona origen=primera cuenta, destino=segunda cuenta', () => {

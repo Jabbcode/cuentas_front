@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useDebtsPage } from './useDebtsPage';
 import type { Debt } from '../../../types';
 
@@ -51,19 +50,13 @@ function fakeDebt(overrides: Partial<Debt> = {}): Debt {
   return { id: 'debt-1', status: 'active', remainingAmount: 100, ...overrides } as unknown as Debt;
 }
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useDebtsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('handleOpenCreate abre el form sin deuda en edición; handleCloseForm lo cierra', () => {
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.handleEditDebt(fakeDebt()));
     expect(result.current.showForm).toBe(true);
@@ -79,7 +72,7 @@ describe('useDebtsPage', () => {
   });
 
   it('handlePay: sin payingDebt seteado, no llama a payDebt', async () => {
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     await act(async () => {
       await result.current.handlePay(50, 'account-1');
@@ -90,7 +83,7 @@ describe('useDebtsPage', () => {
 
   it('handlePay: con payingDebt seteado, paga esa deuda', async () => {
     mockPayDebt.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.handleSetPayingDebt(fakeDebt({ id: 'debt-2' })));
     await act(async () => {
@@ -102,7 +95,7 @@ describe('useDebtsPage', () => {
 
   it('handlePay con error: muestra toast, no rompe', async () => {
     mockPayDebt.mockRejectedValue(new Error('boom'));
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.handleSetPayingDebt(fakeDebt()));
     await act(async () => {
@@ -113,7 +106,7 @@ describe('useDebtsPage', () => {
   });
 
   it('handleConfirmDelete: sin deleteId no hace nada', async () => {
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     await act(async () => {
       await result.current.handleConfirmDelete();
@@ -124,7 +117,7 @@ describe('useDebtsPage', () => {
 
   it('handleConfirmDelete: elimina la deuda pedida y limpia deleteId', async () => {
     mockDeleteDebt.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.handleRequestDelete('debt-1'));
     expect(result.current.deleteId).toBe('debt-1');
@@ -140,7 +133,7 @@ describe('useDebtsPage', () => {
 
   it('handleConfirmDelete con error: mantiene deleting=false y muestra toast', async () => {
     mockDeleteDebt.mockRejectedValue(new Error('boom'));
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.handleRequestDelete('debt-1'));
     await act(async () => {
@@ -152,7 +145,7 @@ describe('useDebtsPage', () => {
   });
 
   it('handleCancelDelete: limpia deleteId sin llamar a deleteDebt', () => {
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.handleRequestDelete('debt-1'));
     act(() => result.current.handleCancelDelete());
@@ -163,7 +156,7 @@ describe('useDebtsPage', () => {
 
   it('handleConfirmDeleteRecurring: elimina el pago recurrente pedido', async () => {
     mockDeleteRecurringPayment.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.handleRequestDeleteRecurring('rp-1'));
     await act(async () => {
@@ -175,7 +168,7 @@ describe('useDebtsPage', () => {
   });
 
   it('handleRecurringSuccess: cierra el modal y recarga los pagos recurrentes', () => {
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.handleOpenRecurring(fakeDebt()));
     expect(result.current.configuringRecurring).toEqual(fakeDebt());
@@ -188,7 +181,7 @@ describe('useDebtsPage', () => {
   });
 
   it('handleViewHistory / handleCloseHistory alternan viewingHistory', () => {
-    const { result } = renderHook(() => useDebtsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebtsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.handleViewHistory(fakeDebt()));
     expect(result.current.viewingHistory).toEqual(fakeDebt());

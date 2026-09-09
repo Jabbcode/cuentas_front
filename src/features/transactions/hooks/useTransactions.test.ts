@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useTransactions } from './useTransactions';
 import type { Transaction } from '../../../types';
 
@@ -19,12 +18,6 @@ vi.mock('sonner', () => ({
 
 import { transactionsApi } from '../api';
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 const baseParams = { currentPage: 1, itemsPerPage: 20 };
 
 describe('useTransactions', () => {
@@ -41,7 +34,9 @@ describe('useTransactions', () => {
       offset: 0,
     });
 
-    const { result } = renderHook(() => useTransactions(baseParams), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactions(baseParams), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -54,7 +49,9 @@ describe('useTransactions', () => {
   it('setea error y deja transactions vacío si la API falla', async () => {
     vi.mocked(transactionsApi.getAll).mockRejectedValue(new Error('network'));
 
-    const { result } = renderHook(() => useTransactions(baseParams), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactions(baseParams), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -71,7 +68,9 @@ describe('useTransactions', () => {
       offset: 0,
     });
 
-    const { result } = renderHook(() => useTransactions(baseParams), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactions(baseParams), {
+      wrapper: createQueryClientWrapper(),
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     result.current.reload();

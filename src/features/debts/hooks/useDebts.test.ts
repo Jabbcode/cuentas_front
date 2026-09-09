@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useDebts } from './useDebts';
 import type { Debt } from '../../../types';
 
@@ -21,14 +20,6 @@ vi.mock('sonner', () => ({
 
 import { debtsApi } from '../api';
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useDebts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,7 +28,9 @@ describe('useDebts', () => {
   it('carga las deudas, pasando el status como parte de la query', async () => {
     vi.mocked(debtsApi.getAll).mockResolvedValue([{ id: 'd1' }] as unknown as Debt[]);
 
-    const { result } = renderHook(() => useDebts('active'), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebts('active'), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -48,7 +41,7 @@ describe('useDebts', () => {
   it('error al cargar: toast + mensaje traducido', async () => {
     vi.mocked(debtsApi.getAll).mockRejectedValue(new Error('boom'));
 
-    const { result } = renderHook(() => useDebts(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebts(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -59,7 +52,7 @@ describe('useDebts', () => {
   it('deleteDebt: llama a la API con el id', async () => {
     vi.mocked(debtsApi.getAll).mockResolvedValue([]);
     vi.mocked(debtsApi.delete).mockResolvedValue(undefined as never);
-    const { result } = renderHook(() => useDebts(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebts(), { wrapper: createQueryClientWrapper() });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
@@ -72,7 +65,7 @@ describe('useDebts', () => {
   it('payDebt: llama a la API con monto, cuenta y notas', async () => {
     vi.mocked(debtsApi.getAll).mockResolvedValue([]);
     vi.mocked(debtsApi.pay).mockResolvedValue(undefined as never);
-    const { result } = renderHook(() => useDebts(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useDebts(), { wrapper: createQueryClientWrapper() });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {

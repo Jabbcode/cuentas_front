@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useFixedExpenses } from './useFixedExpenses';
 import type { FixedExpenseSummary } from '../../../types';
 
@@ -28,14 +27,6 @@ import { fixedExpensesApi } from '../api';
 
 const fakeSummary = { items: [], totalMonthlyExpenses: 0 } as unknown as FixedExpenseSummary;
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useFixedExpenses', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,7 +34,9 @@ describe('useFixedExpenses', () => {
   });
 
   it('carga el resumen y expone loading/error', async () => {
-    const { result } = renderHook(() => useFixedExpenses(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpenses(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -55,7 +48,9 @@ describe('useFixedExpenses', () => {
   it('error al cargar: muestra toast y expone un mensaje traducido', async () => {
     vi.mocked(fixedExpensesApi.getSummary).mockRejectedValue(new Error('boom'));
 
-    const { result } = renderHook(() => useFixedExpenses(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpenses(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -65,7 +60,9 @@ describe('useFixedExpenses', () => {
 
   it('payExpense: llama a la API con el monto y refresca el resumen', async () => {
     vi.mocked(fixedExpensesApi.pay).mockResolvedValue(undefined as never);
-    const { result } = renderHook(() => useFixedExpenses(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpenses(), {
+      wrapper: createQueryClientWrapper(),
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
@@ -77,7 +74,9 @@ describe('useFixedExpenses', () => {
 
   it('payExpense sin monto: llama a la API sin body', async () => {
     vi.mocked(fixedExpensesApi.pay).mockResolvedValue(undefined as never);
-    const { result } = renderHook(() => useFixedExpenses(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpenses(), {
+      wrapper: createQueryClientWrapper(),
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
@@ -89,7 +88,9 @@ describe('useFixedExpenses', () => {
 
   it('payExpense con error: no lanza, muestra toast con el mensaje del error', async () => {
     vi.mocked(fixedExpensesApi.pay).mockRejectedValue(new Error('fail'));
-    const { result } = renderHook(() => useFixedExpenses(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpenses(), {
+      wrapper: createQueryClientWrapper(),
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
@@ -101,7 +102,9 @@ describe('useFixedExpenses', () => {
 
   it('toggleActive: invierte isActive al llamar a update', async () => {
     vi.mocked(fixedExpensesApi.update).mockResolvedValue(undefined as never);
-    const { result } = renderHook(() => useFixedExpenses(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpenses(), {
+      wrapper: createQueryClientWrapper(),
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
@@ -113,7 +116,9 @@ describe('useFixedExpenses', () => {
 
   it('deleteExpense: llama a delete', async () => {
     vi.mocked(fixedExpensesApi.delete).mockResolvedValue(undefined as never);
-    const { result } = renderHook(() => useFixedExpenses(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpenses(), {
+      wrapper: createQueryClientWrapper(),
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {

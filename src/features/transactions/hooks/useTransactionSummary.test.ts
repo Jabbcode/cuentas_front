@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useTransactionSummary } from './useTransactionSummary';
 
 vi.mock('../api', () => ({
@@ -13,12 +12,6 @@ vi.mock('sonner', () => ({
 }));
 
 import { transactionsApi } from '../api';
-
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
 
 describe('useTransactionSummary', () => {
   beforeEach(() => {
@@ -37,7 +30,9 @@ describe('useTransactionSummary', () => {
     ];
     vi.mocked(transactionsApi.getSummary).mockResolvedValue(summary);
 
-    const { result } = renderHook(() => useTransactionSummary({}), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionSummary({}), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -46,7 +41,7 @@ describe('useTransactionSummary', () => {
 
   it('deja summary vacío si la query está deshabilitada', async () => {
     const { result } = renderHook(() => useTransactionSummary({}, false), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientWrapper(),
     });
 
     expect(result.current.loading).toBe(false);
@@ -57,7 +52,9 @@ describe('useTransactionSummary', () => {
   it('reload dispara un refetch', async () => {
     vi.mocked(transactionsApi.getSummary).mockResolvedValue([]);
 
-    const { result } = renderHook(() => useTransactionSummary({}), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useTransactionSummary({}), {
+      wrapper: createQueryClientWrapper(),
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     result.current.reload();

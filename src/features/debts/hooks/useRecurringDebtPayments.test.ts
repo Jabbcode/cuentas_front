@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useRecurringDebtPayments } from './useRecurringDebtPayments';
 import type { RecurringDebtPayment } from '../../../types';
 
@@ -15,14 +14,6 @@ vi.mock('sonner', () => ({
 
 import { recurringDebtPaymentsApi } from '../api';
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useRecurringDebtPayments', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -34,7 +25,7 @@ describe('useRecurringDebtPayments', () => {
     ] as unknown as RecurringDebtPayment[]);
 
     const { result } = renderHook(() => useRecurringDebtPayments('debt-1'), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientWrapper(),
     });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
@@ -46,7 +37,9 @@ describe('useRecurringDebtPayments', () => {
   it('deleteRecurringPayment: llama a la API con el id', async () => {
     vi.mocked(recurringDebtPaymentsApi.getAll).mockResolvedValue([]);
     vi.mocked(recurringDebtPaymentsApi.delete).mockResolvedValue(undefined as never);
-    const { result } = renderHook(() => useRecurringDebtPayments(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useRecurringDebtPayments(), {
+      wrapper: createQueryClientWrapper(),
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
@@ -59,7 +52,9 @@ describe('useRecurringDebtPayments', () => {
   it('toggleActive: llama a update con el nuevo valor de isActive', async () => {
     vi.mocked(recurringDebtPaymentsApi.getAll).mockResolvedValue([]);
     vi.mocked(recurringDebtPaymentsApi.update).mockResolvedValue(undefined as never);
-    const { result } = renderHook(() => useRecurringDebtPayments(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useRecurringDebtPayments(), {
+      wrapper: createQueryClientWrapper(),
+    });
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {

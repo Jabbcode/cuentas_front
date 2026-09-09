@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useAccountsPage } from './useAccountsPage';
-import type { Account, CreditCardsSummary } from '../../../types';
+import type { CreditCardsSummary } from '../../../types';
+import { fakeAccount } from '../../../test-utils/fixtures';
 
 const { mockToastError, mockApiCreate, mockApiUpdate, mockApiDelete } = vi.hoisted(() => ({
   mockToastError: vi.fn(),
@@ -41,31 +41,13 @@ vi.mock('./useAccounts', () => ({
   })),
 }));
 
-function fakeAccount(overrides: Partial<Account> = {}): Account {
-  return {
-    id: 'acc-2',
-    name: 'Cuenta',
-    type: 'bank',
-    balance: 200,
-    currency: 'EUR',
-    color: null,
-    ...overrides,
-  } as unknown as Account;
-}
-
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useAccountsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('openForm sin cuenta: resetea a los defaults y abre el form', () => {
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.openForm());
 
@@ -75,7 +57,7 @@ describe('useAccountsPage', () => {
   });
 
   it('openForm con cuenta: precarga el formulario con sus datos', () => {
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.openForm(fakeAccount({ name: 'Ahorros', balance: 350 })));
 
@@ -85,7 +67,7 @@ describe('useAccountsPage', () => {
   });
 
   it('closeForm: cierra el form y limpia editingAccount', () => {
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.openForm(fakeAccount()));
     act(() => result.current.closeForm());
@@ -96,7 +78,7 @@ describe('useAccountsPage', () => {
 
   it('handleSubmit sin editingAccount: crea la cuenta y cierra el form', async () => {
     mockApiCreate.mockResolvedValue(fakeAccount());
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
     act(() => result.current.openForm());
     act(() => result.current.setFormData((prev) => ({ ...prev, name: 'Nueva cuenta' })));
 
@@ -110,7 +92,7 @@ describe('useAccountsPage', () => {
 
   it('handleSubmit con editingAccount: actualiza la cuenta existente', async () => {
     mockApiUpdate.mockResolvedValue(fakeAccount());
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
     act(() => result.current.openForm(fakeAccount({ id: 'acc-9' })));
 
     await act(async () => {
@@ -123,7 +105,7 @@ describe('useAccountsPage', () => {
 
   it('handleSubmit con error: muestra toast y mantiene saving=false', async () => {
     mockApiCreate.mockRejectedValue(new Error('boom'));
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
     act(() => result.current.openForm());
 
     await act(async () => {
@@ -135,7 +117,7 @@ describe('useAccountsPage', () => {
   });
 
   it('handleDelete sin deleteId: no llama a la API', async () => {
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
 
     await act(async () => {
       await result.current.handleDelete();
@@ -146,7 +128,7 @@ describe('useAccountsPage', () => {
 
   it('handleDelete con deleteId: elimina y limpia el id', async () => {
     mockApiDelete.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
 
     act(() => result.current.setDeleteId('acc-1'));
     await act(async () => {
@@ -158,7 +140,7 @@ describe('useAccountsPage', () => {
   });
 
   it('toggleSection: invierte solo la sección indicada', () => {
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
 
     expect(result.current.expandedSections.bank).toBe(true);
     act(() => result.current.toggleSection('bank'));
@@ -167,7 +149,7 @@ describe('useAccountsPage', () => {
   });
 
   it('agrupa las cuentas por tipo y calcula el balance total', () => {
-    const { result } = renderHook(() => useAccountsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccountsPage(), { wrapper: createQueryClientWrapper() });
 
     expect(result.current.groupedAccounts.bank).toHaveLength(1);
     expect(result.current.groupedAccounts.credit_card).toHaveLength(1);
@@ -179,7 +161,7 @@ describe('useAccountsPage', () => {
     } as unknown as CreditCardsSummary);
 
     const { result } = renderHook(() => useAccountsPage({ fetchSummary }), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientWrapper(),
     });
 
     await waitFor(() => expect(result.current.statementsMap['card-1']).toBeDefined());

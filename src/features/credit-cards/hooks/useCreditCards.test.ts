@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useCreditCards } from './useCreditCards';
 import type { Account, CreditCardsSummary } from '../../../types';
 
@@ -22,12 +21,6 @@ import { accountsApi } from '../../accounts/api';
 
 const fakeSummary = { cards: [{ account: { id: 'card-1' } }] } as unknown as CreditCardsSummary;
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useCreditCards', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -40,7 +33,7 @@ describe('useCreditCards', () => {
       { id: 'a2', type: 'credit_card' },
     ] as unknown as Account[]);
 
-    const { result } = renderHook(() => useCreditCards(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCards(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -53,7 +46,7 @@ describe('useCreditCards', () => {
     vi.mocked(creditCardsApi.getSummary).mockRejectedValue(new Error('boom'));
     vi.mocked(accountsApi.getAll).mockResolvedValue([]);
 
-    const { result } = renderHook(() => useCreditCards(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCards(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -64,7 +57,7 @@ describe('useCreditCards', () => {
     vi.mocked(creditCardsApi.getSummary).mockResolvedValue(fakeSummary);
     vi.mocked(accountsApi.getAll).mockRejectedValue(new Error('boom'));
 
-    const { result } = renderHook(() => useCreditCards(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCards(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 

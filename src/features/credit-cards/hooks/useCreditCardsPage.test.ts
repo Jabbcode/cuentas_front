@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useCreditCardsPage } from './useCreditCardsPage';
 import type { CreditCardStatement } from '../../../types';
 
@@ -57,12 +56,6 @@ vi.mock('../../categories/hooks/useCategories', () => ({
   })),
 }));
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useCreditCardsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -76,13 +69,17 @@ describe('useCreditCardsPage', () => {
   });
 
   it('filtra expenseCategories solo con type=expense', () => {
-    const { result } = renderHook(() => useCreditCardsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     expect(result.current.expenseCategories.map((c) => c.id)).toEqual(['cat-1']);
   });
 
   it('handleOpenPayment: precarga el monto con el balance del período cerrado', () => {
-    const { result } = renderHook(() => useCreditCardsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.handleOpenPayment(fakeStatement()));
 
@@ -92,7 +89,9 @@ describe('useCreditCardsPage', () => {
   });
 
   it('handleClosePayment: cierra el modal y resetea el form', () => {
-    const { result } = renderHook(() => useCreditCardsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.handleOpenPayment(fakeStatement()));
     act(() => result.current.handleClosePayment());
@@ -102,7 +101,9 @@ describe('useCreditCardsPage', () => {
   });
 
   it('toggleCardCollapse: alterna solo la tarjeta indicada', () => {
-    const { result } = renderHook(() => useCreditCardsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.toggleCardCollapse('card-1'));
     expect(result.current.collapsedCards.has('card-1')).toBe(false);
@@ -112,7 +113,9 @@ describe('useCreditCardsPage', () => {
   });
 
   it('handlePay: sin statement en el modal, no llama a la API', async () => {
-    const { result } = renderHook(() => useCreditCardsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     await act(async () => {
       await result.current.handlePay({ preventDefault: vi.fn() } as never);
@@ -123,7 +126,9 @@ describe('useCreditCardsPage', () => {
 
   it('handlePay: paga la tarjeta del modal y lo cierra', async () => {
     mockPayStatement.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useCreditCardsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.handleOpenPayment(fakeStatement()));
     await act(async () => {
@@ -139,7 +144,9 @@ describe('useCreditCardsPage', () => {
 
   it('handlePay con error: muestra toast, no rompe', async () => {
     mockPayStatement.mockRejectedValue(new Error('boom'));
-    const { result } = renderHook(() => useCreditCardsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.handleOpenPayment(fakeStatement()));
     await act(async () => {
@@ -150,7 +157,9 @@ describe('useCreditCardsPage', () => {
   });
 
   it('handleSubmitExpense: sin statement en el modal, no llama a la API', async () => {
-    const { result } = renderHook(() => useCreditCardsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     await act(async () => {
       await result.current.handleSubmitExpense({ preventDefault: vi.fn() } as never);
@@ -161,7 +170,9 @@ describe('useCreditCardsPage', () => {
 
   it('handleSubmitExpense: crea el gasto contra la cuenta de la tarjeta del modal', async () => {
     mockTxCreate.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useCreditCardsPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.handleOpenExpense(fakeStatement()));
     act(() => result.current.handleExpenseFormChange({ amount: '25', categoryId: 'cat-1' }));

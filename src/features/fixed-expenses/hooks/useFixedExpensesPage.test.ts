@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useFixedExpensesPage } from './useFixedExpensesPage';
 
 const { mockToastError, mockDeleteExpense } = vi.hoisted(() => ({
@@ -42,19 +41,15 @@ vi.mock('../utils', () => ({
   ),
 }));
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useFixedExpensesPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('openCreateForm abre el form sin id en edición', () => {
-    const { result } = renderHook(() => useFixedExpensesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpensesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.openEditForm('fe-1'));
     expect(result.current.editingId).toBe('fe-1');
@@ -66,7 +61,9 @@ describe('useFixedExpensesPage', () => {
   });
 
   it('closeForm limpia showForm y editingId', () => {
-    const { result } = renderHook(() => useFixedExpensesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpensesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.openEditForm('fe-1'));
     act(() => result.current.closeForm());
@@ -76,7 +73,9 @@ describe('useFixedExpensesPage', () => {
   });
 
   it('requestDelete / cancelDelete manejan deleteId sin llamar a la API', () => {
-    const { result } = renderHook(() => useFixedExpensesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpensesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.requestDelete('fe-1'));
     expect(result.current.deleteId).toBe('fe-1');
@@ -88,7 +87,9 @@ describe('useFixedExpensesPage', () => {
 
   it('handleDelete: elimina el gasto pedido y limpia deleteId', async () => {
     mockDeleteExpense.mockResolvedValue(undefined);
-    const { result } = renderHook(() => useFixedExpensesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpensesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.requestDelete('fe-1'));
     await act(async () => {
@@ -102,7 +103,9 @@ describe('useFixedExpensesPage', () => {
 
   it('handleDelete con error: muestra toast y no deja deleting=true', async () => {
     mockDeleteExpense.mockRejectedValue(new Error('boom'));
-    const { result } = renderHook(() => useFixedExpensesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpensesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.requestDelete('fe-1'));
     await act(async () => {
@@ -114,7 +117,9 @@ describe('useFixedExpensesPage', () => {
   });
 
   it('toggleExpenseCategory / toggleIncomeCategory operan listas independientes', () => {
-    const { result } = renderHook(() => useFixedExpensesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpensesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.toggleExpenseCategory('cat-1'));
     expect(result.current.selectedExpenseCategories).toEqual(['cat-1']);
@@ -125,7 +130,9 @@ describe('useFixedExpensesPage', () => {
   });
 
   it('clearExpenseFilters / clearIncomeFilters vacían sus listas', () => {
-    const { result } = renderHook(() => useFixedExpensesPage(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useFixedExpensesPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
 
     act(() => result.current.toggleExpenseCategory('cat-1'));
     act(() => result.current.toggleIncomeCategory('cat-2'));
