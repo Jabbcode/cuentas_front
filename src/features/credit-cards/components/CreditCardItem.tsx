@@ -3,7 +3,7 @@ import { Button } from '../../../components/ui/button';
 import { CreditCardHeader } from './CreditCardHeader';
 import { CreditCardAlerts } from './CreditCardAlerts';
 import { CreditCardPeriod } from './CreditCardPeriod';
-import { Receipt } from 'lucide-react';
+import { Receipt, Plus } from 'lucide-react';
 import type { CreditCardStatement } from '../../../types';
 
 interface CreditCardItemProps {
@@ -12,6 +12,7 @@ interface CreditCardItemProps {
   onToggleCollapse: () => void;
   onPayClick: (statement: CreditCardStatement) => void;
   onViewTransactions: (statement: CreditCardStatement) => void;
+  onCreateExpense: (statement: CreditCardStatement) => void;
 }
 
 export function CreditCardItem({
@@ -20,6 +21,7 @@ export function CreditCardItem({
   onToggleCollapse,
   onPayClick,
   onViewTransactions,
+  onCreateExpense,
 }: CreditCardItemProps) {
   return (
     <Card className="overflow-hidden">
@@ -50,6 +52,12 @@ export function CreditCardItem({
           >
             <Receipt className="h-4 w-4 mr-2" />
             Ver todas las transacciones
+          </Button>
+
+          {/* Create expense button */}
+          <Button variant="outline" onClick={() => onCreateExpense(statement)} className="w-full">
+            <Plus className="h-4 w-4 mr-2" />
+            Agregar gasto
           </Button>
         </CardContent>
       )}

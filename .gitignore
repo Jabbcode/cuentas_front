@@ -28,3 +28,16 @@ dist-ssr
 # Documentation
 docs
 .gstack/
+
+# graphify (local knowledge graph, machine-specific hook config)
+graphify-out/
+.claude/settings.json
+.claude/scheduled_tasks.lock
+.vercel
+.env*
+!.env.example
+
+# Test reports/coverage
+coverage/
+playwright-report/
+test-results/

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type {
   MonthlySummary,
   FixedExpense,
+  FixedExpenseSummary,
   CreditCardsSummary,
   DebtsSummary,
 } from '../../../types';
@@ -15,6 +16,7 @@ import {
   filterUpcomingFixedExpenses,
   hasAlerts,
   CREDIT_UTILIZATION_ALERT_THRESHOLD,
+  UPCOMING_PAYMENTS_DAYS_WINDOW,
 } from '../utils';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
@@ -305,5 +307,37 @@ describe('hasAlerts', () => {
       ],
     } as unknown as CreditCardsSummary;
     expect(hasAlerts(null, ccSummary, null)).toBe(true);
+  });
+
+  it('returns true when a credit card payment is due within the window', () => {
+    const ccSummary = {
+      totalToPay: 0,
+      upcomingPayments: [{ daysUntilDue: UPCOMING_PAYMENTS_DAYS_WINDOW }],
+      alerts: [],
+      cards: [],
+    } as unknown as CreditCardsSummary;
+    expect(hasAlerts(null, ccSummary, null)).toBe(true);
+  });
+
+  it('returns false when credit card summary has no alerts of any kind', () => {
+    const ccSummary = {
+      totalToPay: 0,
+      upcomingPayments: [{ daysUntilDue: UPCOMING_PAYMENTS_DAYS_WINDOW + 1 }],
+      alerts: [],
+      cards: [{ usagePercentage: CREDIT_UTILIZATION_ALERT_THRESHOLD }],
+    } as unknown as CreditCardsSummary;
+    expect(hasAlerts(null, ccSummary, null)).toBe(false);
+  });
+
+  it('returns true when a fixed expense is due within the window and unpaid', () => {
+    const fixedSummary = {
+      totalMonthlyExpenses: 0,
+      totalMonthlyIncome: 0,
+      totalCount: 1,
+      paidCount: 0,
+      pendingCount: 1,
+      items: [{ dueDay: new Date().getDate(), isPaidThisMonth: false }],
+    } as unknown as FixedExpenseSummary;
+    expect(hasAlerts(null, null, fixedSummary)).toBe(true);
   });
 });

@@ -9,6 +9,7 @@ import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useCategories } from '../../categories/hooks/useCategories';
 import { toast } from 'sonner';
 import { getClosedPeriodWarning } from '../../../lib/credit-card-utils';
+import { getApiErrorMessage } from '../../../lib/api-errors';
 import { logger } from '../../../lib/logger';
 import type { Transaction } from '../../../types';
 import type { ScanReceiptData } from '../../../api/receipts.api';
@@ -235,7 +236,7 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
         handleCloseForm();
         await queryClient.invalidateQueries({ queryKey: ['transactions'] });
       } catch (err) {
-        toast.error('No se pudo guardar la transacción');
+        toast.error(getApiErrorMessage(err, 'No se pudo guardar la transacción'));
         logger.error('transaction', 'Failed to create transaction', err);
       } finally {
         setSaving(false);
@@ -289,7 +290,7 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
         setEditingTransaction(null);
         await queryClient.invalidateQueries({ queryKey: ['transactions'] });
       } catch (err) {
-        toast.error('No se pudo actualizar la transacción');
+        toast.error(getApiErrorMessage(err, 'No se pudo actualizar la transacción'));
         logger.error('transaction', 'Failed to update transaction', err, { id });
       }
     },

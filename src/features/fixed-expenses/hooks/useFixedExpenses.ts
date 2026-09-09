@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fixedExpensesApi } from '../api';
 import { logger } from '../../../lib/logger';
+import { getApiErrorMessage } from '../../../lib/api-errors';
 import type { FixedExpenseSummary } from '../../../types';
 import { toast } from 'sonner';
 import type { UseFixedExpensesReturn } from '../types';
@@ -29,7 +30,7 @@ export function useFixedExpenses(): UseFixedExpensesReturn {
         logger.info('fixed-expense', 'Fixed expense paid', { id, amount });
         await queryClient.invalidateQueries({ queryKey: ['fixed-expenses'] });
       } catch (err) {
-        toast.error('No se pudo registrar el pago del gasto fijo');
+        toast.error(getApiErrorMessage(err, 'No se pudo registrar el pago del gasto fijo'));
         logger.error('fixed-expense', 'Failed to pay fixed expense', err, { id });
       }
     },

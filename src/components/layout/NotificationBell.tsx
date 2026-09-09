@@ -18,6 +18,7 @@ function NotificationItem({
     debt_due: 'bg-red-100 text-red-700',
     monthly_summary: 'bg-blue-100 text-blue-700',
     auto_generated: 'bg-amber-100 text-amber-700',
+    auto_generate_failed: 'bg-red-100 text-red-700',
   };
 
   const typeLabels: Record<string, string> = {
@@ -25,6 +26,7 @@ function NotificationItem({
     debt_due: 'Deuda',
     monthly_summary: 'Resumen',
     auto_generated: 'Auto',
+    auto_generate_failed: 'Fallo',
   };
 
   const timeAgo = (date: string) => {

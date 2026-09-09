@@ -26,16 +26,16 @@
 │                    API CLIENT LAYER                          │
 │  (accountsApi, transactionsApi, authApi, etc)               │
 │  - Abstracts HTTP calls                                      │
-│  - Uses axios with token interceptor                         │
+│  - Uses shared axios instance (withCredentials: true)        │
 │  - Error handling                                            │
 └──────────────┬───────────────────────────────────────────────┘
                │ makes requests
                ▼
 ┌──────────────────────────────────────────────────────────────┐
 │                    AXIOS + INTERCEPTORS                      │
-│  - Adds JWT token to headers                                │
-│  - Handles 401 unauthorized                                 │
-│  - Base URL: process.env.VITE_API_URL                       │
+│  - JWT sent automatically via httpOnly cookie                │
+│  - Handles 401 → dispatches auth:unauthorized event         │
+│  - Base URL: import.meta.env.VITE_API_URL                   │
 └──────────────┬───────────────────────────────────────────────┘
                │ HTTP
                ▼
@@ -62,7 +62,7 @@
 4. Llama accountsApi.getAll()
                 │
                 ▼
-5. API Client hace GET /api/accounts (con token JWT en header)
+5. API Client hace GET /api/accounts (cookie httpOnly enviada automáticamente)
                 │
                 ▼
 6. Axios interceptor captura respuesta
@@ -249,17 +249,18 @@ Hook → setData(newData) → API → If success: keep ✓
 ## 🔐 Seguridad del Token
 
 ```
-┌─────────────────┐
-│  localStorage   │
-│    "token"      │
-└────────┬────────┘
+┌─────────────────────────┐
+│  Cookie httpOnly (JWT)  │
+│  seteada por backend    │
+│  invisible para JS      │
+└────────┬─────────────────┘
          │
          ▼
 ┌─────────────────────────────────┐
-│ Axios Interceptor Request        │
-│ Adds: Authorization: Bearer ..   │
+│ Axios: withCredentials: true     │
+│ Browser adjunta la cookie sola   │
 └────────┬────────────────────────┘
-         │ Request with token
+         │ Request con cookie
          ▼
       Backend
          │
@@ -269,8 +270,8 @@ Axios Interceptor Response
 ├─ 200 OK: Retorna data
 │
 └─ 401 Unauthorized:
-   ├─ localStorage.removeItem('token')
-   ├─ window.location.href = '/login'
+   ├─ dispatchEvent('auth:unauthorized')
+   ├─ AuthContext.logout() limpia estado y llama POST /auth/logout
    └─ Usuario vuelve a login
 ```
 

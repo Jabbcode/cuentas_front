@@ -47,29 +47,33 @@
 
 ```
 src/
-├── api/              # Clientes API para cada endpoint
-├── components/       # Componentes React reutilizables
-├── pages/           # Páginas de la aplicación
-├── hooks/           # Custom hooks personalizados
-├── context/         # Context API providers
-├── types/           # Definiciones de tipos TypeScript
-├── lib/             # Utilidades y helpers
-├── assets/          # Imágenes, iconos
-└── index.css        # Estilos globales
+├── features/<module>/  # Dominio: index.ts (barrel), types.ts, utils.ts, api.ts, hooks/, components/
+├── pages/               # Páginas — solo importan desde el barrel del feature
+├── components/          # Componentes UI compartidos (no específicos de un feature)
+├── context/             # Context API providers
+├── types/                # Definiciones de tipos TypeScript compartidas
+├── lib/                  # Utilidades y helpers
+├── assets/               # Imágenes, iconos
+└── index.css             # Estilos globales
 ```
+
+Ver ADR-008 en `.claude/decisions/ADR-decisions.md` para el detalle de la estructura de cada feature.
 
 ## 🔐 Autenticación
 
-- **Tipo:** JWT (JSON Web Token)
-- **Almacenamiento:** localStorage con clave 'token'
-- **Interceptores:** Axios intercepta requests para añadir token Authorization header
-- **Logout Automático:** Si el servidor retorna 401, se elimina el token y redirige a /login
-- **Endpoints:** /api/auth/login, /api/auth/register
+- **Tipo:** JWT (JSON Web Token) en cookie **httpOnly** gestionada por el backend
+- **Almacenamiento:** Ninguno en el cliente — no localStorage, no Context. La cookie es invisible para JS
+- **Envío:** Axios con `withCredentials: true` — el browser adjunta la cookie automáticamente
+- **Verificación de sesión:** `AuthContext` llama `GET /auth/me` al montar; si falla, no autenticado
+- **Logout Automático:** Response interceptor dispara el evento `auth:unauthorized` en 401 → `AuthContext` limpia el estado
+- **Endpoints:** `/auth/login`, `/auth/register`, `/auth/logout`, `/auth/me`
+
+Ver ADR-002 y ADR-011 en `.claude/decisions/ADR-decisions.md`.
 
 ## 📊 Flujo de Datos Principal
 
 ```
-Usuario → Componente → Hook (useX) → API Client → Axios → Backend
+Usuario → Componente → Hook (useX) → API Client → Axios (withCredentials) → Backend
                        ↓
                    State (React)
                        ↓
@@ -80,7 +84,7 @@ Usuario → Componente → Hook (useX) → API Client → Axios → Backend
 
 1. Componente solicita datos con `useAccounts()`
 2. Hook hace fetch a `accountsApi.getAll()`
-3. API Client usa Axios con interceptor de token
+3. API Client usa Axios con `withCredentials: true` (cookie httpOnly enviada automáticamente)
 4. Respuesta se guarda en estado local
 5. UI se re-renderiza con los datos
 
@@ -103,16 +107,14 @@ Usuario → Componente → Hook (useX) → API Client → Axios → Backend
 
 - **Base URL:** Variable de entorno `VITE_API_URL` (default: http://localhost:3001/api)
 - **Puerto de desarrollo:** 5173 (Vite)
-- **CORS:** Configurado en backend para permitir requests desde frontend
-- **Autenticación:** Bearer token en header `Authorization`
+- **CORS:** Configurado en backend con `credentials: true` para aceptar la cookie httpOnly
+- **Autenticación:** Cookie httpOnly + `withCredentials: true` (sin header Authorization)
 
 ## 👥 Estado del Usuario
 
-Actualmente se maneja con localStorage:
-
-- Token JWT en `localStorage.token`
-- No hay persistencia de datos de usuario en el cliente
-- Context API disponible en `/src/context` para estado global si es necesario
+- Sin token ni datos de sesión en localStorage
+- `AuthContext` (`/src/context/AuthContext.tsx`) mantiene `user` en memoria, verificado contra `GET /auth/me` al montar
+- No hay persistencia de datos de usuario en el cliente entre recargas más allá de esa verificación
 
 ## 🚀 Despliegue
 
@@ -153,7 +155,7 @@ En producción (Vercel), se configura a través de variables de entorno del proy
 
 ## 📞 Puntos de Integración Críticos
 
-1. **Auth Interceptor** (`src/api/client.ts`) - Punto crítico de manejo de token
-2. **API Clients** (`src/api/*.api.ts`) - Cada página tiene su cliente correspondiente
-3. **Hooks** (`src/hooks/*.ts`) - Encapsulan lógica de fetching y estado
+1. **API Client base** (`src/api/client.ts`) - Configuración Axios con `withCredentials: true`
+2. **API Clients por feature** (`src/features/<module>/api.ts`) - Cliente HTTP de cada dominio
+3. **Hooks por feature** (`src/features/<module>/hooks/*.ts`) - Encapsulan lógica de fetching y estado
 4. **Types** (`src/types/index.ts`) - Definiciones de tipos compartidas entre frontend y backend

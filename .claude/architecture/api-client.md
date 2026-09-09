@@ -16,6 +16,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 ```
 
@@ -25,25 +26,9 @@ export const api = axios.create({
 - Se configura en `.env` para desarrollo
 - Se configura en Vercel para producción
 
-## 🔐 Interceptores de Autenticación
+## 🔐 Autenticación
 
-### Request Interceptor
-
-```typescript
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-```
-
-**Qué hace:**
-
-- Obtiene token del localStorage
-- Si existe, lo añade al header `Authorization: Bearer <token>`
-- Si no existe, hace request sin token (para login/register)
+No hay request interceptor: el JWT vive en una cookie **httpOnly** seteada por el backend en login/register, invisible para JS. Con `withCredentials: true`, el browser la adjunta automáticamente en cada request — no hace falta agregar ningún header manualmente. Ver ADR-002 y ADR-011.
 
 ### Response Interceptor
 
@@ -52,8 +37,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      const isAuthEndpoint = error.config?.url?.includes('/auth/');
+      if (!isAuthEndpoint) {
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      }
     }
     return Promise.reject(error);
   }
@@ -62,38 +49,38 @@ api.interceptors.response.use(
 
 **Qué hace:**
 
-- Si respuesta es 401 (No autorizado):
-  - Elimina token del localStorage
-  - Redirige a página de login
-  - Usuario debe autenticarse de nuevo
+- Si respuesta es 401 (No autorizado) y no es un endpoint de auth:
+  - Dispara el evento custom `auth:unauthorized`
+  - `AuthContext` escucha ese evento y llama `logout()` (limpia estado, llama `POST /auth/logout`)
+  - Usuario vuelve a /login
 
 ## 📋 Estructura de API Clients
 
-Cada recurso tiene su propio archivo con métodos CRUD:
+`src/api/client.ts` es el único cliente Axios base compartido. Cada feature tiene su propio `api.ts` en `src/features/<module>/`:
 
 ```
 src/api/
-├── client.ts                 # Configuración Axios
-├── auth.api.ts              # Login, Register, Logout
-├── accounts.api.ts          # CRUD de cuentas
-├── transactions.api.ts      # CRUD de transacciones
-├── categories.api.ts        # CRUD de categorías
-├── fixed-expenses.api.ts    # CRUD de gastos fijos
-├── credit-cards.api.ts      # Operaciones tarjetas
-├── debts.api.ts             # CRUD de deudas
-├── recurring-debt-payments.api.ts  # Pagos recurrentes
-├── dashboard.api.ts         # Datos de dashboard
-├── receipts.api.ts          # Upload de recibos
-└── settings.api.ts          # Configuración usuario
+└── client.ts                       # Configuración Axios base (único cliente compartido)
+
+src/features/
+├── auth/api.ts                     # Login, Register, Logout, getMe
+├── accounts/api.ts                 # CRUD de cuentas
+├── transactions/api.ts             # CRUD de transacciones
+├── categories/api.ts               # CRUD de categorías
+├── fixed-expenses/api.ts           # CRUD de gastos fijos
+├── credit-cards/api.ts             # Operaciones tarjetas
+├── debts/api.ts                    # CRUD de deudas
+├── dashboard/api.ts                # Datos de dashboard
+└── settings/api.ts                 # Configuración usuario
 ```
 
 ## 🔑 Patrón de Implementación
 
-### Ejemplo: accounts.api.ts
+### Ejemplo: features/accounts/api.ts
 
 ```typescript
-import { api } from './client';
-import type { Account, CreateAccountInput, UpdateAccountInput } from '../types';
+import { api } from '../../api/client';
+import type { Account, CreateAccountInput, UpdateAccountInput } from '../../types';
 
 export const accountsApi = {
   // GET /accounts
@@ -138,8 +125,8 @@ accountsApi.getAll()
      ▼
 axios.get<Account[]>('/accounts')
      │
-     ├─ Request Interceptor
-     │  └─ Añade token
+     ├─ withCredentials: true
+     │  └─ Cookie httpOnly enviada automáticamente
      │
      ├─ HTTP GET request a backend
      │
@@ -259,7 +246,7 @@ export function useAccounts() {
 
 ### Errores Esperados
 
-- **401:** Token expirado o inválido (handled por interceptor)
+- **401:** Sesión expirada o inválida (handled por response interceptor)
 - **400:** Validación fallida (backend retorna descripción)
 - **404:** Recurso no encontrado
 - **500:** Error del servidor
@@ -268,16 +255,16 @@ export function useAccounts() {
 
 ### Token Handling
 
-- ✅ Token almacenado en localStorage
-- ✅ Añadido automáticamente a requests
-- ✅ Removido en logout
+- ✅ Token vive en cookie httpOnly — nunca accesible desde JS
+- ✅ Enviado automáticamente por el browser (`withCredentials: true`)
+- ✅ Limpiado en el backend vía `POST /auth/logout`
 - ✅ Validado en cada request (backend)
 
 ### Datos Sensibles
 
-- ❌ NUNCA logguear token
+- ❌ NUNCA loguear el contenido de la cookie/token
 - ❌ NUNCA pasar credenciales en URL
-- ❌ NUNCA almacenar credenciales (solo token)
+- ❌ NUNCA replicar el token en localStorage o Context
 - ✅ HTTPS en producción
 
 ## 📝 Ejemplo Completo: Crear una Transacción
@@ -335,7 +322,7 @@ transactionsApi.create(data)
   ↓
 axios.post('/transactions', data)
   ↓
-Request Interceptor (añade token)
+withCredentials: true (cookie httpOnly enviada automáticamente)
   ↓
 Backend /POST /transactions
   ↓
@@ -352,7 +339,7 @@ Component re-renderiza con nueva transacción
 
 ```typescript
 import { vi } from 'vitest';
-import * as accountsApi from './accounts.api';
+import * as accountsApi from '../../features/accounts/api';
 
 test('accountsApi.getAll hace GET a /accounts', async () => {
   const mockData = [{ id: '1', name: 'Cuenta' }];

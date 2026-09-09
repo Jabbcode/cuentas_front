@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import { useAccounts } from './useAccounts';
 import type { Account } from '../../../types';
 
@@ -25,14 +24,6 @@ const makeAccount = (overrides: Partial<Account> = {}): Account => ({
   ...overrides,
 });
 
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
-};
-
 describe('useAccounts', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -42,7 +33,7 @@ describe('useAccounts', () => {
     const accounts = [makeAccount()];
     vi.mocked(accountsApi.getAll).mockResolvedValue(accounts);
 
-    const { result } = renderHook(() => useAccounts(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccounts(), { wrapper: createQueryClientWrapper() });
 
     expect(result.current.loading).toBe(true);
 
@@ -55,7 +46,7 @@ describe('useAccounts', () => {
   it('sets error state and keeps accounts empty when API fails', async () => {
     vi.mocked(accountsApi.getAll).mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderHook(() => useAccounts(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccounts(), { wrapper: createQueryClientWrapper() });
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
@@ -70,7 +61,7 @@ describe('useAccounts', () => {
     });
     vi.mocked(accountsApi.getAll).mockReturnValue(deferred);
 
-    const { result } = renderHook(() => useAccounts(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useAccounts(), { wrapper: createQueryClientWrapper() });
 
     expect(result.current.loading).toBe(true);
 
