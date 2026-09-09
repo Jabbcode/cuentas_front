@@ -36,3 +36,8 @@ graphify-out/
 .vercel
 .env*
 !.env.example
+
+# Test reports/coverage
+coverage/
+playwright-report/
+test-results/
