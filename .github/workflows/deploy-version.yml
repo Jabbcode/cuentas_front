@@ -102,13 +102,16 @@ jobs:
               # ANTES de exponer `ref`. Si la PR es cross-repo, no se despliega
               # ni se hace checkout.
               pr_json=$(gh pr view "$ISSUE_NUMBER" --repo "$REPO" --json isCrossRepository,headRefOid,headRefName)
-              if [ "$(printf '%s' "$pr_json" | jq -r '.isCrossRepository')" = "true" ]; then
-                echo "valid=false" >> "$GITHUB_OUTPUT"
-                echo "reason=cross_repo" >> "$GITHUB_OUTPUT"
-              else
+              # allowlist: solo se emite `ref` (y se permite el checkout) si el
+              # origen de la PR es exactamente "false"; vacío / null / salida
+              # inesperada de gh → se bloquea (M-1).
+              if [ "$(printf '%s' "$pr_json" | jq -r '.isCrossRepository')" = "false" ]; then
                 echo "valid=true" >> "$GITHUB_OUTPUT"
                 echo "slot=$slot" >> "$GITHUB_OUTPUT"
                 echo "ref=$(printf '%s' "$pr_json" | jq -r '.headRefOid')" >> "$GITHUB_OUTPUT"
+              else
+                echo "valid=false" >> "$GITHUB_OUTPUT"
+                echo "reason=cross_repo" >> "$GITHUB_OUTPUT"
               fi
             elif printf '%s\n' "$text" | grep -qE "$PROD_RE"; then
               echo "valid=false" >> "$GITHUB_OUTPUT"
