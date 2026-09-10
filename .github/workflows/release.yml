@@ -191,6 +191,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add package.json CHANGELOG.md
           git commit -m "chore: release v${NEW_VERSION}"
+          # Evita el non-fast-forward si release.yml y otro workflow comitean a
+          # `main` en el mismo merge.
+          git pull --rebase origin main
           git push origin main
 
       - name: Crear y publicar el tag
@@ -207,22 +210,34 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_VERSION: ${{ steps.version.outputs.new }}
         run: |
+          # Notas categorizadas del rango (generadas en el step `notes`), igual
+          # que el release.yml del backend — no un enlace genérico al CHANGELOG.
           gh release create "v${NEW_VERSION}" \
             --title "v${NEW_VERSION}" \
-            --notes "Ver [CHANGELOG.md](${GITHUB_SERVER_URL}/${{ github.repository }}/blob/main/CHANGELOG.md) para el detalle de cambios."
+            --notes-file /tmp/notes.md
 
       - name: Crear PR de sync a develop
         if: steps.codecheck.outputs.has_code_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           NEW_VERSION: ${{ steps.version.outputs.new }}
         run: |
-          gh pr create \
+          # El tag + GitHub Release ya están publicados: un PR de sync ya
+          # abierto o una label `chore` ausente NO deben tumbar el workflow.
+          existing=$(gh pr list --base develop --head main --state open --json number --jq 'length')
+          if [ "$existing" -gt 0 ]; then
+            echo "Ya hay un PR de sync main -> develop abierto; nada que crear."
+            exit 0
+          fi
+          if ! gh pr create \
             --base develop \
             --head main \
             --title "chore: sync develop con main v${NEW_VERSION}" \
-            --label "chore" \
-            --body "Sincroniza \`develop\` con el CHANGELOG y el version bump de v${NEW_VERSION} publicados en \`main\`."
+            --body "Sincroniza \`develop\` con el CHANGELOG y el version bump de v${NEW_VERSION} publicados en \`main\`."; then
+            gh pr comment "$PR_NUMBER" \
+              --body "⚠️ Release v${NEW_VERSION} publicada (tag + GitHub Release), pero no se pudo abrir el PR de sync \`main → develop\` automáticamente. Créalo a mano."
+          fi
 
       - name: Comentar fallo del release
         if: failure() && steps.codecheck.outputs.has_code_changes == 'true'
