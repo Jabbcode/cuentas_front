@@ -70,10 +70,19 @@ jobs:
             slot=$(echo "$text" | grep -oE "$SLOT_RE" | head -1 | sed 's#^/deploy ##' || true)
 
             if [ -n "$slot" ]; then
-              sha=$(gh pr view "$ISSUE_NUMBER" --repo "$REPO" --json headRefOid -q .headRefOid)
-              echo "valid=true" >> "$GITHUB_OUTPUT"
-              echo "slot=$slot" >> "$GITHUB_OUTPUT"
-              echo "ref=$sha" >> "$GITHUB_OUTPUT"
+              # SEC-1: repos públicos -> una PR de un fork puede colar código no
+              # confiable en el checkout de un snapshot. Se comprueba el origen
+              # ANTES de exponer `ref` (que alimenta el checkout). Si la PR es
+              # cross-repo, no se despliega ni se hace checkout.
+              pr_json=$(gh pr view "$ISSUE_NUMBER" --repo "$REPO" --json isCrossRepository,headRefOid,headRefName)
+              if [ "$(printf '%s' "$pr_json" | jq -r '.isCrossRepository')" = "true" ]; then
+                echo "valid=false" >> "$GITHUB_OUTPUT"
+                echo "reason=cross_repo" >> "$GITHUB_OUTPUT"
+              else
+                echo "valid=true" >> "$GITHUB_OUTPUT"
+                echo "slot=$slot" >> "$GITHUB_OUTPUT"
+                echo "ref=$(printf '%s' "$pr_json" | jq -r '.headRefOid')" >> "$GITHUB_OUTPUT"
+              fi
             elif echo "$text" | grep -qE "$PROD_RE"; then
               echo "valid=false" >> "$GITHUB_OUTPUT"
               echo "reason=version_not_allowed" >> "$GITHUB_OUTPUT"
@@ -116,6 +125,8 @@ jobs:
               msg="❌ En una PR no se admite versión — usa \`/deploy PRE\` o \`/deploy PRE-TEST\` para desplegar el HEAD de esta PR sobre ese slot." ;;
             slot_required)
               msg="❌ Falta el slot — indica \`/deploy PRE\` o \`/deploy PRE-TEST\`. No se ha desplegado nada." ;;
+            cross_repo)
+              msg="⚠️ Los snapshots solo se admiten para PRs de ramas de este repositorio, no de forks (\`/deploy PRE\` bloqueado)." ;;
             *)
               msg="⚠️ No se detectó un comando válido. Usa \`/deploy vX.Y.Z\` en un issue de producción, o \`/deploy PRE\` / \`/deploy PRE-TEST\` en un comentario de PR." ;;
           esac
