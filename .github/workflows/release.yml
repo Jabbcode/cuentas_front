@@ -1,0 +1,231 @@
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  # Rutas cuyo cambio justifica publicar una nueva versión del frontend.
+  # Excluye .github/, .claude/ y documentación: cambios solo de tooling/CI/docs
+  # no generan release.
+  CODE_PATHS_REGEX: '^(src/|package\.json$|package-lock\.json$|tsconfig.*\.json$|vite\.config\.ts$|vercel\.json$|index\.html$)'
+  # Generador de notas por prefijo de rama (creado en F4). El workflow no
+  # reimplementa la categorización: delega en este script.
+  CHANGELOG_SCRIPT: .github/scripts/build-changelog.sh
+
+jobs:
+  release:
+    if: >
+      github.event.pull_request.merged == true &&
+      (
+        github.event.pull_request.head.ref == 'develop' ||
+        startsWith(github.event.pull_request.head.ref, 'hotfix/')
+      ) &&
+      (
+        contains(github.event.pull_request.labels.*.name, 'release-type/patch') ||
+        contains(github.event.pull_request.labels.*.name, 'release-type/minor') ||
+        contains(github.event.pull_request.labels.*.name, 'release-type/major')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comprobar si hay cambios de código
+        id: codecheck
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          files=$(gh api "repos/${{ github.repository }}/compare/${BASE_SHA}...${HEAD_SHA}" --jq '.files[].filename')
+          if echo "$files" | grep -qE "$CODE_PATHS_REGEX"; then
+            echo "has_code_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_code_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Avisar que no hubo cambios de código
+        if: steps.codecheck.outputs.has_code_changes == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR_NUMBER" \
+            --body "⚠️ Este PR no toca código del frontend (\`src/\`, \`package.json\`, \`package-lock.json\`, \`tsconfig*.json\`, \`vite.config.ts\`, \`vercel.json\`, \`index.html\`) — no se generó ninguna versión ni release."
+
+      - name: Determinar tipo de bump
+        id: bump
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        run: |
+          if echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | grep -q 'release-type/major'; then
+            echo "type=major" >> "$GITHUB_OUTPUT"
+          elif echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | grep -q 'release-type/minor'; then
+            echo "type=minor" >> "$GITHUB_OUTPUT"
+          else
+            echo "type=patch" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Calcular nueva versión
+        id: version
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          BUMP_TYPE: ${{ steps.bump.outputs.type }}
+        run: |
+          current=$(node -p "require('./package.json').version")
+          IFS='.' read -r major minor patch <<< "$current"
+          case "$BUMP_TYPE" in
+            major) major=$((major+1)); minor=0; patch=0 ;;
+            minor) minor=$((minor+1)); patch=0 ;;
+            patch) patch=$((patch+1)) ;;
+          esac
+          echo "new=$major.$minor.$patch" >> "$GITHUB_OUTPUT"
+          echo "previous=$current" >> "$GITHUB_OUTPUT"
+
+      - name: Bump package.json
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+        run: |
+          node -e "const fs=require('fs');const p=require('./package.json');p.version=process.env.NEW_VERSION;fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n')"
+
+      - name: Resolver rango de commits del changelog
+        id: range
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+        run: |
+          # Punto de partida: el tag de la versión anterior si existe; si no, el
+          # último tag vX.Y.Z publicado; y si es el primer release del repo, el
+          # commit raíz.
+          if git rev-parse -q --verify "refs/tags/v${PREVIOUS}" >/dev/null; then
+            from_ref="v${PREVIOUS}"
+          else
+            latest_tag=$(git tag --list 'v*' --sort=-v:refname | head -1)
+            if [ -n "$latest_tag" ]; then
+              from_ref="$latest_tag"
+            else
+              from_ref=$(git rev-list --max-parents=0 HEAD | tail -1)
+            fi
+          fi
+          echo "from=$from_ref" >> "$GITHUB_OUTPUT"
+
+      - name: Generar notas del release
+        id: notes
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FROM_REF: ${{ steps.range.outputs.from }}
+        run: |
+          bash "$CHANGELOG_SCRIPT" "$FROM_REF" HEAD > /tmp/notes.md
+          if [ ! -s /tmp/notes.md ]; then
+            echo "_Sin cambios categorizables en este rango._" > /tmp/notes.md
+          fi
+
+      - name: Actualizar CHANGELOG.md
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+          FROM_REF: ${{ steps.range.outputs.from }}
+        run: |
+          date=$(date +%Y-%m-%d)
+          {
+            head -n 6 CHANGELOG.md
+            echo ""
+            echo "## [${NEW_VERSION}] - $date"
+            echo ""
+            cat /tmp/notes.md
+            echo ""
+            tail -n +7 CHANGELOG.md
+          } > /tmp/changelog-new.md
+          mv /tmp/changelog-new.md CHANGELOG.md
+
+          compare_url="${GITHUB_SERVER_URL}/${{ github.repository }}/compare/${FROM_REF}...v${NEW_VERSION}"
+          bullet="- [${FROM_REF}...v${NEW_VERSION}](${compare_url})"
+          if grep -q "^## Comparaciones completas$" CHANGELOG.md; then
+            awk -v bullet="$bullet" '
+              {
+                print
+                if ($0 ~ /^## Comparaciones completas$/ && !done) {
+                  getline nextline
+                  print nextline
+                  print bullet
+                  done=1
+                }
+              }
+            ' CHANGELOG.md > /tmp/changelog-with-link.md
+            mv /tmp/changelog-with-link.md CHANGELOG.md
+          else
+            {
+              cat CHANGELOG.md
+              echo ""
+              echo "---"
+              echo ""
+              echo "## Comparaciones completas"
+              echo ""
+              echo "$bullet"
+            } > /tmp/changelog-with-link.md
+            mv /tmp/changelog-with-link.md CHANGELOG.md
+          fi
+
+      - name: Commit del version bump
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json CHANGELOG.md
+          git commit -m "chore: release v${NEW_VERSION}"
+          git push origin main
+
+      - name: Crear y publicar el tag
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+        run: |
+          git tag "v${NEW_VERSION}"
+          git push origin "v${NEW_VERSION}"
+
+      - name: Crear GitHub Release
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+        run: |
+          gh release create "v${NEW_VERSION}" \
+            --title "v${NEW_VERSION}" \
+            --notes "Ver [CHANGELOG.md](${GITHUB_SERVER_URL}/${{ github.repository }}/blob/main/CHANGELOG.md) para el detalle de cambios."
+
+      - name: Crear PR de sync a develop
+        if: steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+        run: |
+          gh pr create \
+            --base develop \
+            --head main \
+            --title "chore: sync develop con main v${NEW_VERSION}" \
+            --label "chore" \
+            --body "Sincroniza \`develop\` con el CHANGELOG y el version bump de v${NEW_VERSION} publicados en \`main\`."
+
+      - name: Comentar fallo del release
+        if: failure() && steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR_NUMBER" \
+            --body "❌ Falló la publicación del release. No hay rollback automático: revisa el run, corrige y vuelve a lanzarlo.
+
+          [Ver run](${GITHUB_SERVER_URL}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
