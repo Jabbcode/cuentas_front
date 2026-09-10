@@ -1,0 +1,313 @@
+name: Deploy Version (manual)
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+env:
+  # Regex estrictas de comando (S4): el valor validado es el único que se usa
+  # después. Nunca se interpola el cuerpo del comentario dentro de `run:`.
+  DEPLOY_PROD_RE: '^/deploy v[0-9]+\.[0-9]+\.[0-9]+$'
+  DEPLOY_SLOT_RE: '^/deploy (PRE|PRE-TEST)$'
+  # Alias fijos por slot: el snapshot se re-aliasa a una URL estable (enmienda
+  # de la spec del 2026-09-10 — el deploy por CLI no hereda el alias -git-<rama>-).
+  ALIAS_PRE: cuentas-front-pre.vercel.app
+  ALIAS_PRE_TEST: cuentas-front-pre-test.vercel.app
+
+jobs:
+  deploy:
+    # Gate de dueño del repo (S2): un no-dueño no llega a ningun step con secrets.
+    if: >
+      (
+        github.event_name == 'issues' &&
+        contains(github.event.issue.labels.*.name, 'deploy') &&
+        github.event.issue.user.login == github.repository_owner
+      ) ||
+      (
+        github.event_name == 'issue_comment' &&
+        startsWith(github.event.comment.body, '/deploy') &&
+        github.event.comment.user.login == github.repository_owner
+      )
+    runs-on: ubuntu-latest
+    env:
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Detectar modo y extraer datos
+        id: parse
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          IS_PR: ${{ github.event.issue.pull_request != null }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          PROD_RE: ${{ env.DEPLOY_PROD_RE }}
+          SLOT_RE: ${{ env.DEPLOY_SLOT_RE }}
+        run: |
+          if [ "$EVENT_NAME" = "issues" ]; then
+            raw="$ISSUE_BODY"
+            is_pr="false"
+          else
+            raw="$COMMENT_BODY"
+            is_pr="$IS_PR"
+          fi
+
+          # Normaliza CRLF (los cuerpos de GitHub usan \r\n) para que las regex
+          # ancladas ^...$ casen por línea. La entrada no confiable solo se compara
+          # contra las regex y nunca se interpola en un `run:` (S4).
+          text=$(printf '%s' "$raw" | tr -d '\r')
+
+          if [ "$is_pr" = "true" ]; then
+            echo "mode=snapshot" >> "$GITHUB_OUTPUT"
+            slot=$(echo "$text" | grep -oE "$SLOT_RE" | head -1 | sed 's#^/deploy ##' || true)
+
+            if [ -n "$slot" ]; then
+              sha=$(gh pr view "$ISSUE_NUMBER" --repo "$REPO" --json headRefOid -q .headRefOid)
+              echo "valid=true" >> "$GITHUB_OUTPUT"
+              echo "slot=$slot" >> "$GITHUB_OUTPUT"
+              echo "ref=$sha" >> "$GITHUB_OUTPUT"
+            elif echo "$text" | grep -qE "$PROD_RE"; then
+              echo "valid=false" >> "$GITHUB_OUTPUT"
+              echo "reason=version_not_allowed" >> "$GITHUB_OUTPUT"
+            elif echo "$text" | grep -qE '^/deploy[[:space:]]*$'; then
+              echo "valid=false" >> "$GITHUB_OUTPUT"
+              echo "reason=slot_required" >> "$GITHUB_OUTPUT"
+            else
+              echo "valid=false" >> "$GITHUB_OUTPUT"
+              echo "reason=malformed" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "mode=prod" >> "$GITHUB_OUTPUT"
+            if echo "$text" | grep -qE "$PROD_RE"; then
+              version=$(echo "$text" | grep -oE "$PROD_RE" | head -1 | sed 's#^/deploy v##' || true)
+              echo "valid=true" >> "$GITHUB_OUTPUT"
+              echo "version=$version" >> "$GITHUB_OUTPUT"
+              echo "ref=refs/tags/v$version" >> "$GITHUB_OUTPUT"
+            elif echo "$text" | grep -qE '^/deploy[[:space:]]*$'; then
+              echo "valid=false" >> "$GITHUB_OUTPUT"
+              echo "reason=version_required" >> "$GITHUB_OUTPUT"
+            else
+              echo "valid=false" >> "$GITHUB_OUTPUT"
+              echo "reason=malformed" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Comentar error de comando
+        if: steps.parse.outputs.valid == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REASON: ${{ steps.parse.outputs.reason }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ env.RUN_URL }}
+        run: |
+          case "$REASON" in
+            version_required)
+              msg="❌ En un issue de producción hace falta indicar versión — usa \`/deploy vX.Y.Z\` (ej. \`/deploy v1.3.7\`)." ;;
+            version_not_allowed)
+              msg="❌ En una PR no se admite versión — usa \`/deploy PRE\` o \`/deploy PRE-TEST\` para desplegar el HEAD de esta PR sobre ese slot." ;;
+            slot_required)
+              msg="❌ Falta el slot — indica \`/deploy PRE\` o \`/deploy PRE-TEST\`. No se ha desplegado nada." ;;
+            *)
+              msg="⚠️ No se detectó un comando válido. Usa \`/deploy vX.Y.Z\` en un issue de producción, o \`/deploy PRE\` / \`/deploy PRE-TEST\` en un comentario de PR." ;;
+          esac
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "$msg
+
+          [Ver run]($RUN_URL)"
+
+      - name: Reaccionar al comando
+        if: github.event_name == 'issue_comment' && steps.parse.outputs.valid == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: |
+          gh api "repos/$REPO/issues/comments/$COMMENT_ID/reactions" -f content='+1' || true
+
+      - name: Verificar que el tag existe
+        id: tagcheck
+        if: steps.parse.outputs.valid == 'true' && steps.parse.outputs.mode == 'prod'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.parse.outputs.version }}
+        run: |
+          if gh api "repos/$REPO/git/ref/tags/v${VERSION}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Avisar tag inexistente
+        if: steps.parse.outputs.valid == 'true' && steps.parse.outputs.mode == 'prod' && steps.tagcheck.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.parse.outputs.version }}
+          RUN_URL: ${{ env.RUN_URL }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" \
+            --body "❌ El tag \`v${VERSION}\` no existe. Revísalo con \`gh release list\`.
+
+          [Ver run]($RUN_URL)"
+
+      - name: Determinar si se puede desplegar
+        id: gate
+        if: steps.parse.outputs.valid == 'true'
+        env:
+          MODE: ${{ steps.parse.outputs.mode }}
+          TAG_EXISTS: ${{ steps.tagcheck.outputs.exists }}
+        run: |
+          if [ "$MODE" = "prod" ]; then
+            if [ "$TAG_EXISTS" = "true" ]; then
+              echo "go=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "go=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.gate.outputs.go == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.parse.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Instalar Vercel CLI
+        if: steps.gate.outputs.go == 'true'
+        run: npm install -g vercel@latest
+
+      - name: Calcular versión -SNAPSHOT
+        id: snapshot
+        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'snapshot'
+        run: |
+          latest=$(git tag --list 'v*' | sort -V | tail -1)
+          if [ -z "$latest" ]; then
+            echo "version=0.1.0-SNAPSHOT" >> "$GITHUB_OUTPUT"
+          else
+            v=${latest#v}
+            IFS='.' read -r major minor _ <<< "$v"
+            echo "version=${major}.$((minor + 1)).0-SNAPSHOT" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy a producción
+        id: deploy_prod
+        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'prod'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          APP_VERSION: ${{ steps.parse.outputs.version }}
+          API_URL: ${{ vars.VITE_API_URL_PROD }}
+        run: |
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+          # `vercel build` lee las env del .env.<env>.local, no del shell.
+          # Se escriben DESPUÉS del pull para que ganen en el build (R9).
+          {
+            printf 'VITE_APP_VERSION=%s\n' "$APP_VERSION"
+            printf 'VITE_API_URL=%s\n' "$API_URL"
+          } >> .vercel/.env.production.local
+
+          vercel build --prod --token="$VERCEL_TOKEN"
+          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy de snapshot al slot
+        id: deploy_snapshot
+        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'snapshot'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          SLOT: ${{ steps.parse.outputs.slot }}
+          APP_VERSION: ${{ steps.snapshot.outputs.version }}
+          URL_PRE: ${{ vars.URL_PRE }}
+          URL_PRE_TEST: ${{ vars.URL_PRE_TEST }}
+          ALIAS_PRE: ${{ env.ALIAS_PRE }}
+          ALIAS_PRE_TEST: ${{ env.ALIAS_PRE_TEST }}
+        run: |
+          if [ "$SLOT" = "PRE" ]; then
+            backend_url="$URL_PRE"
+            slot_alias="$ALIAS_PRE"
+          else
+            backend_url="$URL_PRE_TEST"
+            slot_alias="$ALIAS_PRE_TEST"
+          fi
+          echo "backend_url=$backend_url" >> "$GITHUB_OUTPUT"
+          echo "slot_alias=$slot_alias" >> "$GITHUB_OUTPUT"
+
+          vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+
+          # DESPUÉS del pull (R9): la variable scoped a Preview de Vercel no debe
+          # ganar sobre el slot elegido en el comando.
+          {
+            printf 'VITE_APP_VERSION=%s\n' "$APP_VERSION"
+            printf 'VITE_API_URL=%s\n' "${backend_url}/api"
+          } >> .vercel/.env.preview.local
+
+          vercel build --token="$VERCEL_TOKEN"
+          deploy_url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
+          vercel alias set "$deploy_url" "$slot_alias" --token="$VERCEL_TOKEN"
+
+      - name: Comentar resultado (producción)
+        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'prod' && success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.parse.outputs.version }}
+          URL: ${{ steps.deploy_prod.outputs.url }}
+          RUN_URL: ${{ env.RUN_URL }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" \
+            --body "✅ Desplegado \`v${VERSION}\` a producción: ${URL}
+
+          [Ver run]($RUN_URL)"
+          gh issue close "$ISSUE_NUMBER" --repo "$REPO"
+
+      - name: Comentar resultado (snapshot)
+        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'snapshot' && success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          SLOT: ${{ steps.parse.outputs.slot }}
+          APP_VERSION: ${{ steps.snapshot.outputs.version }}
+          SLOT_ALIAS: ${{ steps.deploy_snapshot.outputs.slot_alias }}
+          BACKEND_URL: ${{ steps.deploy_snapshot.outputs.backend_url }}
+          RUN_URL: ${{ env.RUN_URL }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" \
+            --body "✅ Snapshot desplegado en el slot **${SLOT}**: https://${SLOT_ALIAS}
+
+          Apunta al backend del slot **${SLOT}** (\`${BACKEND_URL}\`).
+          Versión indicativa: \`${APP_VERSION}\`.
+
+          ⚠️ El backend del slot es de plan free y se duerme tras ~15 min sin tráfico: la primera petición puede tardar 30-60 s (cold start).
+
+          [Ver run]($RUN_URL)"
+
+      - name: Comentar fallo
+        if: steps.gate.outputs.go == 'true' && failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ env.RUN_URL }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" \
+            --body "❌ Falló el deploy. No hay rollback automático: revisa el run, corrige y vuelve a lanzarlo (o despliega manualmente un tag anterior).
+
+          [Ver run]($RUN_URL)"
