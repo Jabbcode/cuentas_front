@@ -7,6 +7,7 @@ import { ProfileForm } from '../features/settings/components/ProfileForm';
 import { PasswordForm } from '../features/settings/components/PasswordForm';
 import { NotificationsTab } from '../features/settings/components/NotificationsTab';
 import { DeleteAccountForm } from '../features/settings/components/DeleteAccountForm';
+import { VersionInfo } from '../features/settings';
 
 export function SettingsPage() {
   const {
@@ -54,6 +55,8 @@ export function SettingsPage() {
       {activeTab === 'account' && (
         <DeleteAccountForm isLoading={isLoading} onSubmit={handleDeleteAccount} />
       )}
+
+      <VersionInfo />
     </div>
   );
 }
