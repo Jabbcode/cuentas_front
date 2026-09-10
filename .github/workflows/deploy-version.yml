@@ -1,5 +1,21 @@
 name: Deploy Version (manual)
 
+# Despliega en Vercel de forma explícita. Dos modos:
+#   - Producción: issue con label `deploy` (o comentario `/deploy vX.Y.Z`) ->
+#     valida el tag, hace checkout de ese commit y despliega a producción.
+#   - Snapshot:   comentario `/deploy PRE` | `/deploy PRE-TEST` en una PR ->
+#     despliega el HEAD de la PR y lo re-aliasa a la URL fija del slot.
+#
+# Jobs separados por destino (SEC-3/H6):
+#   - `parse`: no lee ningún secret, aplica el gate de dueño (S2), decide el
+#     modo y valida el comando. El guard anti-fork (SEC-1) vive aquí, antes de
+#     cualquier `actions/checkout`.
+#   - `deploy-prod`: `environment: production` como punto de control de
+#     despliegue. Hoy los secrets de Vercel siguen siendo de repo (no hay un
+#     token de preview separado); el scoping fino de token queda pendiente para
+#     cuando exista.
+#   - `deploy-snapshot`: despliega el HEAD (ya validado como no cross-repo).
+
 on:
   issues:
     types: [opened]
@@ -22,8 +38,8 @@ env:
   ALIAS_PRE_TEST: cuentas-front-pre-test.vercel.app
 
 jobs:
-  deploy:
-    # Gate de dueño del repo (S2): un no-dueño no llega a ningun step con secrets.
+  parse:
+    # Gate de dueño del repo (S2): un no-dueño no llega a ningún job con secrets.
     if: >
       (
         github.event_name == 'issues' &&
@@ -38,6 +54,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    outputs:
+      valid: ${{ steps.gate.outputs.valid }}
+      reason: ${{ steps.gate.outputs.reason }}
+      mode: ${{ steps.parse.outputs.mode }}
+      slot: ${{ steps.parse.outputs.slot }}
+      version: ${{ steps.parse.outputs.version }}
+      ref: ${{ steps.parse.outputs.ref }}
+      snapshot_version: ${{ steps.snap.outputs.version }}
+      issue: ${{ github.event.issue.number }}
     steps:
       - name: Detectar modo y extraer datos
         id: parse
@@ -52,6 +77,8 @@ jobs:
           PROD_RE: ${{ env.DEPLOY_PROD_RE }}
           SLOT_RE: ${{ env.DEPLOY_SLOT_RE }}
         run: |
+          set -euo pipefail
+
           if [ "$EVENT_NAME" = "issues" ]; then
             raw="$ISSUE_BODY"
             is_pr="false"
@@ -61,19 +88,19 @@ jobs:
           fi
 
           # Normaliza CRLF (los cuerpos de GitHub usan \r\n) para que las regex
-          # ancladas ^...$ casen por línea. La entrada no confiable solo se compara
-          # contra las regex y nunca se interpola en un `run:` (S4).
+          # ancladas ^...$ casen por línea. La entrada no confiable solo se
+          # compara contra las regex y nunca se interpola en un `run:` (S4).
           text=$(printf '%s' "$raw" | tr -d '\r')
 
           if [ "$is_pr" = "true" ]; then
             echo "mode=snapshot" >> "$GITHUB_OUTPUT"
-            slot=$(echo "$text" | grep -oE "$SLOT_RE" | head -1 | sed 's#^/deploy ##' || true)
+            slot=$(printf '%s\n' "$text" | grep -oE "$SLOT_RE" | head -1 | sed 's#^/deploy ##' || true)
 
             if [ -n "$slot" ]; then
               # SEC-1: repos públicos -> una PR de un fork puede colar código no
               # confiable en el checkout de un snapshot. Se comprueba el origen
-              # ANTES de exponer `ref` (que alimenta el checkout). Si la PR es
-              # cross-repo, no se despliega ni se hace checkout.
+              # ANTES de exponer `ref`. Si la PR es cross-repo, no se despliega
+              # ni se hace checkout.
               pr_json=$(gh pr view "$ISSUE_NUMBER" --repo "$REPO" --json isCrossRepository,headRefOid,headRefName)
               if [ "$(printf '%s' "$pr_json" | jq -r '.isCrossRepository')" = "true" ]; then
                 echo "valid=false" >> "$GITHUB_OUTPUT"
@@ -83,10 +110,10 @@ jobs:
                 echo "slot=$slot" >> "$GITHUB_OUTPUT"
                 echo "ref=$(printf '%s' "$pr_json" | jq -r '.headRefOid')" >> "$GITHUB_OUTPUT"
               fi
-            elif echo "$text" | grep -qE "$PROD_RE"; then
+            elif printf '%s\n' "$text" | grep -qE "$PROD_RE"; then
               echo "valid=false" >> "$GITHUB_OUTPUT"
               echo "reason=version_not_allowed" >> "$GITHUB_OUTPUT"
-            elif echo "$text" | grep -qE '^/deploy[[:space:]]*$'; then
+            elif printf '%s\n' "$text" | grep -qE '^/deploy[[:space:]]*$'; then
               echo "valid=false" >> "$GITHUB_OUTPUT"
               echo "reason=slot_required" >> "$GITHUB_OUTPUT"
             else
@@ -95,12 +122,12 @@ jobs:
             fi
           else
             echo "mode=prod" >> "$GITHUB_OUTPUT"
-            if echo "$text" | grep -qE "$PROD_RE"; then
-              version=$(echo "$text" | grep -oE "$PROD_RE" | head -1 | sed 's#^/deploy v##' || true)
+            if printf '%s\n' "$text" | grep -qE "$PROD_RE"; then
+              version=$(printf '%s\n' "$text" | grep -oE "$PROD_RE" | head -1 | sed 's#^/deploy v##' || true)
               echo "valid=true" >> "$GITHUB_OUTPUT"
               echo "version=$version" >> "$GITHUB_OUTPUT"
               echo "ref=refs/tags/v$version" >> "$GITHUB_OUTPUT"
-            elif echo "$text" | grep -qE '^/deploy[[:space:]]*$'; then
+            elif printf '%s\n' "$text" | grep -qE '^/deploy[[:space:]]*$'; then
               echo "valid=false" >> "$GITHUB_OUTPUT"
               echo "reason=version_required" >> "$GITHUB_OUTPUT"
             else
@@ -109,15 +136,77 @@ jobs:
             fi
           fi
 
-      - name: Comentar error de comando
-        if: steps.parse.outputs.valid == 'false'
+      - name: Verificar que el tag existe (producción)
+        id: tagcheck
+        if: steps.parse.outputs.valid == 'true' && steps.parse.outputs.mode == 'prod'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REASON: ${{ steps.parse.outputs.reason }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.parse.outputs.version }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/$REPO/git/ref/tags/v${VERSION}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Calcular versión indicativa -SNAPSHOT
+        id: snap
+        if: steps.parse.outputs.valid == 'true' && steps.parse.outputs.mode == 'snapshot'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Sin checkout: el último tag v* se resuelve por API.
+          last=$(gh api "repos/$REPO/tags" --paginate --jq '.[].name' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)
+          if [ -z "$last" ]; then
+            echo "version=0.1.0-SNAPSHOT" >> "$GITHUB_OUTPUT"
+          else
+            v="${last#v}"; IFS='.' read -r MA MI _ <<< "$v"
+            echo "version=${MA}.$((MI + 1)).0-SNAPSHOT" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolver validez efectiva
+        id: gate
+        env:
+          P_VALID: ${{ steps.parse.outputs.valid }}
+          P_REASON: ${{ steps.parse.outputs.reason }}
+          MODE: ${{ steps.parse.outputs.mode }}
+          TAG_EXISTS: ${{ steps.tagcheck.outputs.exists }}
+        run: |
+          set -euo pipefail
+          if [ "$P_VALID" = "true" ] && [ "$MODE" = "prod" ] && [ "${TAG_EXISTS:-}" != "true" ]; then
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+            echo "reason=tag_missing" >> "$GITHUB_OUTPUT"
+          else
+            echo "valid=$P_VALID" >> "$GITHUB_OUTPUT"
+            echo "reason=${P_REASON:-}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Reaccionar al comando
+        if: github.event_name == 'issue_comment' && steps.gate.outputs.valid == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$REPO/issues/comments/$COMMENT_ID/reactions" -f content='+1' || true
+
+      - name: Comentar error de comando
+        if: steps.gate.outputs.valid == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REASON: ${{ steps.gate.outputs.reason }}
+          VERSION: ${{ steps.parse.outputs.version }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           REPO: ${{ github.repository }}
           RUN_URL: ${{ env.RUN_URL }}
         run: |
+          set -euo pipefail
           case "$REASON" in
             version_required)
               msg="❌ En un issue de producción hace falta indicar versión — usa \`/deploy vX.Y.Z\` (ej. \`/deploy v1.3.7\`)." ;;
@@ -127,6 +216,8 @@ jobs:
               msg="❌ Falta el slot — indica \`/deploy PRE\` o \`/deploy PRE-TEST\`. No se ha desplegado nada." ;;
             cross_repo)
               msg="⚠️ Los snapshots solo se admiten para PRs de ramas de este repositorio, no de forks (\`/deploy PRE\` bloqueado)." ;;
+            tag_missing)
+              msg="❌ El tag \`v${VERSION}\` no existe. Revísalo con \`gh release list\`." ;;
             *)
               msg="⚠️ No se detectó un comando válido. Usa \`/deploy vX.Y.Z\` en un issue de producción, o \`/deploy PRE\` / \`/deploy PRE-TEST\` en un comentario de PR." ;;
           esac
@@ -134,94 +225,40 @@ jobs:
 
           [Ver run]($RUN_URL)"
 
-      - name: Reaccionar al comando
-        if: github.event_name == 'issue_comment' && steps.parse.outputs.valid == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          COMMENT_ID: ${{ github.event.comment.id }}
-        run: |
-          gh api "repos/$REPO/issues/comments/$COMMENT_ID/reactions" -f content='+1' || true
-
-      - name: Verificar que el tag existe
-        id: tagcheck
-        if: steps.parse.outputs.valid == 'true' && steps.parse.outputs.mode == 'prod'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          VERSION: ${{ steps.parse.outputs.version }}
-        run: |
-          if gh api "repos/$REPO/git/ref/tags/v${VERSION}" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Avisar tag inexistente
-        if: steps.parse.outputs.valid == 'true' && steps.parse.outputs.mode == 'prod' && steps.tagcheck.outputs.exists == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          REPO: ${{ github.repository }}
-          VERSION: ${{ steps.parse.outputs.version }}
-          RUN_URL: ${{ env.RUN_URL }}
-        run: |
-          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" \
-            --body "❌ El tag \`v${VERSION}\` no existe. Revísalo con \`gh release list\`.
-
-          [Ver run]($RUN_URL)"
-
-      - name: Determinar si se puede desplegar
-        id: gate
-        if: steps.parse.outputs.valid == 'true'
-        env:
-          MODE: ${{ steps.parse.outputs.mode }}
-          TAG_EXISTS: ${{ steps.tagcheck.outputs.exists }}
-        run: |
-          if [ "$MODE" = "prod" ]; then
-            if [ "$TAG_EXISTS" = "true" ]; then
-              echo "go=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "go=false" >> "$GITHUB_OUTPUT"
-            fi
-          else
-            echo "go=true" >> "$GITHUB_OUTPUT"
-          fi
-
+  deploy-prod:
+    needs: parse
+    if: needs.parse.outputs.valid == 'true' && needs.parse.outputs.mode == 'prod'
+    runs-on: ubuntu-latest
+    # Punto de control de despliegue a producción (SEC-3/H6). Los secrets de
+    # Vercel son de repo por ahora (no hay token de preview separado): el
+    # Environment deja el gate listo; el scoping fino de token es trabajo futuro.
+    environment: production
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    env:
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
       - name: Checkout
-        if: steps.gate.outputs.go == 'true'
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.parse.outputs.ref }}
+          ref: ${{ needs.parse.outputs.ref }}
           fetch-depth: 0
 
       - name: Instalar Vercel CLI
-        if: steps.gate.outputs.go == 'true'
         run: npm install -g vercel@latest
 
-      - name: Calcular versión -SNAPSHOT
-        id: snapshot
-        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'snapshot'
-        run: |
-          latest=$(git tag --list 'v*' | sort -V | tail -1)
-          if [ -z "$latest" ]; then
-            echo "version=0.1.0-SNAPSHOT" >> "$GITHUB_OUTPUT"
-          else
-            v=${latest#v}
-            IFS='.' read -r major minor _ <<< "$v"
-            echo "version=${major}.$((minor + 1)).0-SNAPSHOT" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Deploy a producción
-        id: deploy_prod
-        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'prod'
+        id: deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          APP_VERSION: ${{ steps.parse.outputs.version }}
+          APP_VERSION: ${{ needs.parse.outputs.version }}
           API_URL: ${{ vars.VITE_API_URL_PROD }}
         run: |
+          set -euo pipefail
           vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
           # `vercel build` lee las env del .env.<env>.local, no del shell.
@@ -235,20 +272,72 @@ jobs:
           url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
+      - name: Comentar resultado (producción)
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ needs.parse.outputs.issue }}
+          REPO: ${{ github.repository }}
+          VERSION: ${{ needs.parse.outputs.version }}
+          URL: ${{ steps.deploy.outputs.url }}
+          RUN_URL: ${{ env.RUN_URL }}
+        run: |
+          set -euo pipefail
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "✅ Desplegado \`v${VERSION}\` a producción: ${URL}
+
+          [Ver run]($RUN_URL)"
+          gh issue close "$ISSUE_NUMBER" --repo "$REPO"
+
+      - name: Comentar fallo
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ needs.parse.outputs.issue }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ env.RUN_URL }}
+        run: |
+          set -euo pipefail
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "❌ Falló el deploy. No hay rollback automático: revisa el run, corrige y vuelve a lanzarlo (o despliega manualmente un tag anterior).
+
+          [Ver run]($RUN_URL)"
+
+  deploy-snapshot:
+    needs: parse
+    if: needs.parse.outputs.valid == 'true' && needs.parse.outputs.mode == 'snapshot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    env:
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      # SEC-1: el job `parse` ya validó que la PR NO es cross-repo antes de
+      # exponer `ref`. Este checkout usa ese ref ya validado.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Instalar Vercel CLI
+        run: npm install -g vercel@latest
+
       - name: Deploy de snapshot al slot
-        id: deploy_snapshot
-        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'snapshot'
+        id: deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          SLOT: ${{ steps.parse.outputs.slot }}
-          APP_VERSION: ${{ steps.snapshot.outputs.version }}
+          SLOT: ${{ needs.parse.outputs.slot }}
+          APP_VERSION: ${{ needs.parse.outputs.snapshot_version }}
           URL_PRE: ${{ vars.URL_PRE }}
           URL_PRE_TEST: ${{ vars.URL_PRE_TEST }}
           ALIAS_PRE: ${{ env.ALIAS_PRE }}
           ALIAS_PRE_TEST: ${{ env.ALIAS_PRE_TEST }}
         run: |
+          set -euo pipefail
           if [ "$SLOT" = "PRE" ]; then
             backend_url="$URL_PRE"
             slot_alias="$ALIAS_PRE"
@@ -272,36 +361,20 @@ jobs:
           deploy_url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
           vercel alias set "$deploy_url" "$slot_alias" --token="$VERCEL_TOKEN"
 
-      - name: Comentar resultado (producción)
-        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'prod' && success()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          REPO: ${{ github.repository }}
-          VERSION: ${{ steps.parse.outputs.version }}
-          URL: ${{ steps.deploy_prod.outputs.url }}
-          RUN_URL: ${{ env.RUN_URL }}
-        run: |
-          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" \
-            --body "✅ Desplegado \`v${VERSION}\` a producción: ${URL}
-
-          [Ver run]($RUN_URL)"
-          gh issue close "$ISSUE_NUMBER" --repo "$REPO"
-
       - name: Comentar resultado (snapshot)
-        if: steps.gate.outputs.go == 'true' && steps.parse.outputs.mode == 'snapshot' && success()
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_NUMBER: ${{ needs.parse.outputs.issue }}
           REPO: ${{ github.repository }}
-          SLOT: ${{ steps.parse.outputs.slot }}
-          APP_VERSION: ${{ steps.snapshot.outputs.version }}
-          SLOT_ALIAS: ${{ steps.deploy_snapshot.outputs.slot_alias }}
-          BACKEND_URL: ${{ steps.deploy_snapshot.outputs.backend_url }}
+          SLOT: ${{ needs.parse.outputs.slot }}
+          APP_VERSION: ${{ needs.parse.outputs.snapshot_version }}
+          SLOT_ALIAS: ${{ steps.deploy.outputs.slot_alias }}
+          BACKEND_URL: ${{ steps.deploy.outputs.backend_url }}
           RUN_URL: ${{ env.RUN_URL }}
         run: |
-          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" \
-            --body "✅ Snapshot desplegado en el slot **${SLOT}**: https://${SLOT_ALIAS}
+          set -euo pipefail
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "✅ Snapshot desplegado en el slot **${SLOT}**: https://${SLOT_ALIAS}
 
           Apunta al backend del slot **${SLOT}** (\`${BACKEND_URL}\`).
           Versión indicativa: \`${APP_VERSION}\`.
@@ -311,14 +384,14 @@ jobs:
           [Ver run]($RUN_URL)"
 
       - name: Comentar fallo
-        if: steps.gate.outputs.go == 'true' && failure()
+        if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_NUMBER: ${{ needs.parse.outputs.issue }}
           REPO: ${{ github.repository }}
           RUN_URL: ${{ env.RUN_URL }}
         run: |
-          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" \
-            --body "❌ Falló el deploy. No hay rollback automático: revisa el run, corrige y vuelve a lanzarlo (o despliega manualmente un tag anterior).
+          set -euo pipefail
+          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "❌ Falló el deploy del snapshot. No hay rollback automático: revisa el run, corrige y vuelve a lanzarlo.
 
           [Ver run]($RUN_URL)"
