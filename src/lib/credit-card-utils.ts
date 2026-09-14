@@ -117,3 +117,13 @@ export function getDaysColor(days: number, balance: number): string {
   if (days <= 7) return 'text-yellow-600';
   return 'text-gray-600';
 }
+
+const OVERDUE_SEVERITY_ERROR_THRESHOLD_DAYS = 15;
+
+/**
+ * Severidad visual de un período atrasado según hace cuánto venció su pago.
+ * Misma escala de dos niveles que usa CreditCardAlerts (amber-* warning, red-* error).
+ */
+export function getOverdueSeverity(daysOverdue: number): 'warning' | 'error' {
+  return daysOverdue > OVERDUE_SEVERITY_ERROR_THRESHOLD_DAYS ? 'error' : 'warning';
+}

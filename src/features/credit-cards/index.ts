@@ -30,3 +30,5 @@ export { useCreditCardsPage } from './hooks/useCreditCardsPage';
 // Components (feature-owned)
 export { CreditCardPaymentModal } from './components/CreditCardPaymentModal';
 export { CreditCardExpenseModal } from './components/CreditCardExpenseModal';
+export { CreditCardOverduePeriods } from './components/CreditCardOverduePeriods';
+export { CreditCardOverduePeriodItem } from './components/CreditCardOverduePeriodItem';
