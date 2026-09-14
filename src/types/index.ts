@@ -237,6 +237,15 @@ export interface CreditCardPeriod {
   transactions: Transaction[];
 }
 
+export interface CreditCardOverduePeriod {
+  startDate: string;
+  endDate: string;
+  balance: number;
+  transactionCount: number;
+  paymentDueDate: string;
+  daysOverdue: number;
+}
+
 export interface CreditCardStatement {
   account: Account;
   currentPeriod: CreditCardPeriod & {
@@ -247,6 +256,8 @@ export interface CreditCardStatement {
     paymentDueDate: string;
     daysUntilDue: number;
   };
+  /** Períodos cerrados anteriores al closedPeriod, sin pagar, dentro de la ventana consultada. Ordenados ascendente (más atrasado primero). */
+  overduePeriods: CreditCardOverduePeriod[];
   creditLimit: number;
   available: number;
   usagePercentage: number;
@@ -280,6 +291,8 @@ export interface PayCreditCardStatementInput {
   amount: number;
   paymentAccountId: string;
   paymentDate?: string;
+  /** Fecha de inicio (YYYY-MM-DD) del período atrasado a pagar. Sin ella, se paga el closedPeriod (comportamiento actual). */
+  periodStart?: string;
 }
 
 // Debts

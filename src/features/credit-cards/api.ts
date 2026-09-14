@@ -6,13 +6,16 @@ import type {
 } from '../../types';
 
 export const creditCardsApi = {
-  getSummary: async (): Promise<CreditCardsSummary> => {
-    const response = await api.get('/credit-cards/summary');
+  getSummary: async (params?: { months?: number }): Promise<CreditCardsSummary> => {
+    const response = await api.get('/credit-cards/summary', { params });
     return response.data;
   },
 
-  getStatement: async (accountId: string): Promise<CreditCardStatement> => {
-    const response = await api.get(`/credit-cards/${accountId}/statement`);
+  getStatement: async (
+    accountId: string,
+    params?: { months?: number }
+  ): Promise<CreditCardStatement> => {
+    const response = await api.get(`/credit-cards/${accountId}/statement`, { params });
     return response.data;
   },
 
