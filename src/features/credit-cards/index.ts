@@ -4,6 +4,7 @@
 export type {
   PaymentFormData,
   PaymentModalState,
+  PaymentTarget,
   TransactionsModalState,
   ExpenseFormData,
   ExpenseModalState,
