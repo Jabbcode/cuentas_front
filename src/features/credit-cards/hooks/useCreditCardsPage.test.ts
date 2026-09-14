@@ -195,12 +195,14 @@ describe('useCreditCardsPage', () => {
       });
 
       act(() =>
+        // El backend serializa Date a ISO completo, no a YYYY-MM-DD — se fija así a
+        // propósito para cubrir la regresión de payStatementSchema (^\d{4}-\d{2}-\d{2}$).
         result.current.handleOpenOverduePayment(fakeStatement(), {
-          startDate: '2026-02-05',
-          endDate: '2026-03-04',
+          startDate: '2026-02-05T00:00:00.000Z',
+          endDate: '2026-03-04T00:00:00.000Z',
           balance: 75,
           transactionCount: 2,
-          paymentDueDate: '2026-03-20',
+          paymentDueDate: '2026-03-20T00:00:00.000Z',
           daysOverdue: 10,
         })
       );
@@ -209,7 +211,7 @@ describe('useCreditCardsPage', () => {
       expect(result.current.paymentModal.target).toEqual({
         kind: 'overdue',
         periodStart: '2026-02-05',
-        endDate: '2026-03-04',
+        endDate: '2026-03-04T00:00:00.000Z',
         amount: 75,
       });
       expect(result.current.paymentFormData.amount).toBe('75');
@@ -223,11 +225,11 @@ describe('useCreditCardsPage', () => {
 
       act(() =>
         result.current.handleOpenOverduePayment(fakeStatement(), {
-          startDate: '2026-02-05',
-          endDate: '2026-03-04',
+          startDate: '2026-02-05T00:00:00.000Z',
+          endDate: '2026-03-04T00:00:00.000Z',
           balance: 75,
           transactionCount: 2,
-          paymentDueDate: '2026-03-20',
+          paymentDueDate: '2026-03-20T00:00:00.000Z',
           daysOverdue: 10,
         })
       );
@@ -235,6 +237,8 @@ describe('useCreditCardsPage', () => {
         await result.current.handlePay({ preventDefault: vi.fn() } as never);
       });
 
+      // periodStart debe llegar como YYYY-MM-DD (payStatementSchema), no el ISO completo
+      // que devuelve el backend — regresión del bug detectado en la revisión de seguridad.
       expect(mockPayStatement).toHaveBeenCalledWith(
         'card-1',
         expect.objectContaining({ amount: 75, periodStart: '2026-02-05' })

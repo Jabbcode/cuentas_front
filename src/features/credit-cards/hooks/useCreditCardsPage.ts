@@ -105,7 +105,9 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
         statement,
         target: {
           kind: 'overdue',
-          periodStart: period.startDate,
+          // El backend devuelve un ISO completo (Date serializado); payStatementSchema
+          // exige YYYY-MM-DD, así que se recorta aquí, no en el momento de enviar el pago.
+          periodStart: period.startDate.slice(0, 10),
           endDate: period.endDate,
           amount: period.balance,
         },
