@@ -95,6 +95,7 @@ export function CreditCardsPage() {
         formData={paymentFormData}
         accounts={accounts}
         paying={paying}
+        target={paymentModal.target}
         onClose={handleClosePayment}
         onSubmit={handlePay}
         onFormChange={updatePaymentFormData}

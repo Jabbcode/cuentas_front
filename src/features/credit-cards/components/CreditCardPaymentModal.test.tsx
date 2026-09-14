@@ -186,4 +186,46 @@ describe('CreditCardPaymentModal', () => {
 
     expect(onSubmit).toHaveBeenCalled();
   });
+
+  describe('target overdue', () => {
+    it('muestra el título y rango del período atrasado, con el input readOnly y el monto exacto', () => {
+      render(
+        <CreditCardPaymentModal
+          open
+          statement={makeStatement()}
+          formData={makeFormData({ amount: '75' })}
+          accounts={makeAccounts()}
+          paying={false}
+          target={{ kind: 'overdue', periodStart: '2026-02-05', endDate: '2026-03-04', amount: 75 }}
+          onClose={vi.fn()}
+          onSubmit={vi.fn()}
+          onFormChange={vi.fn()}
+        />
+      );
+
+      expect(screen.getByText('Pagar Período Atrasado')).toBeInTheDocument();
+      expect(screen.getByText(/05 feb 2026 - 04 mar 2026/)).toBeInTheDocument();
+      expect(screen.getByText(/75,00/)).toBeInTheDocument();
+      expect(screen.getByLabelText('Monto a pagar')).toHaveAttribute('readOnly');
+    });
+
+    it('target closed: conserva el input editable (sin readOnly)', () => {
+      render(
+        <CreditCardPaymentModal
+          open
+          statement={makeStatement()}
+          formData={makeFormData()}
+          accounts={makeAccounts()}
+          paying={false}
+          target={{ kind: 'closed' }}
+          onClose={vi.fn()}
+          onSubmit={vi.fn()}
+          onFormChange={vi.fn()}
+        />
+      );
+
+      expect(screen.getByText('Pagar Estado de Cuenta')).toBeInTheDocument();
+      expect(screen.getByLabelText('Monto a pagar')).not.toHaveAttribute('readOnly');
+    });
+  });
 });

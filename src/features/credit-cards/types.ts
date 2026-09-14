@@ -16,9 +16,14 @@ export interface PaymentFormData {
   paymentDate: string;
 }
 
+export type PaymentTarget =
+  | { kind: 'closed' }
+  | { kind: 'overdue'; periodStart: string; endDate: string; amount: number };
+
 export interface PaymentModalState {
   open: boolean;
   statement: import('../../types').CreditCardStatement | null;
+  target: PaymentTarget;
 }
 
 export interface TransactionsModalState {
@@ -61,6 +66,10 @@ export interface UseCreditCardsPageReturn {
   expenseCategories: import('../../types').Category[];
   toggleCardCollapse: (accountId: string) => void;
   handleOpenPayment: (statement: import('../../types').CreditCardStatement) => void;
+  handleOpenOverduePayment: (
+    statement: import('../../types').CreditCardStatement,
+    period: import('../../types').CreditCardOverduePeriod
+  ) => void;
   handleClosePayment: () => void;
   handleOpenTransactions: (statement: import('../../types').CreditCardStatement) => void;
   handleCloseTransactions: () => void;

@@ -8,7 +8,7 @@ import { transactionsApi } from '../../transactions';
 import { creditCardsApi } from '../api';
 import { getTodayDateString, OVERDUE_MONTHS_DEFAULT } from '../utils';
 import { getApiErrorMessage } from '../../../lib/api-errors';
-import type { CreditCardStatement } from '../../../types';
+import type { CreditCardStatement, CreditCardOverduePeriod } from '../../../types';
 import type {
   PaymentFormData,
   PaymentModalState,
@@ -37,6 +37,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
   const [paymentModal, setPaymentModal] = useState<PaymentModalState>({
     open: false,
     statement: null,
+    target: { kind: 'closed' },
   });
 
   const [paymentFormData, setPaymentFormData] = useState<PaymentFormData>({
@@ -87,7 +88,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
 
   const handleOpenPayment = useCallback(
     (statement: CreditCardStatement) => {
-      setPaymentModal({ open: true, statement });
+      setPaymentModal({ open: true, statement, target: { kind: 'closed' } });
       setPaymentFormData({
         amount: statement.closedPeriod.balance.toString(),
         paymentAccountId: defaultAccountId,
@@ -97,8 +98,29 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
     [defaultAccountId]
   );
 
+  const handleOpenOverduePayment = useCallback(
+    (statement: CreditCardStatement, period: CreditCardOverduePeriod) => {
+      setPaymentModal({
+        open: true,
+        statement,
+        target: {
+          kind: 'overdue',
+          periodStart: period.startDate,
+          endDate: period.endDate,
+          amount: period.balance,
+        },
+      });
+      setPaymentFormData({
+        amount: period.balance.toString(),
+        paymentAccountId: defaultAccountId,
+        paymentDate: getTodayDateString(),
+      });
+    },
+    [defaultAccountId]
+  );
+
   const handleClosePayment = useCallback(() => {
-    setPaymentModal({ open: false, statement: null });
+    setPaymentModal({ open: false, statement: null, target: { kind: 'closed' } });
     setPaymentFormData({
       amount: '',
       paymentAccountId: defaultAccountId,
@@ -177,25 +199,38 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
       setPaying(true);
       try {
         const cardId = paymentModal.statement.account.id;
+        const periodStart =
+          paymentModal.target.kind === 'overdue' ? paymentModal.target.periodStart : undefined;
         await creditCardsApi.payStatement(cardId, {
           amount: parseFloat(paymentFormData.amount),
           paymentAccountId: paymentFormData.paymentAccountId,
           paymentDate: paymentFormData.paymentDate,
+          periodStart,
         });
         logger.info('credit-card', 'Credit card statement paid', {
           accountId: cardId,
           amount: paymentFormData.amount,
+          periodStart,
         });
         handleClosePayment();
-        await queryClient.invalidateQueries({ queryKey: ['credit-card-statements'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['credit-card-statements', overdueMonths],
+        });
       } catch (err) {
-        toast.error('No se pudo registrar el pago de la tarjeta');
+        toast.error(getApiErrorMessage(err, 'No se pudo registrar el pago de la tarjeta'));
         logger.error('credit-card', 'Failed to pay credit card statement', err);
       } finally {
         setPaying(false);
       }
     },
-    [paymentModal.statement, paymentFormData, handleClosePayment, queryClient]
+    [
+      paymentModal.statement,
+      paymentModal.target,
+      paymentFormData,
+      handleClosePayment,
+      queryClient,
+      overdueMonths,
+    ]
   );
 
   return {
@@ -213,6 +248,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
     expenseCategories,
     toggleCardCollapse,
     handleOpenPayment,
+    handleOpenOverduePayment,
     handleClosePayment,
     handleOpenTransactions,
     handleCloseTransactions,
