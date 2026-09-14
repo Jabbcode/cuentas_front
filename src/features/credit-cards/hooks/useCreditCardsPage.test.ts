@@ -195,11 +195,14 @@ describe('useCreditCardsPage', () => {
       });
 
       act(() =>
-        // El backend serializa Date a ISO completo, no a YYYY-MM-DD — se fija así a
-        // propósito para cubrir la regresión de payStatementSchema (^\d{4}-\d{2}-\d{2}$).
+        // startDate simula lo que devuelve un servidor en huso horario adelantado a UTC
+        // (p. ej. Europe/Madrid): el 5-feb local se serializa como "2026-02-04T23:...Z".
+        // periodKey, en cambio, siempre trae el día calendario correcto ("2026-02-05")
+        // porque nunca pasa por una conversión UTC — es lo que debe usarse, no startDate.
         result.current.handleOpenOverduePayment(fakeStatement(), {
-          startDate: '2026-02-05T00:00:00.000Z',
-          endDate: '2026-03-04T00:00:00.000Z',
+          startDate: '2026-02-04T23:00:00.000Z',
+          endDate: '2026-03-03T23:00:00.000Z',
+          periodKey: '2026-02-05',
           balance: 75,
           transactionCount: 2,
           paymentDueDate: '2026-03-20T00:00:00.000Z',
@@ -211,7 +214,7 @@ describe('useCreditCardsPage', () => {
       expect(result.current.paymentModal.target).toEqual({
         kind: 'overdue',
         periodStart: '2026-02-05',
-        endDate: '2026-03-04T00:00:00.000Z',
+        endDate: '2026-03-03T23:00:00.000Z',
         amount: 75,
       });
       expect(result.current.paymentFormData.amount).toBe('75');
@@ -224,9 +227,11 @@ describe('useCreditCardsPage', () => {
       });
 
       act(() =>
+        // Mismo escenario de desfase de huso horario que el test anterior.
         result.current.handleOpenOverduePayment(fakeStatement(), {
-          startDate: '2026-02-05T00:00:00.000Z',
-          endDate: '2026-03-04T00:00:00.000Z',
+          startDate: '2026-02-04T23:00:00.000Z',
+          endDate: '2026-03-03T23:00:00.000Z',
+          periodKey: '2026-02-05',
           balance: 75,
           transactionCount: 2,
           paymentDueDate: '2026-03-20T00:00:00.000Z',
@@ -237,8 +242,9 @@ describe('useCreditCardsPage', () => {
         await result.current.handlePay({ preventDefault: vi.fn() } as never);
       });
 
-      // periodStart debe llegar como YYYY-MM-DD (payStatementSchema), no el ISO completo
-      // que devuelve el backend — regresión del bug detectado en la revisión de seguridad.
+      // periodStart debe llegar como el periodKey correcto ("2026-02-05"), no como
+      // "2026-02-04" (lo que daría slice(startDate,0,10)) — regresión del bug de huso
+      // horario detectado en la revisión de seguridad/funcional.
       expect(mockPayStatement).toHaveBeenCalledWith(
         'card-1',
         expect.objectContaining({ amount: 75, periodStart: '2026-02-05' })
@@ -273,6 +279,7 @@ describe('useCreditCardsPage', () => {
         result.current.handleOpenOverduePayment(fakeStatement(), {
           startDate: '2026-02-05',
           endDate: '2026-03-04',
+          periodKey: '2026-02-05',
           balance: 75,
           transactionCount: 2,
           paymentDueDate: '2026-03-20',

@@ -10,6 +10,7 @@ function fakeOverduePeriod(
   return {
     startDate: '2025-10-05',
     endDate: '2025-11-04',
+    periodKey: '2025-10-05',
     balance: 40,
     transactionCount: 2,
     paymentDueDate: '2025-11-20',

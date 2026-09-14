@@ -240,6 +240,13 @@ export interface CreditCardPeriod {
 export interface CreditCardOverduePeriod {
   startDate: string;
   endDate: string;
+  /**
+   * Clave del período en formato YYYY-MM-DD, segura para reenviar como `periodStart`
+   * al pagar. `startDate` es un ISO completo en UTC y puede caer un día antes/después
+   * del calendario local del servidor — usar siempre `periodKey`, nunca `startDate`,
+   * para identificar el período en el pago.
+   */
+  periodKey: string;
   balance: number;
   transactionCount: number;
   paymentDueDate: string;

@@ -13,6 +13,7 @@ function fakePeriod(overrides: Partial<CreditCardOverduePeriod> = {}): CreditCar
   return {
     startDate: '2026-02-05',
     endDate: '2026-03-04',
+    periodKey: '2026-02-05',
     balance: 120,
     transactionCount: 3,
     paymentDueDate: '2026-03-20',
