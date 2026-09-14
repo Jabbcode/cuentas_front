@@ -25,6 +25,7 @@ function baseReturn(overrides: Partial<UseCreditCardsPageReturn> = {}): UseCredi
     expenseCategories: [],
     toggleCardCollapse: vi.fn(),
     handleOpenPayment: vi.fn(),
+    handleOpenOverduePayment: vi.fn(),
     handleClosePayment: vi.fn(),
     handleOpenTransactions: vi.fn(),
     handleCloseTransactions: vi.fn(),

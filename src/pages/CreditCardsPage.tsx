@@ -24,6 +24,7 @@ export function CreditCardsPage() {
     expenseCategories,
     toggleCardCollapse,
     handleOpenPayment,
+    handleOpenOverduePayment,
     handleClosePayment,
     handleOpenTransactions,
     handleCloseTransactions,
@@ -83,6 +84,7 @@ export function CreditCardsPage() {
             isCollapsed={collapsedCards.has(statement.account.id)}
             onToggleCollapse={() => toggleCardCollapse(statement.account.id)}
             onPayClick={handleOpenPayment}
+            onPayOverdueClick={handleOpenOverduePayment}
             onViewTransactions={handleOpenTransactions}
             onCreateExpense={handleOpenExpense}
           />

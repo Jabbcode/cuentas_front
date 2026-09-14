@@ -1,8 +1,22 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CreditCardItem } from './CreditCardItem';
-import type { CreditCardStatement } from '../../../types';
+import type { CreditCardStatement, CreditCardOverduePeriod } from '../../../types';
+
+function fakeOverduePeriod(
+  overrides: Partial<CreditCardOverduePeriod> = {}
+): CreditCardOverduePeriod {
+  return {
+    startDate: '2025-10-05',
+    endDate: '2025-11-04',
+    balance: 40,
+    transactionCount: 2,
+    paymentDueDate: '2025-11-20',
+    daysOverdue: 30,
+    ...overrides,
+  };
+}
 
 function makeStatement(overrides: Partial<CreditCardStatement> = {}): CreditCardStatement {
   return {
@@ -30,6 +44,7 @@ function makeStatement(overrides: Partial<CreditCardStatement> = {}): CreditCard
       paymentDueDate: '2026-01-10',
       daysUntilDue: 5,
     },
+    overduePeriods: [],
     creditLimit: 1000,
     available: 700,
     usagePercentage: 30,
@@ -46,6 +61,7 @@ describe('CreditCardItem', () => {
         isCollapsed
         onToggleCollapse={vi.fn()}
         onPayClick={vi.fn()}
+        onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
@@ -61,6 +77,7 @@ describe('CreditCardItem', () => {
         isCollapsed={false}
         onToggleCollapse={vi.fn()}
         onPayClick={vi.fn()}
+        onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
@@ -80,6 +97,7 @@ describe('CreditCardItem', () => {
         isCollapsed={false}
         onToggleCollapse={vi.fn()}
         onPayClick={vi.fn()}
+        onPayOverdueClick={vi.fn()}
         onViewTransactions={onViewTransactions}
         onCreateExpense={vi.fn()}
       />
@@ -100,6 +118,7 @@ describe('CreditCardItem', () => {
         isCollapsed={false}
         onToggleCollapse={vi.fn()}
         onPayClick={vi.fn()}
+        onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
         onCreateExpense={onCreateExpense}
       />
@@ -120,6 +139,7 @@ describe('CreditCardItem', () => {
         isCollapsed={false}
         onToggleCollapse={vi.fn()}
         onPayClick={onPayClick}
+        onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
@@ -128,5 +148,66 @@ describe('CreditCardItem', () => {
     await user.click(screen.getByRole('button', { name: /Pagar/ }));
 
     expect(onPayClick).toHaveBeenCalledWith(statement);
+  });
+
+  it('statement con overduePeriods: renderiza la lista y sigue mostrando ambos bloques existentes', () => {
+    const statement = makeStatement({ overduePeriods: [fakeOverduePeriod()] });
+    render(
+      <CreditCardItem
+        statement={statement}
+        isCollapsed={false}
+        onToggleCollapse={vi.fn()}
+        onPayClick={vi.fn()}
+        onPayOverdueClick={vi.fn()}
+        onViewTransactions={vi.fn()}
+        onCreateExpense={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Períodos atrasados')).toBeInTheDocument();
+    expect(screen.getByText('A Pagar')).toBeInTheDocument();
+    expect(screen.getByText('Período Actual')).toBeInTheDocument();
+  });
+
+  it('statement sin atrasados: no renderiza la sección de períodos atrasados', () => {
+    render(
+      <CreditCardItem
+        statement={makeStatement({ overduePeriods: [] })}
+        isCollapsed={false}
+        onToggleCollapse={vi.fn()}
+        onPayClick={vi.fn()}
+        onPayOverdueClick={vi.fn()}
+        onViewTransactions={vi.fn()}
+        onCreateExpense={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByText('Períodos atrasados')).not.toBeInTheDocument();
+  });
+
+  it('click en Pagar de un período atrasado llama a onPayOverdueClick con statement + período', async () => {
+    const user = userEvent.setup();
+    const onPayOverdueClick = vi.fn();
+    const overduePeriod = fakeOverduePeriod();
+    const statement = makeStatement({ overduePeriods: [overduePeriod] });
+    render(
+      <CreditCardItem
+        statement={statement}
+        isCollapsed={false}
+        onToggleCollapse={vi.fn()}
+        onPayClick={vi.fn()}
+        onPayOverdueClick={onPayOverdueClick}
+        onViewTransactions={vi.fn()}
+        onCreateExpense={vi.fn()}
+      />
+    );
+
+    // Hay un botón "Pagar" para el período cerrado y otro para el atrasado; el atrasado
+    // está dentro de la sección "Períodos atrasados".
+    const overdueSection = screen.getByText('Períodos atrasados').closest('div')!;
+    const { getByRole } = within(overdueSection);
+    await user.click(getByRole('button', { name: 'Pagar' }));
+
+    expect(onPayOverdueClick).toHaveBeenCalledWith(statement, overduePeriod);
   });
 });
