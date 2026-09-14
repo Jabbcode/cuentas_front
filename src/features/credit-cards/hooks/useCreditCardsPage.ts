@@ -6,7 +6,7 @@ import { useCreditCards } from './useCreditCards';
 import { useCategories } from '../../categories/hooks/useCategories';
 import { transactionsApi } from '../../transactions';
 import { creditCardsApi } from '../api';
-import { getTodayDateString } from '../utils';
+import { getTodayDateString, OVERDUE_MONTHS_DEFAULT } from '../utils';
 import { getApiErrorMessage } from '../../../lib/api-errors';
 import type { CreditCardStatement } from '../../../types';
 import type {
@@ -20,7 +20,9 @@ import type {
 
 export function useCreditCardsPage(): UseCreditCardsPageReturn {
   const queryClient = useQueryClient();
-  const { statements, accounts, loading, reload, error: loadError } = useCreditCards();
+  // Sin localStorage ni searchParams: se resetea al valor por defecto en cada visita (criterio de spec).
+  const [overdueMonths, setOverdueMonths] = useState(OVERDUE_MONTHS_DEFAULT);
+  const { statements, accounts, loading, reload, error: loadError } = useCreditCards(overdueMonths);
   const { categories } = useCategories();
 
   const expenseCategories = useMemo(
@@ -222,5 +224,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
     handleSubmitExpense,
     reload,
     loadError,
+    overdueMonths,
+    setOverdueMonths,
   };
 }

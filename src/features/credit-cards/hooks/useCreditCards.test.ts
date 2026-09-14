@@ -63,4 +63,28 @@ describe('useCreditCards', () => {
 
     expect(result.current.error).toBe('Error al cargar las cuentas. Intenta de nuevo.');
   });
+
+  it('sin argumento: consulta con months=6 (default)', async () => {
+    vi.mocked(creditCardsApi.getSummary).mockResolvedValue(fakeSummary);
+    vi.mocked(accountsApi.getAll).mockResolvedValue([]);
+
+    const { result } = renderHook(() => useCreditCards(), { wrapper: createQueryClientWrapper() });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(creditCardsApi.getSummary).toHaveBeenCalledWith({ months: 6 });
+  });
+
+  it('useCreditCards(12): consulta con months=12', async () => {
+    vi.mocked(creditCardsApi.getSummary).mockResolvedValue(fakeSummary);
+    vi.mocked(accountsApi.getAll).mockResolvedValue([]);
+
+    const { result } = renderHook(() => useCreditCards(12), {
+      wrapper: createQueryClientWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(creditCardsApi.getSummary).toHaveBeenCalledWith({ months: 12 });
+  });
 });

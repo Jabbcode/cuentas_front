@@ -2,15 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { creditCardsApi } from '../api';
 import { accountsApi } from '../../accounts/api';
 import { logger } from '../../../lib/logger';
+import { OVERDUE_MONTHS_DEFAULT } from '../utils';
 import type { CreditCardStatement, Account, CreditCardsSummary } from '../../../types';
 import type { UseCreditCardsReturn } from '../types';
 
-export function useCreditCards(): UseCreditCardsReturn {
+export function useCreditCards(months: number = OVERDUE_MONTHS_DEFAULT): UseCreditCardsReturn {
   const statementsQuery = useQuery<CreditCardStatement[], Error>({
-    queryKey: ['credit-card-statements'],
+    queryKey: ['credit-card-statements', months],
     queryFn: async () => {
       try {
-        const summary: CreditCardsSummary = await creditCardsApi.getSummary();
+        const summary: CreditCardsSummary = await creditCardsApi.getSummary({ months });
         return summary.cards;
       } catch (err) {
         logger.error('credit-card', 'Failed to load credit cards', err);

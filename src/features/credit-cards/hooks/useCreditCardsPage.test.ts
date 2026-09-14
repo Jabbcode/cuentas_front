@@ -28,6 +28,7 @@ vi.mock('../../transactions', () => ({
 
 vi.mock('../utils', () => ({
   getTodayDateString: vi.fn(() => '2026-06-15'),
+  OVERDUE_MONTHS_DEFAULT: 6,
 }));
 
 function fakeStatement(overrides: Partial<CreditCardStatement> = {}): CreditCardStatement {
@@ -41,7 +42,7 @@ function fakeStatement(overrides: Partial<CreditCardStatement> = {}): CreditCard
 
 const mockUseCreditCards = vi.fn();
 vi.mock('./useCreditCards', () => ({
-  useCreditCards: () => mockUseCreditCards(),
+  useCreditCards: (months: number) => mockUseCreditCards(months),
 }));
 
 vi.mock('../../categories/hooks/useCategories', () => ({
@@ -184,5 +185,42 @@ describe('useCreditCardsPage', () => {
       expect.objectContaining({ accountId: 'card-1', amount: 25, categoryId: 'cat-1' })
     );
     expect(result.current.expenseModal.open).toBe(false);
+  });
+
+  describe('overdueMonths', () => {
+    it('default en 6, pasado a useCreditCards', () => {
+      const { result } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      expect(result.current.overdueMonths).toBe(6);
+      expect(mockUseCreditCards).toHaveBeenCalledWith(6);
+    });
+
+    it('setOverdueMonths(12): actualiza el estado y vuelve a llamar a useCreditCards con 12', () => {
+      const { result } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      act(() => result.current.setOverdueMonths(12));
+
+      expect(result.current.overdueMonths).toBe(12);
+      expect(mockUseCreditCards).toHaveBeenCalledWith(12);
+    });
+
+    it('no persiste: remontar el hook vuelve a 6', () => {
+      const { result, unmount } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+      act(() => result.current.setOverdueMonths(12));
+      expect(result.current.overdueMonths).toBe(12);
+      unmount();
+
+      const { result: result2 } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      expect(result2.current.overdueMonths).toBe(6);
+    });
   });
 });

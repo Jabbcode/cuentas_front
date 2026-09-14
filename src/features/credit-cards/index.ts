@@ -32,3 +32,4 @@ export { CreditCardPaymentModal } from './components/CreditCardPaymentModal';
 export { CreditCardExpenseModal } from './components/CreditCardExpenseModal';
 export { CreditCardOverduePeriods } from './components/CreditCardOverduePeriods';
 export { CreditCardOverduePeriodItem } from './components/CreditCardOverduePeriodItem';
+export { CreditCardOverdueRangeSelector } from './components/CreditCardOverdueRangeSelector';

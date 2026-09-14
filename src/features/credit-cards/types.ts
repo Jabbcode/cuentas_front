@@ -72,4 +72,6 @@ export interface UseCreditCardsPageReturn {
   handleSubmitExpense: (e: React.FormEvent) => Promise<void>;
   reload: () => void;
   loadError: string | null;
+  overdueMonths: number;
+  setOverdueMonths: (months: number) => void;
 }
