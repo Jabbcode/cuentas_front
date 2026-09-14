@@ -78,31 +78,49 @@ Aplicación en producción activa. Arquitectura feature-module completa. Observa
 
 ## 🌐 Despliegue
 
-### Producción
+**Nada se despliega por push.** `vercel.json` tiene `git.deploymentEnabled` a `false`
+para `main` y `develop` y `ignoreCommand` que ignora toda rama. Publicar es siempre
+una acción por comando en un issue/PR de GitHub (`.github/workflows/release.yml`,
+`deploy-version.yml`). Reemplaza al preview automático de `develop` de 2026-07-23.
 
-- **Frontend:** Vercel — https://cuentas-front-amber.vercel.app (rama `main`)
-- **Backend:** Render — https://cuentas-back-fgep.onrender.com
-- **VITE_API_URL:** https://cuentas-back-fgep.onrender.com/api
+### Entornos
 
-### Staging / pre-producción (2026-07-23) — validado end-to-end
+| Entorno       | URL frontend                                           | Backend al que apunta                                                   |
+| ------------- | ------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Producción    | https://cuentas-front-amber.vercel.app                 | `https://cuentas-back-fgep.onrender.com/api` (`vars.VITE_API_URL_PROD`) |
+| Slot PRE      | https://cuentas-front-pre.vercel.app (alias fijo)      | `https://cuentas-back-staging.onrender.com/api` (`vars.URL_PRE`)        |
+| Slot PRE-TEST | https://cuentas-front-pre-test.vercel.app (alias fijo) | `https://cuentas-back-pre-test.onrender.com/api` (`vars.URL_PRE_TEST`)  |
 
-Preview de Vercel para la rama `develop`, apuntando al backend de staging
-(`cuentas-back-staging` en Render — ver `project-state.md` de `cuentas-backend` para
-el detalle completo de Neon/Render).
+- `develop` **no se despliega** — solo integra antes de `main`.
+- Un deploy de preview por CLI **no** hereda el alias `cuentas-front-git-<rama>-…`
+  (eso es de la integración Git). El workflow hace `vercel deploy` y luego
+  `vercel alias set` a la URL fija del slot elegido — por eso los slots tienen URL
+  estable. `VITE_API_URL` se inyecta en `.vercel/.env.<env>.local` después de
+  `vercel pull` (gana en `vercel build`).
+- La versión visible en Ajustes sale de `VITE_APP_VERSION` (`src/lib/version.ts`),
+  inyectada en el build: `vX.Y.Z` en producción, `X.(Y+1).0-SNAPSHOT` en los slots.
+- Limpiar en el dashboard de Vercel la variable `VITE_API_URL` scoped a `Preview` +
+  rama `develop` (residuo del staging viejo) — pendiente.
 
-- **Preview:** cuentas-front-git-develop-jabbcodes-projects.vercel.app
-- `vercel.json` tenía `ignoreCommand`/`git.deploymentEnabled` limitados a `main` —
-  cancelaba automáticamente todo build de `develop` (PR #64, fix: se amplió a `main` +
-  `develop`).
-- `VITE_API_URL` scoped a `Preview` + rama `develop` en el dashboard de Vercel,
-  apuntando a `https://cuentas-back-staging.onrender.com/api` — coexiste sin
-  conflicto con el `VITE_API_URL` genérico de Production/Preview/Development (el
-  scoped a rama tiene prioridad).
-- Validado: registro + cookie httpOnly cross-origin + `/auth/me` autenticado, todo
-  contra el backend de staging.
+### GitHub — secrets y variables
+
+- Repo secrets: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
+- Repo variables: `VITE_API_URL_PROD`, `URL_PRE`, `URL_PRE_TEST`.
+
+### Comandos
+
+Ver `CLAUDE.md` → "Despliegue y versión". Los workflows de `issue_comment` corren
+desde la **rama por defecto** de este repo (`develop`, no `main`) — solo operativos ahí.
 
 ## 📊 Cambios Recientes
 
+- **Gestión de versión + despliegues por comando (2026-09-10):** se apaga el
+  auto-deploy de Vercel para `main` y `develop`. Deploy a producción y snapshots de PR
+  (a slots `PRE` / `PRE-TEST` con alias fijo) por comando `/deploy` en GitHub.
+  Versionado propio (`vX.Y.Z`, `CHANGELOG.md`) por label en la PR `develop → main`.
+  Indicador de versión en Ajustes (`VersionInfo` en `features/settings`). Sustituye al
+  preview automático de `develop` de más abajo. Spec:
+  `~/vault/workspaces/cuentas-app/specs/release-deploy-automation`.
 - **chore (PR #57 — 2026-06-02):** Eliminadas las features Budgets y Tags del frontend (incluye `BudgetEmpty`, ya removido en REFACTOR-FE-003 del día anterior)
 - **FIX-032 (PR #52 — 2026-06-01):** JWT a httpOnly cookie; AuthContext sin localStorage; authApi.logout(); AuthResponse sin token; 7 tests actualizados
 - **FIX-031 (PR #51 — 2026-06-01):** 10 tests nuevos con renderHook + vi.hoisted; patrón de mocks para hooks con muchas dependencias

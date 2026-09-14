@@ -1,0 +1,152 @@
+name: Release Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  # Marca oculta para localizar y reeditar el mismo comentario en cada push.
+  PREVIEW_COMMENT_MARKER: "<!-- release-preview-bot -->"
+  # Mismo guard que release.yml: sin cambios en estas rutas no habría release.
+  CODE_PATHS_REGEX: '^(src/|package\.json$|package-lock\.json$|tsconfig.*\.json$|vite\.config\.ts$|vercel\.json$|index\.html$)'
+  # Generador de notas por prefijo de rama (creado en F4).
+  CHANGELOG_SCRIPT: .github/scripts/build-changelog.sh
+
+jobs:
+  preview:
+    if: >
+      github.event.action == 'opened' ||
+      github.event.action == 'synchronize' ||
+      startsWith(github.event.label.name, 'release-type/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout HEAD de la PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Determinar tipo de bump por las labels actuales
+        id: bump
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          labels=$(gh pr view "$PR_NUMBER" --json labels --jq '.labels[].name')
+          if echo "$labels" | grep -qx 'release-type/major'; then
+            echo "type=major" >> "$GITHUB_OUTPUT"
+          elif echo "$labels" | grep -qx 'release-type/minor'; then
+            echo "type=minor" >> "$GITHUB_OUTPUT"
+          elif echo "$labels" | grep -qx 'release-type/patch'; then
+            echo "type=patch" >> "$GITHUB_OUTPUT"
+          else
+            echo "type=none" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comprobar si hay cambios de código
+        id: codecheck
+        if: steps.bump.outputs.type != 'none'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if bash .github/scripts/changed-paths.sh "$BASE_SHA" "$HEAD_SHA" "$CODE_PATHS_REGEX"; then
+            echo "has_code_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_code_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Calcular siguiente versión
+        id: version
+        if: steps.bump.outputs.type != 'none' && steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          BUMP_TYPE: ${{ steps.bump.outputs.type }}
+        run: |
+          current=$(node -p "require('./package.json').version")
+          new=$(bash .github/scripts/bump-version.sh "$current" "$BUMP_TYPE")
+          echo "new=$new" >> "$GITHUB_OUTPUT"
+          echo "previous=$current" >> "$GITHUB_OUTPUT"
+
+      - name: Generar notas de vista previa
+        id: notes
+        if: steps.bump.outputs.type != 'none' && steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+        run: |
+          if git rev-parse -q --verify "refs/tags/v${PREVIOUS}" >/dev/null; then
+            from_ref="v${PREVIOUS}"
+          else
+            latest_tag=$(git tag --list 'v*' --sort=-v:refname | head -1)
+            if [ -n "$latest_tag" ]; then
+              from_ref="$latest_tag"
+            else
+              from_ref=$(git rev-list --max-parents=0 HEAD | tail -1)
+            fi
+          fi
+          bash "$CHANGELOG_SCRIPT" "$from_ref" HEAD > /tmp/notes.md || true
+          if [ ! -s /tmp/notes.md ]; then
+            echo "_Sin cambios categorizables todavía en este rango._" > /tmp/notes.md
+          fi
+
+      - name: Construir comentario de vista previa
+        if: steps.bump.outputs.type != 'none' && steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          BUMP_TYPE: ${{ steps.bump.outputs.type }}
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+        run: |
+          {
+            echo "$PREVIEW_COMMENT_MARKER"
+            echo "## 🔖 Vista previa del release"
+            echo ""
+            echo "Al mergear con la label \`release-type/${BUMP_TYPE}\`, se publicará:"
+            echo ""
+            echo "**v${NEW_VERSION}** (actual: v${PREVIOUS})"
+            echo ""
+            cat /tmp/notes.md
+          } > /tmp/comment.md
+
+      - name: Construir comentario "sin label"
+        if: steps.bump.outputs.type == 'none'
+        run: |
+          {
+            echo "$PREVIEW_COMMENT_MARKER"
+            echo "## 🔖 Vista previa del release"
+            echo ""
+            echo "⚠️ No hay ninguna label \`release-type/patch\`, \`release-type/minor\` o \`release-type/major\` en este PR — al mergear **no se publicará ningún release**."
+          } > /tmp/comment.md
+
+      - name: Construir comentario "sin cambios de código"
+        if: steps.bump.outputs.type != 'none' && steps.codecheck.outputs.has_code_changes == 'false'
+        env:
+          BUMP_TYPE: ${{ steps.bump.outputs.type }}
+        run: |
+          {
+            echo "$PREVIEW_COMMENT_MARKER"
+            echo "## 🔖 Vista previa del release"
+            echo ""
+            echo "⚠️ Este PR tiene la label \`release-type/${BUMP_TYPE}\`, pero no toca código del frontend (\`src/\`, \`package.json\`, \`package-lock.json\`, \`tsconfig*.json\`, \`vite.config.ts\`, \`vercel.json\`, \`index.html\`) — al mergear **no se generará ninguna versión ni release**."
+          } > /tmp/comment.md
+
+      - name: Publicar o actualizar comentario
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MARKER: ${{ env.PREVIEW_COMMENT_MARKER }}
+        run: |
+          existing_id=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/comments" \
+            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
+
+          if [ -n "$existing_id" ]; then
+            jq -n --rawfile body /tmp/comment.md '{body: $body}' \
+              | gh api -X PATCH "repos/${{ github.repository }}/issues/comments/$existing_id" --input -
+          else
+            gh pr comment "$PR_NUMBER" --body "$(cat /tmp/comment.md)"
+          fi

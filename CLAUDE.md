@@ -30,6 +30,20 @@ Sigue el flujo de PROPUESTA → confirmación → IMPLEMENTACIÓN definido en el
 
 React 19 + TypeScript 5.9 + Vite 8 + TailwindCSS 4 + Axios + Zod + React Hook Form
 
+## Despliegue y versión
+
+Nada se despliega por push (`vercel.json` con deploys por git apagados). Detalle en
+`.claude/project-state.md` → "🌐 Despliegue".
+
+| Dónde (GitHub, solo el dueño del repo) | Comando                             | Efecto                                                                                                                          |
+| -------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Issue con label `deploy`               | `/deploy vX.Y.Z`                    | Despliega ese tag a producción                                                                                                  |
+| Comentario en una PR                   | `/deploy PRE` \| `/deploy PRE-TEST` | Despliega el HEAD de la PR como snapshot y lo aliasea a `cuentas-front-pre[-test].vercel.app`, apuntando al backend de ese slot |
+
+- Publicar versión: label `release-type/patch|minor|major` en la PR `develop → main` (≠ desplegar). Versión independiente del backend.
+- Los workflows de `issue_comment` viven en la rama por defecto de este repo (`develop`) — solo son operativos ahí.
+- El indicador de versión (Ajustes) lee `VITE_APP_VERSION` vía `src/lib/version.ts`.
+
 ## Agents disponibles
 
 | Agent                       | Cuándo usarlo                                   |

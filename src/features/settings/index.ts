@@ -31,3 +31,4 @@ export { ProfileForm } from './components/ProfileForm';
 export { PasswordForm } from './components/PasswordForm';
 export { NotificationsTab } from './components/NotificationsTab';
 export { DeleteAccountForm } from './components/DeleteAccountForm';
+export { VersionInfo } from './components/VersionInfo';
