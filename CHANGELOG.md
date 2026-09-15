@@ -5,6 +5,17 @@ Todos los cambios notables de este proyecto se documentan en este fichero.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-09-15
+
+### FEAT
+* [#72](https://github.com/Jabbcode/cuentas_front/pull/72) pago de periodos atrasados de tarjeta de credito
+
+### OTROS
+* [#71](https://github.com/Jabbcode/cuentas_front/pull/71) Sync release 0.1.0 to develop
+* [#73](https://github.com/Jabbcode/cuentas_front/pull/73) Release
+
+
+
 ## [0.1.0] - 2026-09-14
 
 ### FEAT
@@ -82,4 +93,5 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Comparaciones completas
 
+- [v0.1.0...v0.2.0](https://github.com/Jabbcode/cuentas_front/compare/v0.1.0...v0.2.0)
 - [61dbbf23c1088019c6924157fae93f00de1790bf...v0.1.0](https://github.com/Jabbcode/cuentas_front/compare/61dbbf23c1088019c6924157fae93f00de1790bf...v0.1.0)
