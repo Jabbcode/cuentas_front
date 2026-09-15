@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { creditCardsApi } from '../api';
 import { accountsApi } from '../../accounts/api';
 import { logger } from '../../../lib/logger';
@@ -18,6 +18,13 @@ export function useCreditCards(months: number = OVERDUE_MONTHS_DEFAULT): UseCred
         throw new Error('Error al cargar las tarjetas. Intenta de nuevo.');
       }
     },
+    // Al cambiar `months` (nuevo queryKey) conserva los datos anteriores como
+    // placeholder en vez de vaciar `data` y volver a poner isLoading en true.
+    // Sin esto, CreditCardsPage desmonta la página entera (spinner de pantalla
+    // completa, incluido el propio selector) en cada cambio de rango no cacheado
+    // — con 12 meses eso puede tardar varios segundos, dando la sensación de que
+    // el selector "no cambia" cuando en realidad solo está recargando.
+    placeholderData: keepPreviousData,
   });
 
   const accountsQuery = useQuery<Account[], Error>({
