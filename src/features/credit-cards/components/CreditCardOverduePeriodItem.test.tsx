@@ -15,6 +15,7 @@ function fakePeriod(overrides: Partial<CreditCardOverduePeriod> = {}): CreditCar
     endDate: '2026-03-04',
     periodKey: '2026-02-05',
     balance: 120,
+    periodLimit: 500,
     transactionCount: 3,
     paymentDueDate: '2026-03-20',
     daysOverdue: 5,
@@ -70,5 +71,35 @@ describe('CreditCardOverduePeriodItem', () => {
     render(<CreditCardOverduePeriodItem period={period} onPayClick={vi.fn()} />);
 
     expect(screen.getByText(AMOUNT_TEXT).closest('div.rounded-lg')).toHaveClass('bg-red-50');
+  });
+
+  it('muestra el límite vigente del período atrasado', () => {
+    render(
+      <CreditCardOverduePeriodItem period={fakePeriod({ periodLimit: 500 })} onPayClick={vi.fn()} />
+    );
+
+    expect(screen.getByText(/500,00/)).toBeInTheDocument();
+  });
+
+  it('periodLimit null: indica "sin configurar" en vez de un importe vacío', () => {
+    render(
+      <CreditCardOverduePeriodItem
+        period={fakePeriod({ periodLimit: null })}
+        onPayClick={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText(/sin configurar/)).toBeInTheDocument();
+  });
+
+  it('el botón Pagar y el periodKey del período siguen intactos (regresión)', async () => {
+    const user = userEvent.setup();
+    const onPayClick = vi.fn();
+    const period = fakePeriod({ periodKey: '2026-05-05' });
+    render(<CreditCardOverduePeriodItem period={period} onPayClick={onPayClick} />);
+
+    await user.click(screen.getByRole('button', { name: 'Pagar' }));
+
+    expect(onPayClick).toHaveBeenCalledWith(expect.objectContaining({ periodKey: '2026-05-05' }));
   });
 });

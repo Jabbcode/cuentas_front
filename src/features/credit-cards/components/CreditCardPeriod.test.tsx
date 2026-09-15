@@ -13,6 +13,7 @@ describe('CreditCardPeriod', () => {
           endDate: '2026-01-31',
           balance: 200,
           transactions: [],
+          periodLimit: 1000,
           daysUntilCutoff: 5,
         }}
       />
@@ -31,6 +32,7 @@ describe('CreditCardPeriod', () => {
           endDate: '2025-12-31',
           balance: 0,
           transactions: [],
+          periodLimit: 1000,
           isPaid: false,
           paymentDueDate: '2026-01-10',
           daysUntilDue: 5,
@@ -50,6 +52,7 @@ describe('CreditCardPeriod', () => {
           endDate: '2025-12-31',
           balance: 100,
           transactions: [],
+          periodLimit: 1000,
           isPaid: true,
           paymentDueDate: '2026-01-10',
           daysUntilDue: 5,
@@ -69,6 +72,7 @@ describe('CreditCardPeriod', () => {
           endDate: '2025-12-31',
           balance: 100,
           transactions: [],
+          periodLimit: 1000,
           isPaid: false,
           paymentDueDate: '2026-01-10',
           daysUntilDue: 0,
@@ -88,6 +92,7 @@ describe('CreditCardPeriod', () => {
           endDate: '2025-12-31',
           balance: 100,
           transactions: [],
+          periodLimit: 1000,
           isPaid: false,
           paymentDueDate: '2026-01-10',
           daysUntilDue: 1,
@@ -107,6 +112,7 @@ describe('CreditCardPeriod', () => {
           endDate: '2025-12-31',
           balance: 100,
           transactions: [],
+          periodLimit: 1000,
           isPaid: false,
           paymentDueDate: '2026-01-10',
           daysUntilDue: -2,
@@ -128,6 +134,7 @@ describe('CreditCardPeriod', () => {
           endDate: '2025-12-31',
           balance: 100,
           transactions: [],
+          periodLimit: 1000,
           isPaid: false,
           paymentDueDate: '2026-01-10',
           daysUntilDue: 5,
@@ -152,6 +159,7 @@ describe('CreditCardPeriod', () => {
           endDate: '2025-12-31',
           balance: 0,
           transactions: [],
+          periodLimit: 1000,
           isPaid: false,
           paymentDueDate: '2026-01-10',
           daysUntilDue: 5,
@@ -172,6 +180,7 @@ describe('CreditCardPeriod', () => {
           endDate: '2025-12-31',
           balance: 100,
           transactions: [],
+          periodLimit: 1000,
           isPaid: true,
           paymentDueDate: '2026-01-10',
           daysUntilDue: 5,
@@ -192,11 +201,69 @@ describe('CreditCardPeriod', () => {
           endDate: '2026-01-31',
           balance: 0,
           transactions: [{ id: 't1' } as never, { id: 't2' } as never],
+          periodLimit: 1000,
           daysUntilCutoff: 1,
         }}
       />
     );
 
     expect(screen.getByText('2')).toBeInTheDocument();
+  });
+
+  it('muestra el límite vigente del período actual', () => {
+    render(
+      <CreditCardPeriod
+        type="current"
+        period={{
+          startDate: '2026-01-01',
+          endDate: '2026-01-31',
+          balance: 200,
+          transactions: [],
+          periodLimit: 1500,
+          daysUntilCutoff: 5,
+        }}
+      />
+    );
+
+    expect(screen.getByText(/1\.?500,00/)).toBeInTheDocument();
+  });
+
+  it('muestra el límite vigente del período "A pagar"', () => {
+    render(
+      <CreditCardPeriod
+        type="closed"
+        period={{
+          startDate: '2025-12-01',
+          endDate: '2025-12-31',
+          balance: 100,
+          transactions: [],
+          periodLimit: 800,
+          isPaid: false,
+          paymentDueDate: '2026-01-10',
+          daysUntilDue: 5,
+        }}
+      />
+    );
+
+    expect(screen.getByText(/800,00/)).toBeInTheDocument();
+  });
+
+  it('periodLimit null: indica que falta configurar el límite, sin importe vacío ni NaN', () => {
+    render(
+      <CreditCardPeriod
+        type="current"
+        period={{
+          startDate: '2026-01-01',
+          endDate: '2026-01-31',
+          balance: 200,
+          transactions: [],
+          periodLimit: null,
+          daysUntilCutoff: 5,
+        }}
+      />
+    );
+
+    expect(screen.getByText('Sin límite configurado')).toBeInTheDocument();
+    expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
   });
 });
