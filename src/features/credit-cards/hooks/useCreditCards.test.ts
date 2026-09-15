@@ -63,4 +63,60 @@ describe('useCreditCards', () => {
 
     expect(result.current.error).toBe('Error al cargar las cuentas. Intenta de nuevo.');
   });
+
+  it('sin argumento: consulta con months=6 (default)', async () => {
+    vi.mocked(creditCardsApi.getSummary).mockResolvedValue(fakeSummary);
+    vi.mocked(accountsApi.getAll).mockResolvedValue([]);
+
+    const { result } = renderHook(() => useCreditCards(), { wrapper: createQueryClientWrapper() });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(creditCardsApi.getSummary).toHaveBeenCalledWith({ months: 6 });
+  });
+
+  it('useCreditCards(12): consulta con months=12', async () => {
+    vi.mocked(creditCardsApi.getSummary).mockResolvedValue(fakeSummary);
+    vi.mocked(accountsApi.getAll).mockResolvedValue([]);
+
+    const { result } = renderHook(() => useCreditCards(12), {
+      wrapper: createQueryClientWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(creditCardsApi.getSummary).toHaveBeenCalledWith({ months: 12 });
+  });
+
+  it('cambiar months conserva los datos anteriores mientras carga (loading no vuelve a true)', async () => {
+    // Regresión: sin placeholderData, cada cambio de months (queryKey nuevo)
+    // ponía isLoading en true de nuevo, y CreditCardsPage desmonta la página
+    // entera (incluido el selector) mientras dura ese loading — con 12 meses,
+    // más lento, daba la sensación de que el selector "no cambiaba".
+    vi.mocked(creditCardsApi.getSummary).mockResolvedValue(fakeSummary);
+    vi.mocked(accountsApi.getAll).mockResolvedValue([]);
+
+    const { result, rerender } = renderHook(({ months }) => useCreditCards(months), {
+      wrapper: createQueryClientWrapper(),
+      initialProps: { months: 6 },
+    });
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.statements).toEqual(fakeSummary.cards);
+
+    let resolveNext!: (value: CreditCardsSummary) => void;
+    vi.mocked(creditCardsApi.getSummary).mockReturnValue(
+      new Promise((resolve) => {
+        resolveNext = resolve;
+      })
+    );
+
+    rerender({ months: 12 });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.statements).toEqual(fakeSummary.cards);
+
+    resolveNext(fakeSummary);
+    await waitFor(() => expect(creditCardsApi.getSummary).toHaveBeenCalledWith({ months: 12 }));
+  });
 });

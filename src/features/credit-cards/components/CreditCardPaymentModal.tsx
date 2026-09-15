@@ -9,9 +9,9 @@ import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Label } from '../../../components/ui/label';
 import { Select } from '../../../components/ui/select';
-import { formatCurrency } from '../../../lib/utils';
+import { formatCurrency, formatDate } from '../../../lib/utils';
 import type { CreditCardStatement, Account } from '../../../types';
-import type { PaymentFormData } from '../types';
+import type { PaymentFormData, PaymentTarget } from '../types';
 
 interface CreditCardPaymentModalProps {
   open: boolean;
@@ -19,6 +19,7 @@ interface CreditCardPaymentModalProps {
   formData: PaymentFormData;
   accounts: Account[];
   paying: boolean;
+  target?: PaymentTarget;
   onClose: () => void;
   onSubmit: (e: React.FormEvent) => void;
   onFormChange: (data: Partial<PaymentFormData>) => void;
@@ -30,14 +31,19 @@ export function CreditCardPaymentModal({
   formData,
   accounts,
   paying,
+  target = { kind: 'closed' },
   onClose,
   onSubmit,
   onFormChange,
 }: CreditCardPaymentModalProps) {
+  const isOverdue = target.kind === 'overdue';
+  // Monto completo del período (criterio 3): en un atrasado no se paga un importe parcial.
+  const amountToPay = isOverdue ? target.amount : (statement?.closedPeriod.balance ?? 0);
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogHeader>
-        <DialogTitle>Pagar Estado de Cuenta</DialogTitle>
+        <DialogTitle>{isOverdue ? 'Pagar Período Atrasado' : 'Pagar Estado de Cuenta'}</DialogTitle>
       </DialogHeader>
       <form onSubmit={onSubmit}>
         <DialogContent className="space-y-4">
@@ -46,8 +52,13 @@ export function CreditCardPaymentModal({
               <div className="rounded-lg bg-gray-50 p-4">
                 <p className="text-sm text-gray-600">Tarjeta</p>
                 <p className="text-lg font-medium">{statement.account.name}</p>
+                {isOverdue && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Período: {formatDate(target.periodStart)} - {formatDate(target.endDate)}
+                  </p>
+                )}
                 <p className="text-2xl font-bold text-red-600 mt-2">
-                  {formatCurrency(statement.closedPeriod.balance)}
+                  {formatCurrency(amountToPay)}
                 </p>
               </div>
 
@@ -58,13 +69,16 @@ export function CreditCardPaymentModal({
                   type="number"
                   step="0.01"
                   min="0"
-                  max={statement.closedPeriod.balance}
+                  max={amountToPay}
                   value={formData.amount}
                   onChange={(e) => onFormChange({ amount: e.target.value })}
+                  readOnly={isOverdue}
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Monto máximo: {formatCurrency(statement.closedPeriod.balance)}
+                  {isOverdue
+                    ? 'Monto completo del período'
+                    : `Monto máximo: ${formatCurrency(amountToPay)}`}
                 </p>
               </div>
 

@@ -6,6 +6,7 @@ import { CreditCardEmpty } from '../features/credit-cards/components/CreditCardE
 import { CreditCardSummary } from '../features/credit-cards/components/CreditCardSummary';
 import { CreditCardItem } from '../features/credit-cards/components/CreditCardItem';
 import { CreditCardTransactionsModal } from '../features/credit-cards/components/CreditCardTransactionsModal';
+import { CreditCardOverdueRangeSelector } from '../features/credit-cards/components/CreditCardOverdueRangeSelector';
 
 export function CreditCardsPage() {
   const {
@@ -23,6 +24,7 @@ export function CreditCardsPage() {
     expenseCategories,
     toggleCardCollapse,
     handleOpenPayment,
+    handleOpenOverduePayment,
     handleClosePayment,
     handleOpenTransactions,
     handleCloseTransactions,
@@ -34,6 +36,8 @@ export function CreditCardsPage() {
     handleSubmitExpense,
     reload,
     loadError,
+    overdueMonths,
+    setOverdueMonths,
   } = useCreditCardsPage();
 
   if (loading) {
@@ -62,9 +66,12 @@ export function CreditCardsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Tarjetas de Crédito</h1>
-        <p className="text-gray-600">Gestiona tus tarjetas y pagos</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Tarjetas de Crédito</h1>
+          <p className="text-gray-600">Gestiona tus tarjetas y pagos</p>
+        </div>
+        <CreditCardOverdueRangeSelector value={overdueMonths} onChange={setOverdueMonths} />
       </div>
 
       <CreditCardSummary statements={statements} />
@@ -77,6 +84,7 @@ export function CreditCardsPage() {
             isCollapsed={collapsedCards.has(statement.account.id)}
             onToggleCollapse={() => toggleCardCollapse(statement.account.id)}
             onPayClick={handleOpenPayment}
+            onPayOverdueClick={handleOpenOverduePayment}
             onViewTransactions={handleOpenTransactions}
             onCreateExpense={handleOpenExpense}
           />
@@ -89,6 +97,7 @@ export function CreditCardsPage() {
         formData={paymentFormData}
         accounts={accounts}
         paying={paying}
+        target={paymentModal.target}
         onClose={handleClosePayment}
         onSubmit={handlePay}
         onFormChange={updatePaymentFormData}

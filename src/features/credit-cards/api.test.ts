@@ -17,8 +17,16 @@ describe('creditCardsApi', () => {
 
     const result = await creditCardsApi.getSummary();
 
-    expect(api.get).toHaveBeenCalledWith('/credit-cards/summary');
+    expect(api.get).toHaveBeenCalledWith('/credit-cards/summary', { params: undefined });
     expect(result).toEqual({ totalToPay: 0 });
+  });
+
+  it('getSummary({ months: 12 }): envía months como query param', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { totalToPay: 0 } });
+
+    await creditCardsApi.getSummary({ months: 12 });
+
+    expect(api.get).toHaveBeenCalledWith('/credit-cards/summary', { params: { months: 12 } });
   });
 
   it('getStatement: GET /credit-cards/:accountId/statement', async () => {
@@ -26,7 +34,17 @@ describe('creditCardsApi', () => {
 
     await creditCardsApi.getStatement('card-1');
 
-    expect(api.get).toHaveBeenCalledWith('/credit-cards/card-1/statement');
+    expect(api.get).toHaveBeenCalledWith('/credit-cards/card-1/statement', { params: undefined });
+  });
+
+  it('getStatement con months: envía months como query param', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: {} });
+
+    await creditCardsApi.getStatement('card-1', { months: 3 });
+
+    expect(api.get).toHaveBeenCalledWith('/credit-cards/card-1/statement', {
+      params: { months: 3 },
+    });
   });
 
   it('payStatement: POST /credit-cards/:accountId/pay con el payload', async () => {

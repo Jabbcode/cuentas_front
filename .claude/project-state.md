@@ -88,7 +88,7 @@ una acción por comando en un issue/PR de GitHub (`.github/workflows/release.yml
 | Entorno       | URL frontend                                           | Backend al que apunta                                                   |
 | ------------- | ------------------------------------------------------ | ----------------------------------------------------------------------- |
 | Producción    | https://cuentas-front-amber.vercel.app                 | `https://cuentas-back-fgep.onrender.com/api` (`vars.VITE_API_URL_PROD`) |
-| Slot PRE      | https://cuentas-front-pre.vercel.app (alias fijo)      | `https://cuentas-back-staging.onrender.com/api` (`vars.URL_PRE`)        |
+| Slot PRE      | https://cuentas-front-pre.vercel.app (alias fijo)      | `https://cuentas-back-pre.onrender.com/api` (`vars.URL_PRE`)            |
 | Slot PRE-TEST | https://cuentas-front-pre-test.vercel.app (alias fijo) | `https://cuentas-back-pre-test.onrender.com/api` (`vars.URL_PRE_TEST`)  |
 
 - `develop` **no se despliega** — solo integra antes de `main`.

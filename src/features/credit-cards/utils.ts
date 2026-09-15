@@ -1,5 +1,9 @@
 import type { CreditCardStatement } from '../../types';
 
+/** Opciones del selector de rango de períodos atrasados (debe calzar con OVERDUE_LOOKBACK_MONTHS_ALLOWED del backend). */
+export const OVERDUE_MONTHS_OPTIONS = [3, 6, 12] as const;
+export const OVERDUE_MONTHS_DEFAULT = 6;
+
 /**
  * Computes the total unpaid balance across all statements (closed periods only).
  */
