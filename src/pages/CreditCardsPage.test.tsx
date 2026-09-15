@@ -25,6 +25,7 @@ function baseReturn(overrides: Partial<UseCreditCardsPageReturn> = {}): UseCredi
     expenseCategories: [],
     toggleCardCollapse: vi.fn(),
     handleOpenPayment: vi.fn(),
+    handleOpenOverduePayment: vi.fn(),
     handleClosePayment: vi.fn(),
     handleOpenTransactions: vi.fn(),
     handleCloseTransactions: vi.fn(),
@@ -36,6 +37,8 @@ function baseReturn(overrides: Partial<UseCreditCardsPageReturn> = {}): UseCredi
     handleSubmitExpense: vi.fn(),
     reload: vi.fn(),
     loadError: null,
+    overdueMonths: 6,
+    setOverdueMonths: vi.fn(),
     ...overrides,
   };
 }
@@ -92,6 +95,7 @@ describe('CreditCardsPage', () => {
               paymentDueDate: '2026-01-10',
               daysUntilDue: 1,
             },
+            overduePeriods: [],
             creditLimit: 1000,
             available: 1000,
             usagePercentage: 0,
@@ -103,5 +107,52 @@ describe('CreditCardsPage', () => {
     render(<CreditCardsPage />);
 
     expect(screen.getByText('Visa')).toBeInTheDocument();
+  });
+
+  it('con tarjetas: renderiza el selector de rango con las 3 opciones', () => {
+    mockUseCreditCardsPage.mockReturnValue(
+      baseReturn({
+        statements: [
+          {
+            account: {
+              id: 'card-1',
+              name: 'Visa',
+              type: 'credit_card',
+              balance: 0,
+              currency: 'EUR',
+              createdAt: '2026-01-01',
+            },
+            currentPeriod: {
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+              balance: 0,
+              transactions: [],
+              daysUntilCutoff: 1,
+            },
+            closedPeriod: {
+              startDate: '2025-12-01',
+              endDate: '2025-12-31',
+              balance: 0,
+              transactions: [],
+              isPaid: true,
+              paymentDueDate: '2026-01-10',
+              daysUntilDue: 1,
+            },
+            overduePeriods: [],
+            creditLimit: 1000,
+            available: 1000,
+            usagePercentage: 0,
+            alerts: [],
+          },
+        ],
+      })
+    );
+    render(<CreditCardsPage />);
+
+    const select = screen.getByRole('combobox', { name: 'Rango de períodos atrasados' });
+    expect(select).toHaveValue('6');
+    expect(screen.getByRole('option', { name: 'Últimos 3 meses' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Últimos 6 meses' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Últimos 12 meses' })).toBeInTheDocument();
   });
 });

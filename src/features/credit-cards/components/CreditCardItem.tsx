@@ -3,14 +3,16 @@ import { Button } from '../../../components/ui/button';
 import { CreditCardHeader } from './CreditCardHeader';
 import { CreditCardAlerts } from './CreditCardAlerts';
 import { CreditCardPeriod } from './CreditCardPeriod';
+import { CreditCardOverduePeriods } from './CreditCardOverduePeriods';
 import { Receipt, Plus } from 'lucide-react';
-import type { CreditCardStatement } from '../../../types';
+import type { CreditCardStatement, CreditCardOverduePeriod } from '../../../types';
 
 interface CreditCardItemProps {
   statement: CreditCardStatement;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
   onPayClick: (statement: CreditCardStatement) => void;
+  onPayOverdueClick: (statement: CreditCardStatement, period: CreditCardOverduePeriod) => void;
   onViewTransactions: (statement: CreditCardStatement) => void;
   onCreateExpense: (statement: CreditCardStatement) => void;
 }
@@ -20,6 +22,7 @@ export function CreditCardItem({
   isCollapsed,
   onToggleCollapse,
   onPayClick,
+  onPayOverdueClick,
   onViewTransactions,
   onCreateExpense,
 }: CreditCardItemProps) {
@@ -43,6 +46,11 @@ export function CreditCardItem({
             />
             <CreditCardPeriod type="current" period={statement.currentPeriod} />
           </div>
+
+          <CreditCardOverduePeriods
+            periods={statement.overduePeriods}
+            onPayClick={(period) => onPayOverdueClick(statement, period)}
+          />
 
           {/* View transactions button */}
           <Button
