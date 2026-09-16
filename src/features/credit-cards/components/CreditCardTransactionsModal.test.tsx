@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { Transaction, CreditCardStatement } from '../../../types';
+import type { Transaction, CreditCardStatement, CreditCardOverduePeriod } from '../../../types';
 
 const { mockToastError } = vi.hoisted(() => ({ mockToastError: vi.fn() }));
 
@@ -50,6 +50,21 @@ function makeStatement(overrides: Partial<CreditCardStatement> = {}): CreditCard
     available: 1000,
     usagePercentage: 0,
     alerts: [],
+    ...overrides,
+  };
+}
+
+function makeOverduePeriod(
+  overrides: Partial<CreditCardOverduePeriod> = {}
+): CreditCardOverduePeriod {
+  return {
+    startDate: '2025-10-05',
+    endDate: '2025-11-04',
+    periodKey: '2025-10-05',
+    balance: 40,
+    transactionCount: 1,
+    paymentDueDate: '2025-11-20',
+    daysOverdue: 30,
     ...overrides,
   };
 }
@@ -231,5 +246,73 @@ describe('CreditCardTransactionsModal', () => {
       expect(mockToastError).toHaveBeenCalledWith('No se pudo eliminar la transacción')
     );
     expect(transactionsApi.getAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('sin overduePeriod: no muestra la pestaña "Período Vencido"', async () => {
+    vi.mocked(transactionsApi.getAll).mockResolvedValue({
+      transactions: [],
+      total: 0,
+      limit: 1000,
+      offset: 0,
+    });
+
+    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+
+    await waitFor(() => expect(transactionsApi.getAll).toHaveBeenCalled());
+    expect(screen.queryByText(/Período Vencido/)).not.toBeInTheDocument();
+  });
+
+  it('con overduePeriod: abre preseleccionado en esa pestaña y filtra solo esas transacciones', async () => {
+    const overduePeriod = makeOverduePeriod();
+    vi.mocked(transactionsApi.getAll).mockResolvedValue({
+      transactions: [
+        makeTx({ id: 'tx-overdue', date: '2025-10-20', description: 'Del período vencido' }),
+        makeTx({ id: 'tx-other', date: '2026-01-10', description: 'De otro período' }),
+      ],
+      total: 2,
+      limit: 1000,
+      offset: 0,
+    });
+
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        overduePeriod={overduePeriod}
+        onClose={vi.fn()}
+      />
+    );
+
+    await waitFor(() => expect(screen.getByText('Del período vencido')).toBeInTheDocument());
+    expect(screen.queryByText('De otro período')).not.toBeInTheDocument();
+    expect(screen.getByText(/Período Vencido/)).toHaveClass('bg-red-100');
+  });
+
+  it('con overduePeriod: cambiar a "Todas" muestra también las transacciones de otros períodos', async () => {
+    const user = userEvent.setup();
+    const overduePeriod = makeOverduePeriod();
+    vi.mocked(transactionsApi.getAll).mockResolvedValue({
+      transactions: [
+        makeTx({ id: 'tx-overdue', date: '2025-10-20', description: 'Del período vencido' }),
+        makeTx({ id: 'tx-other', date: '2026-01-10', description: 'De otro período' }),
+      ],
+      total: 2,
+      limit: 1000,
+      offset: 0,
+    });
+
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        overduePeriod={overduePeriod}
+        onClose={vi.fn()}
+      />
+    );
+    await waitFor(() => expect(screen.getByText('Del período vencido')).toBeInTheDocument());
+
+    await user.click(screen.getByText('Todas'));
+
+    expect(screen.getByText('De otro período')).toBeInTheDocument();
   });
 });

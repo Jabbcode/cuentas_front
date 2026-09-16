@@ -64,6 +64,7 @@ describe('CreditCardItem', () => {
         onPayClick={vi.fn()}
         onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
+        onViewOverdueTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
     );
@@ -80,6 +81,7 @@ describe('CreditCardItem', () => {
         onPayClick={vi.fn()}
         onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
+        onViewOverdueTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
     );
@@ -100,6 +102,7 @@ describe('CreditCardItem', () => {
         onPayClick={vi.fn()}
         onPayOverdueClick={vi.fn()}
         onViewTransactions={onViewTransactions}
+        onViewOverdueTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
     );
@@ -121,6 +124,7 @@ describe('CreditCardItem', () => {
         onPayClick={vi.fn()}
         onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
+        onViewOverdueTransactions={vi.fn()}
         onCreateExpense={onCreateExpense}
       />
     );
@@ -142,6 +146,7 @@ describe('CreditCardItem', () => {
         onPayClick={onPayClick}
         onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
+        onViewOverdueTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
     );
@@ -161,6 +166,7 @@ describe('CreditCardItem', () => {
         onPayClick={vi.fn()}
         onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
+        onViewOverdueTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
     );
@@ -179,6 +185,7 @@ describe('CreditCardItem', () => {
         onPayClick={vi.fn()}
         onPayOverdueClick={vi.fn()}
         onViewTransactions={vi.fn()}
+        onViewOverdueTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
     );
@@ -199,6 +206,7 @@ describe('CreditCardItem', () => {
         onPayClick={vi.fn()}
         onPayOverdueClick={onPayOverdueClick}
         onViewTransactions={vi.fn()}
+        onViewOverdueTransactions={vi.fn()}
         onCreateExpense={vi.fn()}
       />
     );
@@ -210,5 +218,30 @@ describe('CreditCardItem', () => {
     await user.click(getByRole('button', { name: 'Pagar' }));
 
     expect(onPayOverdueClick).toHaveBeenCalledWith(statement, overduePeriod);
+  });
+
+  it('click en "Ver transacciones" de un período atrasado llama a onViewOverdueTransactions con statement + período', async () => {
+    const user = userEvent.setup();
+    const onViewOverdueTransactions = vi.fn();
+    const overduePeriod = fakeOverduePeriod();
+    const statement = makeStatement({ overduePeriods: [overduePeriod] });
+    render(
+      <CreditCardItem
+        statement={statement}
+        isCollapsed={false}
+        onToggleCollapse={vi.fn()}
+        onPayClick={vi.fn()}
+        onPayOverdueClick={vi.fn()}
+        onViewTransactions={vi.fn()}
+        onViewOverdueTransactions={onViewOverdueTransactions}
+        onCreateExpense={vi.fn()}
+      />
+    );
+
+    const overdueSection = screen.getByText('Períodos atrasados').closest('div')!;
+    const { getByRole } = within(overdueSection);
+    await user.click(getByRole('button', { name: 'Ver transacciones' }));
+
+    expect(onViewOverdueTransactions).toHaveBeenCalledWith(statement, overduePeriod);
   });
 });

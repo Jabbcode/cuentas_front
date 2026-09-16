@@ -27,6 +27,7 @@ export function CreditCardsPage() {
     handleOpenOverduePayment,
     handleClosePayment,
     handleOpenTransactions,
+    handleOpenOverdueTransactions,
     handleCloseTransactions,
     handlePay,
     updatePaymentFormData,
@@ -86,6 +87,7 @@ export function CreditCardsPage() {
             onPayClick={handleOpenPayment}
             onPayOverdueClick={handleOpenOverduePayment}
             onViewTransactions={handleOpenTransactions}
+            onViewOverdueTransactions={handleOpenOverdueTransactions}
             onCreateExpense={handleOpenExpense}
           />
         ))}
@@ -106,6 +108,7 @@ export function CreditCardsPage() {
       <CreditCardTransactionsModal
         open={transactionsModal.open}
         statement={transactionsModal.statement}
+        overduePeriod={transactionsModal.overduePeriod}
         onClose={handleCloseTransactions}
       />
 

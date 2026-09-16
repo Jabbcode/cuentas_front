@@ -14,6 +14,10 @@ interface CreditCardItemProps {
   onPayClick: (statement: CreditCardStatement) => void;
   onPayOverdueClick: (statement: CreditCardStatement, period: CreditCardOverduePeriod) => void;
   onViewTransactions: (statement: CreditCardStatement) => void;
+  onViewOverdueTransactions: (
+    statement: CreditCardStatement,
+    period: CreditCardOverduePeriod
+  ) => void;
   onCreateExpense: (statement: CreditCardStatement) => void;
 }
 
@@ -24,6 +28,7 @@ export function CreditCardItem({
   onPayClick,
   onPayOverdueClick,
   onViewTransactions,
+  onViewOverdueTransactions,
   onCreateExpense,
 }: CreditCardItemProps) {
   return (
@@ -50,6 +55,7 @@ export function CreditCardItem({
           <CreditCardOverduePeriods
             periods={statement.overduePeriods}
             onPayClick={(period) => onPayOverdueClick(statement, period)}
+            onViewTransactionsClick={(period) => onViewOverdueTransactions(statement, period)}
           />
 
           {/* View transactions button */}
