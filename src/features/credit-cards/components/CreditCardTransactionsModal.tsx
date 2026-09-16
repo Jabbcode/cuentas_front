@@ -1,5 +1,6 @@
-﻿import { useState, useEffect, useMemo } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Dialog, DialogHeader, DialogTitle, DialogContent } from '../../../components/ui/dialog';
+import { ConfirmDialog } from '../../../components/ui/confirm-dialog';
 import { Badge } from '../../../components/ui/badge';
 import { CategoryIcon } from '../../../components/ui/category-icon';
 import { Select } from '../../../components/ui/select';
@@ -9,7 +10,8 @@ import { transactionsApi, groupTransactionsByCategory } from '../../../features/
 import type { Transaction, CreditCardStatement } from '../../../types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { List, Grid3x3 } from 'lucide-react';
+import { List, Grid3x3, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface CreditCardTransactionsModalProps {
   open: boolean;
@@ -27,30 +29,46 @@ export function CreditCardTransactionsModal({
   const [periodFilter, setPeriodFilter] = useState<'all' | 'current' | 'closed'>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [groupByCategory, setGroupByCategory] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const accountId = statement?.account.id;
+
+  const loadTransactions = useCallback(async () => {
+    if (!accountId) return;
+    setLoading(true);
+    try {
+      const response = await transactionsApi.getAll({
+        accountId,
+        type: 'expense',
+        limit: 1000,
+      });
+      setAllTransactions(response.transactions);
+    } catch (err) {
+      console.error('Error loading transactions:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [accountId]);
 
   useEffect(() => {
-    if (!open || !statement) return;
-    let cancelled = false;
-    const load = async () => {
-      setLoading(true);
-      try {
-        const response = await transactionsApi.getAll({
-          accountId: statement.account.id,
-          type: 'expense',
-          limit: 1000,
-        });
-        if (!cancelled) setAllTransactions(response.transactions);
-      } catch (err) {
-        console.error('Error loading transactions:', err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [open, statement]);
+    if (!open || !accountId) return;
+    loadTransactions();
+  }, [open, accountId, loadTransactions]);
+
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    setDeleting(true);
+    try {
+      await transactionsApi.delete(deleteId);
+      setDeleteId(null);
+      await loadTransactions();
+    } catch {
+      toast.error('No se pudo eliminar la transacción');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // Get unique categories from transactions
   const categories = useMemo(() => {
@@ -280,6 +298,14 @@ export function CreditCardTransactionsModal({
                           {formatCurrency(transaction.amount)}
                         </p>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteId(transaction.id)}
+                        className="flex-shrink-0 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        aria-label="Eliminar transacción"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -328,11 +354,28 @@ export function CreditCardTransactionsModal({
                 <div className="flex-shrink-0 text-right">
                   <p className="font-semibold text-red-600">{formatCurrency(transaction.amount)}</p>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => setDeleteId(transaction.id)}
+                  className="flex-shrink-0 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                  aria-label="Eliminar transacción"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
             ))}
           </div>
         )}
       </DialogContent>
+
+      <ConfirmDialog
+        open={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
+        title="Eliminar transacción"
+        loading={deleting}
+      />
     </Dialog>
   );
 }

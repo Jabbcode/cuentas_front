@@ -3,11 +3,17 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Transaction, CreditCardStatement } from '../../../types';
 
+const { mockToastError } = vi.hoisted(() => ({ mockToastError: vi.fn() }));
+
+vi.mock('sonner', () => ({
+  toast: { success: vi.fn(), error: mockToastError },
+}));
+
 vi.mock('../../../features/transactions', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../features/transactions')>();
   return {
     ...actual,
-    transactionsApi: { ...actual.transactionsApi, getAll: vi.fn() },
+    transactionsApi: { ...actual.transactionsApi, getAll: vi.fn(), delete: vi.fn() },
   };
 });
 
@@ -176,5 +182,54 @@ describe('CreditCardTransactionsModal', () => {
 
     expect(screen.getAllByText('Compras').length).toBeGreaterThan(0);
     expect(screen.getAllByText('100,00 €').length).toBeGreaterThan(0);
+  });
+
+  it('botón eliminar abre confirmación, y al confirmar borra y recarga la lista', async () => {
+    const user = userEvent.setup();
+    vi.mocked(transactionsApi.getAll)
+      .mockResolvedValueOnce({
+        transactions: [makeTx({ description: 'Super' })],
+        total: 1,
+        limit: 1000,
+        offset: 0,
+      })
+      .mockResolvedValueOnce({ transactions: [], total: 0, limit: 1000, offset: 0 });
+    vi.mocked(transactionsApi.delete).mockResolvedValue(undefined);
+
+    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    await waitFor(() => expect(screen.getByText('Super')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: 'Eliminar transacción' }));
+    expect(screen.getByText('Esta acción no se puede deshacer.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Eliminar' }));
+
+    await waitFor(() => expect(transactionsApi.delete).toHaveBeenCalledWith('tx-1'));
+    await waitFor(() => expect(transactionsApi.getAll).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(screen.getByText('No hay transacciones en este período')).toBeInTheDocument()
+    );
+  });
+
+  it('si falla el borrado: muestra un toast de error y no recarga', async () => {
+    const user = userEvent.setup();
+    vi.mocked(transactionsApi.getAll).mockResolvedValue({
+      transactions: [makeTx({ description: 'Super' })],
+      total: 1,
+      limit: 1000,
+      offset: 0,
+    });
+    vi.mocked(transactionsApi.delete).mockRejectedValue(new Error('network'));
+
+    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    await waitFor(() => expect(screen.getByText('Super')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: 'Eliminar transacción' }));
+    await user.click(screen.getByRole('button', { name: 'Eliminar' }));
+
+    await waitFor(() =>
+      expect(mockToastError).toHaveBeenCalledWith('No se pudo eliminar la transacción')
+    );
+    expect(transactionsApi.getAll).toHaveBeenCalledTimes(1);
   });
 });
