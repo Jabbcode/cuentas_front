@@ -9,6 +9,7 @@ interface ClosedPeriodData {
   endDate: string;
   balance: number;
   transactions: Transaction[];
+  periodLimit: number | null;
   isPaid: boolean;
   paymentDueDate: string;
   daysUntilDue: number;
@@ -19,6 +20,7 @@ interface CurrentPeriodData {
   endDate: string;
   balance: number;
   transactions: Transaction[];
+  periodLimit: number | null;
   daysUntilCutoff: number;
 }
 
@@ -97,6 +99,15 @@ export function CreditCardPeriod({ type, period, onPayClick }: CreditCardPeriodP
             </span>
           </div>
         )}
+
+        <div className="flex justify-between">
+          <span className="text-gray-600">Límite del período:</span>
+          <span className="font-medium">
+            {period.periodLimit == null
+              ? 'Sin límite configurado'
+              : formatCurrency(period.periodLimit)}
+          </span>
+        </div>
 
         <div className="flex justify-between">
           <span className="text-gray-600">Transacciones:</span>
