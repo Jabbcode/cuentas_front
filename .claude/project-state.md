@@ -4,7 +4,7 @@ Documento vivo del estado actual del proyecto. Actualizar regularmente.
 
 ## 📅 Fecha de Actualización
 
-**Última actualización:** 2026-07-23
+**Última actualización:** 2026-09-16
 
 ## 🚀 Estado General
 
@@ -47,6 +47,18 @@ Aplicación en producción activa. Arquitectura feature-module completa. Observa
 - [x] **FIX-030 (PR #38):** tests AuthContext
 - [x] **FIX-031 (PR #51):** 10 tests nuevos — useLoginPage, useAccounts, useTransactionsPage
 - [x] **FIX-032 (PR #52):** JWT en httpOnly cookie — sin localStorage, withCredentials: true, logout API
+
+### ✅ Límite de crédito por período (feature `credit-card-period-limits`, 2026-09-16)
+
+- [x] `CreditCardPeriod`/`CreditCardOverduePeriod` exponen `periodLimit` (espejo
+      del backend). Sin pantalla ni formulario nuevo — el límite se sigue
+      editando desde `AccountFormDialog`, sin cambios.
+- [x] `CreditCardPeriod.tsx` muestra el límite vigente del período actual y del
+      "A pagar"; `CreditCardOverduePeriodItem.tsx` lo añade a cada período
+      atrasado. `periodLimit: null` muestra "sin configurar" en vez de vacío/NaN.
+- [x] El mensaje del backend (límite superado / falta configurar) llega al
+      toast tal cual, vía `getApiErrorMessage` — sin código nuevo.
+- Spec: `~/vault/workspaces/cuentas-app/specs/credit-card-period-limits`.
 
 ### 📝 Pendiente
 

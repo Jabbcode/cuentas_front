@@ -188,6 +188,28 @@ describe('useCreditCardsPage', () => {
     expect(result.current.expenseModal.open).toBe(false);
   });
 
+  it('handleSubmitExpense: un 409 de límite de período llega al toast con el mensaje exacto del backend, no el fallback genérico', async () => {
+    mockTxCreate.mockRejectedValue({
+      isAxiosError: true,
+      response: {
+        data: { error: 'Se superó el límite del período 2026-06-05 al 2026-07-04 (límite: 100)' },
+      },
+    });
+    const { result } = renderHook(() => useCreditCardsPage(), {
+      wrapper: createQueryClientWrapper(),
+    });
+
+    act(() => result.current.handleOpenExpense(fakeStatement()));
+    act(() => result.current.handleExpenseFormChange({ amount: '500', categoryId: 'cat-1' }));
+    await act(async () => {
+      await result.current.handleSubmitExpense({ preventDefault: vi.fn() } as never);
+    });
+
+    expect(mockToastError).toHaveBeenCalledWith(
+      'Se superó el límite del período 2026-06-05 al 2026-07-04 (límite: 100)'
+    );
+  });
+
   describe('pago de período atrasado', () => {
     it('handleOpenOverduePayment: precarga el monto completo del período y el target overdue', () => {
       const { result } = renderHook(() => useCreditCardsPage(), {

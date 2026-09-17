@@ -235,6 +235,8 @@ export interface CreditCardPeriod {
   endDate: string;
   balance: number;
   transactions: Transaction[];
+  /** Límite vigente de este período (histórico si ya cerró, actual si sigue abierto). `null` si la tarjeta no tiene límite configurado. */
+  periodLimit: number | null;
 }
 
 export interface CreditCardOverduePeriod {
@@ -248,6 +250,8 @@ export interface CreditCardOverduePeriod {
    */
   periodKey: string;
   balance: number;
+  /** Límite vigente al cerrar este período. `null` si la tarjeta no tenía límite configurado. */
+  periodLimit: number | null;
   transactionCount: number;
   paymentDueDate: string;
   daysOverdue: number;

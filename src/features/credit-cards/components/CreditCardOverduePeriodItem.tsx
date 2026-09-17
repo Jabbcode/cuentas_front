@@ -30,7 +30,8 @@ export function CreditCardOverduePeriodItem({
         <p className="text-xs">
           {period.transactionCount}{' '}
           {period.transactionCount === 1 ? 'transacción' : 'transacciones'} · venció hace{' '}
-          {period.daysOverdue} día{period.daysOverdue !== 1 ? 's' : ''}
+          {period.daysOverdue} día{period.daysOverdue !== 1 ? 's' : ''} · límite:{' '}
+          {period.periodLimit == null ? 'sin configurar' : formatCurrency(period.periodLimit)}
         </p>
       </div>
 
