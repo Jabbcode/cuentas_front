@@ -1,5 +1,11 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Dialog, DialogHeader, DialogTitle, DialogContent } from '../../../components/ui/dialog';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
 import { ConfirmDialog } from '../../../components/ui/confirm-dialog';
 import { Badge } from '../../../components/ui/badge';
 import { CategoryIcon } from '../../../components/ui/category-icon';
@@ -149,7 +155,7 @@ export function CreditCardTransactionsModal({
   const totalAmount = filteredTransactions.reduce((sum, tx) => sum + Number(tx.amount), 0);
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} className="max-w-2xl">
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
           <span>Transacciones - {statement.account.name}</span>
@@ -206,32 +212,25 @@ export function CreditCardTransactionsModal({
               )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => onAddExpenseClick(statement)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar gasto
-              </Button>
-
-              {/* Group toggle */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setGroupByCategory(!groupByCategory)}
-                className={groupByCategory ? 'bg-purple-50 border-purple-200' : ''}
-              >
-                {groupByCategory ? (
-                  <>
-                    <Grid3x3 className="h-4 w-4 mr-2" />
-                    Agrupado
-                  </>
-                ) : (
-                  <>
-                    <List className="h-4 w-4 mr-2" />
-                    Lista
-                  </>
-                )}
-              </Button>
-            </div>
+            {/* Group toggle */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setGroupByCategory(!groupByCategory)}
+              className={groupByCategory ? 'bg-purple-50 border-purple-200' : ''}
+            >
+              {groupByCategory ? (
+                <>
+                  <Grid3x3 className="h-4 w-4 mr-2" />
+                  Agrupado
+                </>
+              ) : (
+                <>
+                  <List className="h-4 w-4 mr-2" />
+                  Lista
+                </>
+              )}
+            </Button>
           </div>
 
           {/* Category filter - only show when not grouping */}
@@ -409,6 +408,14 @@ export function CreditCardTransactionsModal({
           </div>
         )}
       </DialogContent>
+
+      {/* Fuera del área con scroll de DialogContent: siempre visible, sin importar el scroll */}
+      <DialogFooter className="sm:justify-start">
+        <Button variant="outline" onClick={() => onAddExpenseClick(statement)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Agregar gasto
+        </Button>
+      </DialogFooter>
 
       <ConfirmDialog
         open={!!deleteId}
