@@ -49,6 +49,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
   const [transactionsModal, setTransactionsModal] = useState<TransactionsModalState>({
     open: false,
     statement: null,
+    overduePeriod: null,
   });
 
   const [expenseModal, setExpenseModal] = useState<ExpenseModalState>({
@@ -132,11 +133,18 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
   }, [defaultAccountId]);
 
   const handleOpenTransactions = useCallback((statement: CreditCardStatement) => {
-    setTransactionsModal({ open: true, statement });
+    setTransactionsModal({ open: true, statement, overduePeriod: null });
   }, []);
 
+  const handleOpenOverdueTransactions = useCallback(
+    (statement: CreditCardStatement, period: CreditCardOverduePeriod) => {
+      setTransactionsModal({ open: true, statement, overduePeriod: period });
+    },
+    []
+  );
+
   const handleCloseTransactions = useCallback(() => {
-    setTransactionsModal({ open: false, statement: null });
+    setTransactionsModal({ open: false, statement: null, overduePeriod: null });
   }, []);
 
   const updatePaymentFormData = useCallback((data: Partial<PaymentFormData>) => {
@@ -254,6 +262,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
     handleOpenOverduePayment,
     handleClosePayment,
     handleOpenTransactions,
+    handleOpenOverdueTransactions,
     handleCloseTransactions,
     handlePay,
     updatePaymentFormData,

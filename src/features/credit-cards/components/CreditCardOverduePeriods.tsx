@@ -4,9 +4,14 @@ import type { CreditCardOverduePeriod } from '../../../types';
 interface CreditCardOverduePeriodsProps {
   periods: CreditCardOverduePeriod[];
   onPayClick: (period: CreditCardOverduePeriod) => void;
+  onViewTransactionsClick: (period: CreditCardOverduePeriod) => void;
 }
 
-export function CreditCardOverduePeriods({ periods, onPayClick }: CreditCardOverduePeriodsProps) {
+export function CreditCardOverduePeriods({
+  periods,
+  onPayClick,
+  onViewTransactionsClick,
+}: CreditCardOverduePeriodsProps) {
   if (periods.length === 0) return null;
 
   return (
@@ -18,6 +23,7 @@ export function CreditCardOverduePeriods({ periods, onPayClick }: CreditCardOver
             key={period.startDate}
             period={period}
             onPayClick={onPayClick}
+            onViewTransactionsClick={onViewTransactionsClick}
           />
         ))}
       </div>

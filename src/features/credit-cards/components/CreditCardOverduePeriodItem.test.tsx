@@ -26,7 +26,13 @@ function fakePeriod(overrides: Partial<CreditCardOverduePeriod> = {}): CreditCar
 describe('CreditCardOverduePeriodItem', () => {
   it('renderiza rango, monto, cantidad de transacciones y atraso', () => {
     const period = fakePeriod();
-    render(<CreditCardOverduePeriodItem period={period} onPayClick={vi.fn()} />);
+    render(
+      <CreditCardOverduePeriodItem
+        period={period}
+        onPayClick={vi.fn()}
+        onViewTransactionsClick={vi.fn()}
+      />
+    );
 
     expect(
       screen.getByText(`${formatDate(period.startDate)} - ${formatDate(period.endDate)}`)
@@ -41,6 +47,7 @@ describe('CreditCardOverduePeriodItem', () => {
       <CreditCardOverduePeriodItem
         period={fakePeriod({ daysOverdue: 1, transactionCount: 1 })}
         onPayClick={vi.fn()}
+        onViewTransactionsClick={vi.fn()}
       />
     );
 
@@ -52,23 +59,58 @@ describe('CreditCardOverduePeriodItem', () => {
     const user = userEvent.setup();
     const onPayClick = vi.fn();
     const period = fakePeriod();
-    render(<CreditCardOverduePeriodItem period={period} onPayClick={onPayClick} />);
+    render(
+      <CreditCardOverduePeriodItem
+        period={period}
+        onPayClick={onPayClick}
+        onViewTransactionsClick={vi.fn()}
+      />
+    );
 
     await user.click(screen.getByRole('button', { name: 'Pagar' }));
 
     expect(onPayClick).toHaveBeenCalledWith(period);
   });
 
+  it('click en "Ver transacciones" invoca el callback con ese período', async () => {
+    const user = userEvent.setup();
+    const onViewTransactionsClick = vi.fn();
+    const period = fakePeriod();
+    render(
+      <CreditCardOverduePeriodItem
+        period={period}
+        onPayClick={vi.fn()}
+        onViewTransactionsClick={onViewTransactionsClick}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Ver transacciones' }));
+
+    expect(onViewTransactionsClick).toHaveBeenCalledWith(period);
+  });
+
   it('atraso <= 15 días aplica estilos ámbar (warning)', () => {
     const period = fakePeriod({ daysOverdue: 10 });
-    render(<CreditCardOverduePeriodItem period={period} onPayClick={vi.fn()} />);
+    render(
+      <CreditCardOverduePeriodItem
+        period={period}
+        onPayClick={vi.fn()}
+        onViewTransactionsClick={vi.fn()}
+      />
+    );
 
     expect(screen.getByText(AMOUNT_TEXT).closest('div.rounded-lg')).toHaveClass('bg-amber-50');
   });
 
   it('atraso > 15 días aplica estilos rojos (error)', () => {
     const period = fakePeriod({ daysOverdue: 20 });
-    render(<CreditCardOverduePeriodItem period={period} onPayClick={vi.fn()} />);
+    render(
+      <CreditCardOverduePeriodItem
+        period={period}
+        onPayClick={vi.fn()}
+        onViewTransactionsClick={vi.fn()}
+      />
+    );
 
     expect(screen.getByText(AMOUNT_TEXT).closest('div.rounded-lg')).toHaveClass('bg-red-50');
   });

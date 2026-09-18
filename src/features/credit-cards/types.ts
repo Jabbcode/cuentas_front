@@ -29,6 +29,7 @@ export interface PaymentModalState {
 export interface TransactionsModalState {
   open: boolean;
   statement: import('../../types').CreditCardStatement | null;
+  overduePeriod: import('../../types').CreditCardOverduePeriod | null;
 }
 
 export interface ExpenseFormData {
@@ -72,6 +73,10 @@ export interface UseCreditCardsPageReturn {
   ) => void;
   handleClosePayment: () => void;
   handleOpenTransactions: (statement: import('../../types').CreditCardStatement) => void;
+  handleOpenOverdueTransactions: (
+    statement: import('../../types').CreditCardStatement,
+    period: import('../../types').CreditCardOverduePeriod
+  ) => void;
   handleCloseTransactions: () => void;
   handlePay: (e: React.FormEvent) => Promise<void>;
   updatePaymentFormData: (data: Partial<PaymentFormData>) => void;

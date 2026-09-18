@@ -5,9 +5,9 @@ import { Badge } from '../../../components/ui/badge';
 import { CategoryIcon } from '../../../components/ui/category-icon';
 import { Select } from '../../../components/ui/select';
 import { Button } from '../../../components/ui/button';
-import { formatCurrency } from '../../../lib/utils';
+import { formatCurrency, formatShortDate } from '../../../lib/utils';
 import { transactionsApi, groupTransactionsByCategory } from '../../../features/transactions';
-import type { Transaction, CreditCardStatement } from '../../../types';
+import type { Transaction, CreditCardStatement, CreditCardOverduePeriod } from '../../../types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { List, Grid3x3, Trash2 } from 'lucide-react';
@@ -16,17 +16,21 @@ import { toast } from 'sonner';
 interface CreditCardTransactionsModalProps {
   open: boolean;
   statement: CreditCardStatement | null;
+  overduePeriod?: CreditCardOverduePeriod | null;
   onClose: () => void;
 }
+
+type PeriodFilter = 'all' | 'current' | 'closed' | 'overdue';
 
 export function CreditCardTransactionsModal({
   open,
   statement,
+  overduePeriod = null,
   onClose,
 }: CreditCardTransactionsModalProps) {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
-  const [periodFilter, setPeriodFilter] = useState<'all' | 'current' | 'closed'>('all');
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilter>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [groupByCategory, setGroupByCategory] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -55,6 +59,14 @@ export function CreditCardTransactionsModal({
     if (!open || !accountId) return;
     loadTransactions();
   }, [open, accountId, loadTransactions]);
+
+  // Al abrir el modal para un período vencido específico, preseleccionar su
+  // pestaña en vez de "Todas" — es el punto de entrada desde
+  // CreditCardOverduePeriodItem ("Ver transacciones").
+  useEffect(() => {
+    if (!open) return;
+    setPeriodFilter(overduePeriod ? 'overdue' : 'all');
+  }, [open, overduePeriod]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -107,6 +119,13 @@ export function CreditCardTransactionsModal({
           txDate <= new Date(statement.closedPeriod.endDate)
         );
       });
+    } else if (periodFilter === 'overdue' && overduePeriod) {
+      filtered = filtered.filter((tx) => {
+        const txDate = new Date(tx.date);
+        return (
+          txDate >= new Date(overduePeriod.startDate) && txDate <= new Date(overduePeriod.endDate)
+        );
+      });
     }
 
     // Filter by category
@@ -115,7 +134,7 @@ export function CreditCardTransactionsModal({
     }
 
     return filtered;
-  }, [allTransactions, periodFilter, categoryFilter, statement]);
+  }, [allTransactions, periodFilter, categoryFilter, statement, overduePeriod]);
 
   // Group transactions by category if enabled
   const groupedTransactions = useMemo(() => {
@@ -170,6 +189,19 @@ export function CreditCardTransactionsModal({
               >
                 Período Cerrado
               </button>
+              {overduePeriod && (
+                <button
+                  onClick={() => setPeriodFilter('overdue')}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                    periodFilter === 'overdue'
+                      ? 'bg-red-100 text-red-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  Período Vencido ({formatShortDate(overduePeriod.startDate)} -{' '}
+                  {formatShortDate(overduePeriod.endDate)})
+                </button>
+              )}
             </div>
 
             {/* Group toggle */}
