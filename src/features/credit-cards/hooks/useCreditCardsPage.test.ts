@@ -317,6 +317,61 @@ describe('useCreditCardsPage', () => {
     });
   });
 
+  describe('ver transacciones', () => {
+    it('handleOpenTransactions: abre el modal sin período vencido preseleccionado', () => {
+      const { result } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      act(() => result.current.handleOpenTransactions(fakeStatement()));
+
+      expect(result.current.transactionsModal.open).toBe(true);
+      expect(result.current.transactionsModal.overduePeriod).toBeNull();
+    });
+
+    it('handleOpenOverdueTransactions: abre el modal con ese período vencido preseleccionado', () => {
+      const { result } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+      const period = {
+        startDate: '2026-02-05',
+        endDate: '2026-03-04',
+        periodKey: '2026-02-05',
+        balance: 75,
+        transactionCount: 2,
+        paymentDueDate: '2026-03-20',
+        daysOverdue: 10,
+      };
+
+      act(() => result.current.handleOpenOverdueTransactions(fakeStatement(), period));
+
+      expect(result.current.transactionsModal.open).toBe(true);
+      expect(result.current.transactionsModal.overduePeriod).toEqual(period);
+    });
+
+    it('handleCloseTransactions: cierra el modal y limpia el período vencido preseleccionado', () => {
+      const { result } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      act(() =>
+        result.current.handleOpenOverdueTransactions(fakeStatement(), {
+          startDate: '2026-02-05',
+          endDate: '2026-03-04',
+          periodKey: '2026-02-05',
+          balance: 75,
+          transactionCount: 2,
+          paymentDueDate: '2026-03-20',
+          daysOverdue: 10,
+        })
+      );
+      act(() => result.current.handleCloseTransactions());
+
+      expect(result.current.transactionsModal.open).toBe(false);
+      expect(result.current.transactionsModal.overduePeriod).toBeNull();
+    });
+  });
+
   describe('overdueMonths', () => {
     it('default en 6, pasado a useCreditCards', () => {
       const { result } = renderHook(() => useCreditCardsPage(), {

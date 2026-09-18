@@ -6,6 +6,7 @@ import type { CreditCardOverduePeriod } from '../../../types';
 interface CreditCardOverduePeriodItemProps {
   period: CreditCardOverduePeriod;
   onPayClick: (period: CreditCardOverduePeriod) => void;
+  onViewTransactionsClick: (period: CreditCardOverduePeriod) => void;
 }
 
 const SEVERITY_CLASSES: Record<'warning' | 'error', string> = {
@@ -16,6 +17,7 @@ const SEVERITY_CLASSES: Record<'warning' | 'error', string> = {
 export function CreditCardOverduePeriodItem({
   period,
   onPayClick,
+  onViewTransactionsClick,
 }: CreditCardOverduePeriodItemProps) {
   const severity = getOverdueSeverity(period.daysOverdue);
 
@@ -37,6 +39,9 @@ export function CreditCardOverduePeriodItem({
 
       <div className="flex items-center gap-2">
         <span className="font-bold">{formatCurrency(period.balance)}</span>
+        <Button variant="outline" size="sm" onClick={() => onViewTransactionsClick(period)}>
+          Ver transacciones
+        </Button>
         <Button size="sm" onClick={() => onPayClick(period)}>
           Pagar
         </Button>
