@@ -56,6 +56,11 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
     open: false,
     statement: null,
   });
+  // Si el modal de gasto se abrió desde el de transacciones (botón "Agregar gasto"
+  // dentro de CreditCardTransactionsModal), al cerrarlo hay que reabrir ese modal en
+  // vez de dejar todo cerrado — nunca los dos Dialog abiertos a la vez (el componente
+  // Dialog no soporta stacking: Escape/focus-trap chocarían entre ambos).
+  const [expenseOpenedFromTransactions, setExpenseOpenedFromTransactions] = useState(false);
 
   const [expenseFormData, setExpenseFormData] = useState<ExpenseFormData>({
     amount: '',
@@ -151,7 +156,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
     setPaymentFormData((prev) => ({ ...prev, ...data }));
   }, []);
 
-  const handleOpenExpense = useCallback(
+  const openExpenseModal = useCallback(
     (statement: CreditCardStatement) => {
       setExpenseModal({ open: true, statement });
       setExpenseFormData({
@@ -164,9 +169,30 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
     [expenseCategories]
   );
 
+  const handleOpenExpense = useCallback(
+    (statement: CreditCardStatement) => {
+      setExpenseOpenedFromTransactions(false);
+      openExpenseModal(statement);
+    },
+    [openExpenseModal]
+  );
+
+  const handleOpenExpenseFromTransactions = useCallback(
+    (statement: CreditCardStatement) => {
+      setExpenseOpenedFromTransactions(true);
+      setTransactionsModal((prev) => ({ ...prev, open: false }));
+      openExpenseModal(statement);
+    },
+    [openExpenseModal]
+  );
+
   const handleCloseExpense = useCallback(() => {
     setExpenseModal({ open: false, statement: null });
-  }, []);
+    if (expenseOpenedFromTransactions) {
+      setTransactionsModal((prev) => (prev.statement ? { ...prev, open: true } : prev));
+      setExpenseOpenedFromTransactions(false);
+    }
+  }, [expenseOpenedFromTransactions]);
 
   const handleExpenseFormChange = useCallback((data: Partial<ExpenseFormData>) => {
     setExpenseFormData((prev) => ({ ...prev, ...data }));
@@ -267,6 +293,7 @@ export function useCreditCardsPage(): UseCreditCardsPageReturn {
     handlePay,
     updatePaymentFormData,
     handleOpenExpense,
+    handleOpenExpenseFromTransactions,
     handleCloseExpense,
     handleExpenseFormChange,
     handleSubmitExpense,

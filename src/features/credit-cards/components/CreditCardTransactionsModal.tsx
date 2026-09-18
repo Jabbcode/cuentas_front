@@ -10,7 +10,7 @@ import { transactionsApi, groupTransactionsByCategory } from '../../../features/
 import type { Transaction, CreditCardStatement, CreditCardOverduePeriod } from '../../../types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { List, Grid3x3, Trash2 } from 'lucide-react';
+import { List, Grid3x3, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CreditCardTransactionsModalProps {
@@ -18,6 +18,7 @@ interface CreditCardTransactionsModalProps {
   statement: CreditCardStatement | null;
   overduePeriod?: CreditCardOverduePeriod | null;
   onClose: () => void;
+  onAddExpenseClick: (statement: CreditCardStatement) => void;
 }
 
 type PeriodFilter = 'all' | 'current' | 'closed' | 'overdue';
@@ -27,6 +28,7 @@ export function CreditCardTransactionsModal({
   statement,
   overduePeriod = null,
   onClose,
+  onAddExpenseClick,
 }: CreditCardTransactionsModalProps) {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
@@ -204,25 +206,32 @@ export function CreditCardTransactionsModal({
               )}
             </div>
 
-            {/* Group toggle */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setGroupByCategory(!groupByCategory)}
-              className={groupByCategory ? 'bg-purple-50 border-purple-200' : ''}
-            >
-              {groupByCategory ? (
-                <>
-                  <Grid3x3 className="h-4 w-4 mr-2" />
-                  Agrupado
-                </>
-              ) : (
-                <>
-                  <List className="h-4 w-4 mr-2" />
-                  Lista
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => onAddExpenseClick(statement)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar gasto
+              </Button>
+
+              {/* Group toggle */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setGroupByCategory(!groupByCategory)}
+                className={groupByCategory ? 'bg-purple-50 border-purple-200' : ''}
+              >
+                {groupByCategory ? (
+                  <>
+                    <Grid3x3 className="h-4 w-4 mr-2" />
+                    Agrupado
+                  </>
+                ) : (
+                  <>
+                    <List className="h-4 w-4 mr-2" />
+                    Lista
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           {/* Category filter - only show when not grouping */}

@@ -91,7 +91,12 @@ describe('CreditCardTransactionsModal', () => {
 
   it('statement null: no renderiza nada', () => {
     const { container } = render(
-      <CreditCardTransactionsModal open statement={null} onClose={vi.fn()} />
+      <CreditCardTransactionsModal
+        open
+        statement={null}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
     );
     expect(container).toBeEmptyDOMElement();
   });
@@ -104,7 +109,14 @@ describe('CreditCardTransactionsModal', () => {
       offset: 0,
     });
 
-    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
+    );
 
     await waitFor(() =>
       expect(transactionsApi.getAll).toHaveBeenCalledWith({
@@ -123,7 +135,14 @@ describe('CreditCardTransactionsModal', () => {
       offset: 0,
     });
 
-    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
+    );
 
     await waitFor(() =>
       expect(screen.getByText('No hay transacciones en este período')).toBeInTheDocument()
@@ -138,7 +157,14 @@ describe('CreditCardTransactionsModal', () => {
       offset: 0,
     });
 
-    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
+    );
 
     await waitFor(() => expect(screen.getByText('Super')).toBeInTheDocument());
     expect(screen.getAllByText('50,00 €').length).toBeGreaterThan(0);
@@ -156,7 +182,14 @@ describe('CreditCardTransactionsModal', () => {
       offset: 0,
     });
 
-    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
+    );
     await waitFor(() => expect(screen.getByText('Del período actual')).toBeInTheDocument());
 
     await user.click(screen.getByText('Período Actual'));
@@ -173,7 +206,14 @@ describe('CreditCardTransactionsModal', () => {
       offset: 0,
     });
 
-    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
+    );
 
     await waitFor(() => expect(screen.getByText('Fijo')).toBeInTheDocument());
   });
@@ -190,7 +230,14 @@ describe('CreditCardTransactionsModal', () => {
       offset: 0,
     });
 
-    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
+    );
     await waitFor(() => expect(transactionsApi.getAll).toHaveBeenCalled());
 
     await user.click(screen.getByRole('button', { name: /Lista/ }));
@@ -211,7 +258,14 @@ describe('CreditCardTransactionsModal', () => {
       .mockResolvedValueOnce({ transactions: [], total: 0, limit: 1000, offset: 0 });
     vi.mocked(transactionsApi.delete).mockResolvedValue(undefined);
 
-    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
+    );
     await waitFor(() => expect(screen.getByText('Super')).toBeInTheDocument());
 
     await user.click(screen.getByRole('button', { name: 'Eliminar transacción' }));
@@ -236,7 +290,14 @@ describe('CreditCardTransactionsModal', () => {
     });
     vi.mocked(transactionsApi.delete).mockRejectedValue(new Error('network'));
 
-    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
+    );
     await waitFor(() => expect(screen.getByText('Super')).toBeInTheDocument());
 
     await user.click(screen.getByRole('button', { name: 'Eliminar transacción' }));
@@ -256,7 +317,14 @@ describe('CreditCardTransactionsModal', () => {
       offset: 0,
     });
 
-    render(<CreditCardTransactionsModal open statement={makeStatement()} onClose={vi.fn()} />);
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={makeStatement()}
+        onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
+      />
+    );
 
     await waitFor(() => expect(transactionsApi.getAll).toHaveBeenCalled());
     expect(screen.queryByText(/Período Vencido/)).not.toBeInTheDocument();
@@ -280,6 +348,7 @@ describe('CreditCardTransactionsModal', () => {
         statement={makeStatement()}
         overduePeriod={overduePeriod}
         onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
       />
     );
 
@@ -307,6 +376,7 @@ describe('CreditCardTransactionsModal', () => {
         statement={makeStatement()}
         overduePeriod={overduePeriod}
         onClose={vi.fn()}
+        onAddExpenseClick={vi.fn()}
       />
     );
     await waitFor(() => expect(screen.getByText('Del período vencido')).toBeInTheDocument());
@@ -314,5 +384,31 @@ describe('CreditCardTransactionsModal', () => {
     await user.click(screen.getByText('Todas'));
 
     expect(screen.getByText('De otro período')).toBeInTheDocument();
+  });
+
+  it('click en "Agregar gasto" invoca el callback con el statement', async () => {
+    const user = userEvent.setup();
+    const onAddExpenseClick = vi.fn();
+    const statement = makeStatement();
+    vi.mocked(transactionsApi.getAll).mockResolvedValue({
+      transactions: [],
+      total: 0,
+      limit: 1000,
+      offset: 0,
+    });
+
+    render(
+      <CreditCardTransactionsModal
+        open
+        statement={statement}
+        onClose={vi.fn()}
+        onAddExpenseClick={onAddExpenseClick}
+      />
+    );
+    await waitFor(() => expect(transactionsApi.getAll).toHaveBeenCalled());
+
+    await user.click(screen.getByRole('button', { name: 'Agregar gasto' }));
+
+    expect(onAddExpenseClick).toHaveBeenCalledWith(statement);
   });
 });
