@@ -5,6 +5,18 @@ Todos los cambios notables de este proyecto se documentan en este fichero.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-09-17
+
+### FEAT
+* [#76](https://github.com/Jabbcode/cuentas_front/pull/76) muestra el límite vigente de crédito por período
+* [#77](https://github.com/Jabbcode/cuentas_front/pull/77) botón eliminar transacción en modal de estado de cuenta
+
+### OTROS
+* [#74](https://github.com/Jabbcode/cuentas_front/pull/74) Sync release 0.2.0 to develop
+* [#79](https://github.com/Jabbcode/cuentas_front/pull/79) Release v0.3.0
+
+
+
 ## [0.2.0] - 2026-09-15
 
 ### FEAT
@@ -93,5 +105,6 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Comparaciones completas
 
+- [v0.2.0...v0.3.0](https://github.com/Jabbcode/cuentas_front/compare/v0.2.0...v0.3.0)
 - [v0.1.0...v0.2.0](https://github.com/Jabbcode/cuentas_front/compare/v0.1.0...v0.2.0)
 - [61dbbf23c1088019c6924157fae93f00de1790bf...v0.1.0](https://github.com/Jabbcode/cuentas_front/compare/61dbbf23c1088019c6924157fae93f00de1790bf...v0.1.0)
