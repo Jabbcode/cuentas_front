@@ -210,6 +210,71 @@ describe('useCreditCardsPage', () => {
     );
   });
 
+  describe('agregar gasto desde el modal de transacciones', () => {
+    it('handleOpenExpenseFromTransactions: oculta el modal de transacciones (conserva su estado) y abre el de gasto', () => {
+      const { result } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+      const statement = fakeStatement();
+
+      act(() => result.current.handleOpenTransactions(statement));
+      act(() => result.current.handleOpenExpenseFromTransactions(statement));
+
+      expect(result.current.transactionsModal.open).toBe(false);
+      expect(result.current.transactionsModal.statement).toBe(statement);
+      expect(result.current.expenseModal.open).toBe(true);
+    });
+
+    it('éxito: al crear el gasto, reabre el modal de transacciones', async () => {
+      mockTxCreate.mockResolvedValue(undefined);
+      const { result } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+      const statement = fakeStatement();
+
+      act(() => result.current.handleOpenTransactions(statement));
+      act(() => result.current.handleOpenExpenseFromTransactions(statement));
+      act(() => result.current.handleExpenseFormChange({ amount: '25', categoryId: 'cat-1' }));
+      await act(async () => {
+        await result.current.handleSubmitExpense({ preventDefault: vi.fn() } as never);
+      });
+
+      expect(result.current.expenseModal.open).toBe(false);
+      expect(result.current.transactionsModal.open).toBe(true);
+    });
+
+    it('fallo: el modal de gasto se queda abierto, sin reabrir el de transacciones', async () => {
+      mockTxCreate.mockRejectedValue(new Error('boom'));
+      const { result } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+      const statement = fakeStatement();
+
+      act(() => result.current.handleOpenTransactions(statement));
+      act(() => result.current.handleOpenExpenseFromTransactions(statement));
+      act(() => result.current.handleExpenseFormChange({ amount: '25', categoryId: 'cat-1' }));
+      await act(async () => {
+        await result.current.handleSubmitExpense({ preventDefault: vi.fn() } as never);
+      });
+
+      expect(mockToastError).toHaveBeenCalledWith('boom');
+      expect(result.current.expenseModal.open).toBe(true);
+      expect(result.current.transactionsModal.open).toBe(false);
+    });
+
+    it('cancelar (handleCloseExpense) sin haber pasado por el modal de transacciones: no lo abre', () => {
+      const { result } = renderHook(() => useCreditCardsPage(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      act(() => result.current.handleOpenExpense(fakeStatement()));
+      act(() => result.current.handleCloseExpense());
+
+      expect(result.current.expenseModal.open).toBe(false);
+      expect(result.current.transactionsModal.open).toBe(false);
+    });
+  });
+
   describe('pago de período atrasado', () => {
     it('handleOpenOverduePayment: precarga el monto completo del período y el target overdue', () => {
       const { result } = renderHook(() => useCreditCardsPage(), {

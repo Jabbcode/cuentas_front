@@ -33,6 +33,7 @@ function baseReturn(overrides: Partial<UseCreditCardsPageReturn> = {}): UseCredi
     handlePay: vi.fn(),
     updatePaymentFormData: vi.fn(),
     handleOpenExpense: vi.fn(),
+    handleOpenExpenseFromTransactions: vi.fn(),
     handleCloseExpense: vi.fn(),
     handleExpenseFormChange: vi.fn(),
     handleSubmitExpense: vi.fn(),

@@ -81,6 +81,7 @@ export interface UseCreditCardsPageReturn {
   handlePay: (e: React.FormEvent) => Promise<void>;
   updatePaymentFormData: (data: Partial<PaymentFormData>) => void;
   handleOpenExpense: (statement: import('../../types').CreditCardStatement) => void;
+  handleOpenExpenseFromTransactions: (statement: import('../../types').CreditCardStatement) => void;
   handleCloseExpense: () => void;
   handleExpenseFormChange: (data: Partial<ExpenseFormData>) => void;
   handleSubmitExpense: (e: React.FormEvent) => Promise<void>;
