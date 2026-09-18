@@ -5,6 +5,19 @@ Todos los cambios notables de este proyecto se documentan en este fichero.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-09-18
+
+### FEAT
+* [#78](https://github.com/Jabbcode/cuentas_front/pull/78) ver transacciones de cada período vencido individual
+* [#85](https://github.com/Jabbcode/cuentas_front/pull/85) agregar gasto desde el modal de transacciones
+
+### OTROS
+* [#80](https://github.com/Jabbcode/cuentas_front/pull/80) sync develop con main v0.3.0
+* [#83](https://github.com/Jabbcode/cuentas_front/pull/83) sync develop con main v0.3.1
+* [#86](https://github.com/Jabbcode/cuentas_front/pull/86) Release
+
+
+
 ## [0.3.1] - 2026-09-18
 
 ### OTROS
@@ -112,6 +125,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Comparaciones completas
 
+- [v0.3.1...v0.4.0](https://github.com/Jabbcode/cuentas_front/compare/v0.3.1...v0.4.0)
 - [v0.3.0...v0.3.1](https://github.com/Jabbcode/cuentas_front/compare/v0.3.0...v0.3.1)
 - [v0.2.0...v0.3.0](https://github.com/Jabbcode/cuentas_front/compare/v0.2.0...v0.3.0)
 - [v0.1.0...v0.2.0](https://github.com/Jabbcode/cuentas_front/compare/v0.1.0...v0.2.0)
