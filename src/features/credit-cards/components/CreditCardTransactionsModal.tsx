@@ -1,5 +1,11 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Dialog, DialogHeader, DialogTitle, DialogContent } from '../../../components/ui/dialog';
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogContent,
+  DialogFooter,
+} from '../../../components/ui/dialog';
 import { ConfirmDialog } from '../../../components/ui/confirm-dialog';
 import { Badge } from '../../../components/ui/badge';
 import { CategoryIcon } from '../../../components/ui/category-icon';
@@ -10,7 +16,7 @@ import { transactionsApi, groupTransactionsByCategory } from '../../../features/
 import type { Transaction, CreditCardStatement, CreditCardOverduePeriod } from '../../../types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { List, Grid3x3, Trash2 } from 'lucide-react';
+import { List, Grid3x3, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CreditCardTransactionsModalProps {
@@ -18,6 +24,7 @@ interface CreditCardTransactionsModalProps {
   statement: CreditCardStatement | null;
   overduePeriod?: CreditCardOverduePeriod | null;
   onClose: () => void;
+  onAddExpenseClick: (statement: CreditCardStatement) => void;
 }
 
 type PeriodFilter = 'all' | 'current' | 'closed' | 'overdue';
@@ -27,6 +34,7 @@ export function CreditCardTransactionsModal({
   statement,
   overduePeriod = null,
   onClose,
+  onAddExpenseClick,
 }: CreditCardTransactionsModalProps) {
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
@@ -147,7 +155,7 @@ export function CreditCardTransactionsModal({
   const totalAmount = filteredTransactions.reduce((sum, tx) => sum + Number(tx.amount), 0);
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} className="max-w-2xl">
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
           <span>Transacciones - {statement.account.name}</span>
@@ -400,6 +408,14 @@ export function CreditCardTransactionsModal({
           </div>
         )}
       </DialogContent>
+
+      {/* Fuera del área con scroll de DialogContent: siempre visible, sin importar el scroll */}
+      <DialogFooter className="sm:justify-start">
+        <Button variant="outline" onClick={() => onAddExpenseClick(statement)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Agregar gasto
+        </Button>
+      </DialogFooter>
 
       <ConfirmDialog
         open={!!deleteId}

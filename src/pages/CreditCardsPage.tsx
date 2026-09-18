@@ -32,6 +32,7 @@ export function CreditCardsPage() {
     handlePay,
     updatePaymentFormData,
     handleOpenExpense,
+    handleOpenExpenseFromTransactions,
     handleCloseExpense,
     handleExpenseFormChange,
     handleSubmitExpense,
@@ -110,6 +111,7 @@ export function CreditCardsPage() {
         statement={transactionsModal.statement}
         overduePeriod={transactionsModal.overduePeriod}
         onClose={handleCloseTransactions}
+        onAddExpenseClick={handleOpenExpenseFromTransactions}
       />
 
       <CreditCardExpenseModal
