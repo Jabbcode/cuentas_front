@@ -1,8 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { createQueryClientWrapper } from '../../../test-utils/query-client';
 import type { FormEvent } from 'react';
 import { useTransactionsPage } from './useTransactionsPage';
+
+/**
+ * useTransactionsPage llama al useSearchParams real de react-router-dom (T7:
+ * inicialización de filtros por URL) — necesita un Router además del
+ * QueryClientProvider que ya usan estos tests. `initialEntries` permite fijar
+ * la URL (y por tanto los query params) con la que arranca cada test.
+ */
+function createPageTestWrapper(initialEntries: string[] = ['/transactions']) {
+  const QueryWrapper = createQueryClientWrapper();
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(
+      MemoryRouter,
+      { initialEntries },
+      React.createElement(QueryWrapper, {}, children)
+    );
+}
 
 const { mockToastError, mockApiCreate, mockApiDelete, mockReload } = vi.hoisted(() => ({
   mockToastError: vi.fn(),
@@ -102,6 +120,7 @@ vi.mock('../../../lib/credit-card-utils', () => ({
 
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useCategories } from '../../categories/hooks/useCategories';
+import { useTransactionFilters } from './useTransactionFilters';
 
 const fakeEvent = { preventDefault: vi.fn() } as unknown as FormEvent;
 
@@ -114,7 +133,7 @@ describe('useTransactionsPage', () => {
 
   it('handleSubmit exitoso llama reload y cierra el formulario', async () => {
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     await act(async () => {
@@ -129,7 +148,7 @@ describe('useTransactionsPage', () => {
     mockApiCreate.mockRejectedValue(new Error('API error'));
 
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     await act(async () => {
@@ -141,7 +160,7 @@ describe('useTransactionsPage', () => {
 
   it('handleDelete exitoso llama reload y limpia deleteId', async () => {
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     act(() => {
@@ -174,7 +193,7 @@ describe('useTransactionsPage', () => {
     });
 
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     act(() => {
@@ -188,7 +207,7 @@ describe('useTransactionsPage', () => {
 
   it('handleCloseForm cierra el formulario y lo resetea', () => {
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     act(() => {
@@ -217,7 +236,7 @@ describe('useTransactionsPage', () => {
     });
 
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     act(() => {
@@ -240,7 +259,7 @@ describe('useTransactionsPage', () => {
     });
 
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     expect(result.current.filteredCategories).toEqual([{ id: 'cat-expense', type: 'expense' }]);
@@ -248,7 +267,7 @@ describe('useTransactionsPage', () => {
 
   it('dateWarning es null si no hay accountId, fecha o el tipo no es expense', () => {
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     expect(result.current.dateWarning).toBeNull();
@@ -272,7 +291,7 @@ describe('useTransactionsPage', () => {
     });
 
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     act(() => {
@@ -298,7 +317,7 @@ describe('useTransactionsPage', () => {
     });
 
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     act(() => {
@@ -331,7 +350,7 @@ describe('useTransactionsPage', () => {
     });
 
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     act(() => {
@@ -349,7 +368,7 @@ describe('useTransactionsPage', () => {
 
   it('handleEdit setea la transacción en edición', () => {
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
     const tx = { id: 'tx-1' } as never;
 
@@ -362,7 +381,7 @@ describe('useTransactionsPage', () => {
 
   it('handleSaveEdit exitoso limpia editingTransaction', async () => {
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     act(() => {
@@ -385,7 +404,7 @@ describe('useTransactionsPage', () => {
     const { transactionsApi } = await import('../api');
     vi.mocked(transactionsApi.update).mockRejectedValueOnce(new Error('update failed'));
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     act(() => {
@@ -407,7 +426,7 @@ describe('useTransactionsPage', () => {
 
   it('handleDelete sin deleteId no llama a la API', async () => {
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
 
     await act(async () => {
@@ -420,7 +439,7 @@ describe('useTransactionsPage', () => {
   it('handleViewItems con items ya cargados no vuelve a pedirlos a la API', async () => {
     const { transactionsApi } = await import('../api');
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
     const tx = { id: 'tx-1', receiptItems: [{ id: 'item-1' }] } as never;
 
@@ -436,7 +455,7 @@ describe('useTransactionsPage', () => {
     const { transactionsApi } = await import('../api');
     vi.mocked(transactionsApi.getReceiptItems).mockResolvedValueOnce([{ id: 'item-1' }] as never);
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
     const tx = { id: 'tx-1', receiptItems: [] } as never;
 
@@ -452,7 +471,7 @@ describe('useTransactionsPage', () => {
     const { transactionsApi } = await import('../api');
     vi.mocked(transactionsApi.getReceiptItems).mockRejectedValueOnce(new Error('boom'));
     const { result } = renderHook(() => useTransactionsPage(), {
-      wrapper: createQueryClientWrapper(),
+      wrapper: createPageTestWrapper(),
     });
     const tx = { id: 'tx-1', receiptItems: [] } as never;
 
@@ -462,5 +481,41 @@ describe('useTransactionsPage', () => {
 
     expect(mockToastError).toHaveBeenCalledWith('No se pudieron cargar los ítems del recibo');
     expect(result.current.loadingItemsId).toBeNull();
+  });
+
+  describe('inicialización de filtros desde query params de la URL (T7)', () => {
+    it('sin params en la URL, useTransactionFilters recibe {} como initialFilters (comportamiento idéntico al actual)', () => {
+      renderHook(() => useTransactionsPage(), {
+        wrapper: createPageTestWrapper(['/transactions']),
+      });
+
+      expect(useTransactionFilters).toHaveBeenCalledWith(expect.any(Function), {});
+    });
+
+    it('con query params válidos, los filtros iniciales llegan parseados a useTransactionFilters', () => {
+      renderHook(() => useTransactionsPage(), {
+        wrapper: createPageTestWrapper([
+          '/transactions?startDate=2026-01-01&endDate=2026-01-31&type=expense&accountId=acc-1&categoryIds=cat-1,cat-2',
+        ]),
+      });
+
+      expect(useTransactionFilters).toHaveBeenCalledWith(expect.any(Function), {
+        startDate: '2026-01-01',
+        endDate: '2026-01-31',
+        type: 'expense',
+        accountId: 'acc-1',
+        categoryIds: ['cat-1', 'cat-2'],
+      });
+    });
+
+    it('params mal formados o desconocidos se ignoran sin romper la página', () => {
+      renderHook(() => useTransactionsPage(), {
+        wrapper: createPageTestWrapper([
+          '/transactions?startDate=no-es-fecha&type=bogus&accountId=&unknown=x',
+        ]),
+      });
+
+      expect(useTransactionFilters).toHaveBeenCalledWith(expect.any(Function), {});
+    });
   });
 });

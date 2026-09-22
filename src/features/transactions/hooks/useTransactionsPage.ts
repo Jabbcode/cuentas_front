@@ -1,6 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { transactionsApi } from '../api';
+import { parseInitialFiltersFromSearchParams } from '../utils';
 import { useTransactions } from './useTransactions';
 import { useTransactionFilters } from './useTransactionFilters';
 import { useTransactionSummary } from './useTransactionSummary';
@@ -100,8 +102,14 @@ export function useTransactionsPage(): UseTransactionsPageReturn {
   // 1. Pagination — decoupled
   const pagination = usePagination(ITEMS_PER_PAGE);
 
-  // 2. Filters — decoupled, resets page on any filter change
-  const filterHook = useTransactionFilters(pagination.resetPage);
+  // 2. Filters — decoupled, resets page on any filter change. Inicialización
+  // (solo primer render) desde query params de la URL — habilitador del
+  // drill-down Análisis → Transacciones; sin sincronización posterior.
+  const [searchParams] = useSearchParams();
+  const filterHook = useTransactionFilters(
+    pagination.resetPage,
+    parseInitialFiltersFromSearchParams(searchParams)
+  );
 
   // 3. Transactions — server-side filtered and paginated
   const {

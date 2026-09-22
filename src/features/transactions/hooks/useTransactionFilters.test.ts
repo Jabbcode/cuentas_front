@@ -81,4 +81,31 @@ describe('useTransactionFilters', () => {
     });
     expect(result.current.hasActiveFilters).toBe(false);
   });
+
+  it('arranca con los initialFilters recibidos, mezclados sobre los valores por defecto', () => {
+    const { result } = renderHook(() =>
+      useTransactionFilters(undefined, { startDate: '2026-01-01', type: 'expense' })
+    );
+
+    expect(result.current.filters).toEqual({
+      startDate: '2026-01-01',
+      endDate: '',
+      categoryIds: [],
+      accountId: 'all',
+      minAmount: '',
+      maxAmount: '',
+      type: 'expense',
+    });
+  });
+
+  it('clearFilters vuelve a los valores por defecto vacíos, no a los initialFilters', () => {
+    const { result } = renderHook(() =>
+      useTransactionFilters(undefined, { startDate: '2026-01-01', type: 'expense' })
+    );
+
+    act(() => result.current.clearFilters());
+
+    expect(result.current.filters.startDate).toBe('');
+    expect(result.current.filters.type).toBe('all');
+  });
 });
