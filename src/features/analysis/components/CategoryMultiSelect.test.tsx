@@ -12,7 +12,7 @@ function series(ids: string[]): CategorySeries[] {
 }
 
 describe('CategoryMultiSelect', () => {
-  it('con menos de 8 seleccionadas, ningún checkbox no-marcado está disabled', () => {
+  it('con menos de 8 seleccionadas, ningún chip no-marcado está disabled', () => {
     const ids = ['a', 'b', 'c'];
     render(
       <CategoryMultiSelect
@@ -23,11 +23,25 @@ describe('CategoryMultiSelect', () => {
       />
     );
 
-    expect(screen.getByLabelText('b')).not.toBeDisabled();
-    expect(screen.getByLabelText('c')).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'b' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'c' })).not.toBeDisabled();
   });
 
-  it('con 8 seleccionadas, el checkbox de una 9ª (no marcada) está disabled y el motivo es visible', () => {
+  it('el chip de una categoría seleccionada expone aria-pressed=true', () => {
+    render(
+      <CategoryMultiSelect
+        series={series(['a', 'b'])}
+        selectedCategoryIds={['a']}
+        isSelectionFull={false}
+        onToggleCategory={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: 'a' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'b' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('con 8 seleccionadas, el chip de una 9ª (no marcada) está disabled y el motivo es visible', () => {
     const ids = Array.from({ length: 9 }, (_, i) => `cat-${i}`);
     const selected = ids.slice(0, 8);
     render(
@@ -39,7 +53,7 @@ describe('CategoryMultiSelect', () => {
       />
     );
 
-    expect(screen.getByLabelText('cat-8')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'cat-8' })).toBeDisabled();
     expect(screen.getByText(/Ya hay 8 categorías seleccionadas/)).toBeInTheDocument();
   });
 
@@ -53,7 +67,7 @@ describe('CategoryMultiSelect', () => {
         onToggleCategory={vi.fn()}
       />
     );
-    expect(screen.getByLabelText('cat-8')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'cat-8' })).toBeDisabled();
 
     rerender(
       <CategoryMultiSelect
@@ -64,7 +78,7 @@ describe('CategoryMultiSelect', () => {
       />
     );
 
-    expect(screen.getByLabelText('cat-8')).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'cat-8' })).not.toBeDisabled();
   });
 
   it('las categorías ya seleccionadas nunca quedan disabled, aunque isSelectionFull sea true', () => {
@@ -78,7 +92,7 @@ describe('CategoryMultiSelect', () => {
       />
     );
 
-    ids.forEach((id) => expect(screen.getByLabelText(id)).not.toBeDisabled());
+    ids.forEach((id) => expect(screen.getByRole('button', { name: id })).not.toBeDisabled());
   });
 
   it('click en una categoría disponible llama onToggleCategory con su id', () => {
@@ -92,7 +106,7 @@ describe('CategoryMultiSelect', () => {
       />
     );
 
-    fireEvent.click(screen.getByLabelText('b'));
+    fireEvent.click(screen.getByRole('button', { name: 'b' }));
 
     expect(onToggleCategory).toHaveBeenCalledWith('b');
   });
