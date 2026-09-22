@@ -73,6 +73,15 @@ jobs:
           echo "new=$new" >> "$GITHUB_OUTPUT"
           echo "previous=$current" >> "$GITHUB_OUTPUT"
 
+      - name: Actualizar título del PR
+        if: steps.bump.outputs.type != 'none' && steps.codecheck.outputs.has_code_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          NEW_VERSION: ${{ steps.version.outputs.new }}
+        run: |
+          gh pr edit "$PR_NUMBER" --title "Prepare Release v${NEW_VERSION}"
+
       - name: Generar notas de vista previa
         id: notes
         if: steps.bump.outputs.type != 'none' && steps.codecheck.outputs.has_code_changes == 'true'
