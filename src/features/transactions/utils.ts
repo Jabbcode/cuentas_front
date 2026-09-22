@@ -1,7 +1,6 @@
 import type { Transaction, Category } from '../../types';
 import type { TransactionApiFilters } from './api';
-import type { TransactionFilterState } from './types';
-import type { TransactionFilters } from './hooks/useTransactionFilters';
+import type { TransactionFilterState, TransactionFilters } from './types';
 
 export interface GroupedTransaction {
   category: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;

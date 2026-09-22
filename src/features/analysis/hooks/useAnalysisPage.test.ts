@@ -89,6 +89,18 @@ describe('useAnalysisPage', () => {
     await waitFor(() => expect(result.current.selectedCategoryIds).toEqual(['a', 'c']));
   });
 
+  it('cambiar el rango de fechas conserva la selección vigente y solo poda las categorías sin movimiento en el rango nuevo', async () => {
+    mockSeriesReturn({ series: fakeSeries(['a', 'b', 'c']) });
+    const { result } = renderHook(() => useAnalysisPage());
+    await waitFor(() => expect(result.current.selectedCategoryIds).toEqual(['a', 'b', 'c']));
+
+    mockSeriesReturn({ series: fakeSeries(['a', 'c']) }); // 'b' sin movimiento en todo el rango nuevo
+    act(() => result.current.setDraftStartDate('2026-06-01'));
+
+    expect(result.current.appliedRange.startDate).toBe('2026-06-01');
+    await waitFor(() => expect(result.current.selectedCategoryIds).toEqual(['a', 'c']));
+  });
+
   it('intentar seleccionar una 9ª categoría no cambia la selección; isSelectionFull queda true', async () => {
     const ids = Array.from({ length: 9 }, (_, i) => `cat-${i}`);
     mockSeriesReturn({ series: fakeSeries(ids) });

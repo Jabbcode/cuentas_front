@@ -1,14 +1,7 @@
 import { useState, useCallback } from 'react';
+import type { TransactionFilters } from '../types';
 
-export interface TransactionFilters {
-  startDate: string;
-  endDate: string;
-  categoryIds: string[];
-  accountId: string;
-  minAmount: string;
-  maxAmount: string;
-  type: 'all' | 'expense' | 'income';
-}
+export type { TransactionFilters };
 
 const DEFAULT_FILTERS: TransactionFilters = {
   startDate: '',

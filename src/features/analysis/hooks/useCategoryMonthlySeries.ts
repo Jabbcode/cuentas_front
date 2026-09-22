@@ -12,25 +12,21 @@ export interface UseCategoryMonthlySeriesReturn {
 }
 
 /**
- * `enabled` deja la query en pausa mientras el rango de fechas en borrador es
- * inválido (D8): la gráfica se queda con el último resultado válido, sin
- * disparar una petición nueva por cada tecla mientras se corrige la fecha.
+ * Sin flag `enabled`: `filters` siempre viene de `appliedRange` en
+ * `useAnalysisPage`, que por construcción (D8) solo se actualiza con rangos
+ * ya validados — nunca hay un estado intermedio que deba pausar la query.
  */
-export function useCategoryMonthlySeries(
-  filters: AnalysisFilters,
-  enabled: boolean = true
-): UseCategoryMonthlySeriesReturn {
+export function useCategoryMonthlySeries(filters: AnalysisFilters): UseCategoryMonthlySeriesReturn {
   const query = useQuery<CategoryMonthlySeriesResponse, Error>({
     queryKey: ['analysis', 'category-series', filters],
     queryFn: async () => {
       try {
         return await analysisApi.getCategoryMonthlySeries(filters);
-      } catch {
+      } catch (err) {
         toast.error('No se pudo cargar la gráfica de categorías');
-        throw new Error('Error al cargar la gráfica de categorías');
+        throw new Error('Error al cargar la gráfica de categorías', { cause: err });
       }
     },
-    enabled,
   });
 
   return {

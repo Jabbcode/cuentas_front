@@ -49,17 +49,6 @@ describe('useCategoryMonthlySeries', () => {
     expect(result.current.series).toEqual(body.series);
   });
 
-  it('deja months/series vacíos y no llama a la API cuando enabled=false', async () => {
-    const { result } = renderHook(() => useCategoryMonthlySeries(FILTERS, false), {
-      wrapper: createQueryClientWrapper(),
-    });
-
-    expect(result.current.loading).toBe(false);
-    expect(result.current.months).toEqual([]);
-    expect(result.current.series).toEqual([]);
-    expect(analysisApi.getCategoryMonthlySeries).not.toHaveBeenCalled();
-  });
-
   it('reload dispara un refetch', async () => {
     vi.mocked(analysisApi.getCategoryMonthlySeries).mockResolvedValue({ months: [], series: [] });
 

@@ -1,15 +1,9 @@
-import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useCategoryMonthlySeries } from './useCategoryMonthlySeries';
-import {
-  getDefaultAnalysisRange,
-  isValidRange,
-  pickDefaultSelection,
-  pruneSelection,
-  monthKeyToDateRange,
-  MAX_SELECTED_CATEGORIES,
-} from '../utils';
+import { useCategorySelection } from './useCategorySelection';
+import { getDefaultAnalysisRange, isValidRange, monthKeyToDateRange } from '../utils';
 import type { AnalysisEmptyState, AnalysisFilters, CategorySeries } from '../types';
 
 const RANGE_ERROR_MESSAGE = '"Desde" debe ser anterior o igual a "Hasta".';
@@ -46,6 +40,11 @@ export interface UseAnalysisPageReturn {
  * la lógica vive aquí). Nada persiste entre montajes — criterio 8, sin
  * localStorage/sessionStorage/query params — cada `useState` arranca en su
  * valor por defecto cada vez que el componente se monta.
+ *
+ * Orquesta tres piezas: el rango de fechas (draft/applied), la query de
+ * datos (`useCategoryMonthlySeries`) y la selección de categorías
+ * (`useCategorySelection`) — el ciclo de vida de la selección en sí vive en
+ * ese hook aparte.
  */
 export function useAnalysisPage(): UseAnalysisPageReturn {
   const navigate = useNavigate();
@@ -56,10 +55,6 @@ export function useAnalysisPage(): UseAnalysisPageReturn {
   const [appliedRange, setAppliedRange] = useState<DateRange>(defaultRange);
   const [type, setTypeState] = useState<'expense' | 'income'>('expense');
   const [accountId, setAccountIdState] = useState('all');
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
-  // true una vez que la selección refleja al usuario (top-8 automático o un
-  // toggle manual) — un cambio de `type` lo vuelve a poner en false (criterio 4).
-  const selectionInitializedRef = useRef(false);
 
   const rangeError = isValidRange(draftRange.startDate, draftRange.endDate)
     ? null
@@ -71,21 +66,8 @@ export function useAnalysisPage(): UseAnalysisPageReturn {
   );
 
   const { months, series, loading, error, reload } = useCategoryMonthlySeries(filters);
-
-  useEffect(() => {
-    // Mientras carga o hay error, `series` puede venir vacía por la
-    // transición de queryKey (no por falta real de datos) — podar aquí
-    // vaciaría la selección de golpe. Se espera al próximo dato estable.
-    if (loading || error) return;
-
-    setSelectedCategoryIds((prev) => {
-      if (!selectionInitializedRef.current) {
-        selectionInitializedRef.current = true;
-        return pickDefaultSelection(series);
-      }
-      return pruneSelection(prev, series);
-    });
-  }, [series, loading, error]);
+  const { selectedCategoryIds, isSelectionFull, toggleCategory, resetSelection } =
+    useCategorySelection(series, loading, error);
 
   const setDraftStartDate = useCallback((startDate: string) => {
     setDraftRange((prev) => {
@@ -103,22 +85,16 @@ export function useAnalysisPage(): UseAnalysisPageReturn {
     });
   }, []);
 
-  const setType = useCallback((nextType: 'expense' | 'income') => {
-    setTypeState(nextType);
-    selectionInitializedRef.current = false;
-  }, []);
+  const setType = useCallback(
+    (nextType: 'expense' | 'income') => {
+      setTypeState(nextType);
+      resetSelection();
+    },
+    [resetSelection]
+  );
 
   const setAccountId = useCallback((nextAccountId: string) => {
     setAccountIdState(nextAccountId);
-  }, []);
-
-  const toggleCategory = useCallback((categoryId: string) => {
-    selectionInitializedRef.current = true;
-    setSelectedCategoryIds((prev) => {
-      const isSelected = prev.includes(categoryId);
-      if (!isSelected && prev.length >= MAX_SELECTED_CATEGORIES) return prev;
-      return isSelected ? prev.filter((id) => id !== categoryId) : [...prev, categoryId];
-    });
   }, []);
 
   const onPointClick = useCallback(
@@ -148,7 +124,7 @@ export function useAnalysisPage(): UseAnalysisPageReturn {
     accountId,
     accounts,
     selectedCategoryIds,
-    isSelectionFull: selectedCategoryIds.length >= MAX_SELECTED_CATEGORIES,
+    isSelectionFull,
     months,
     series,
     loading,

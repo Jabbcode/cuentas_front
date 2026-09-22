@@ -31,10 +31,22 @@ const EMPTY_STATE_MESSAGES: Record<Exclude<AnalysisEmptyState, null>, string> = 
   error: 'No se pudo cargar la gráfica de categorías',
 };
 
+/**
+ * Una fila del chart: `monthKey`/`monthLabel` fijos, más dos claves
+ * sintéticas por categoría seleccionada — `[categoryId]` (total, leído por el
+ * `dataKey` de cada `<Line>`) y `[categoryId]__count` (count, leído solo por
+ * `makeDotRenderer` para decidir si el punto es clickeable).
+ */
+interface ChartRow {
+  monthKey: string;
+  monthLabel: string;
+  [seriesKey: string]: string | number;
+}
+
 interface ChartDotProps {
   cx?: number;
   cy?: number;
-  payload?: Record<string, number | string>;
+  payload?: ChartRow;
 }
 
 function countKey(categoryId: string): string {
@@ -46,7 +58,7 @@ function makeDotRenderer(categoryId: string, color: string, onClick: (month: str
   return ({ cx, cy, payload }: ChartDotProps) => {
     if (cx == null || cy == null || !payload) return <g />;
     const count = Number(payload[countKey(categoryId)] ?? 0);
-    const monthKey = String(payload.monthKey);
+    const monthKey = payload.monthKey;
     const clickable = count > 0;
 
     return (
@@ -111,8 +123,8 @@ export function CategoryTrendChart({
 
   const selectedSeries = series.filter((s) => selectedCategoryIds.includes(s.category.id));
 
-  const chartData = months.map((month) => {
-    const point: Record<string, number | string> = {
+  const chartData: ChartRow[] = months.map((month) => {
+    const point: ChartRow = {
       monthKey: month,
       monthLabel: formatMonthLabel(month),
     };
