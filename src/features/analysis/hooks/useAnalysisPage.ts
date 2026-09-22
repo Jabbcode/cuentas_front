@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAccounts } from '../../accounts/hooks/useAccounts';
 import { useCategoryMonthlySeries } from './useCategoryMonthlySeries';
 import {
@@ -6,6 +7,7 @@ import {
   isValidRange,
   pickDefaultSelection,
   pruneSelection,
+  monthKeyToDateRange,
   MAX_SELECTED_CATEGORIES,
 } from '../utils';
 import type { AnalysisEmptyState, AnalysisFilters, CategorySeries } from '../types';
@@ -35,6 +37,7 @@ export interface UseAnalysisPageReturn {
   setType: (type: 'expense' | 'income') => void;
   setAccountId: (accountId: string) => void;
   toggleCategory: (categoryId: string) => void;
+  onPointClick: (categoryId: string, month: string, count: number) => void;
   reload: () => void;
 }
 
@@ -45,6 +48,7 @@ export interface UseAnalysisPageReturn {
  * valor por defecto cada vez que el componente se monta.
  */
 export function useAnalysisPage(): UseAnalysisPageReturn {
+  const navigate = useNavigate();
   const { accounts } = useAccounts();
 
   const defaultRange = useMemo(() => getDefaultAnalysisRange(), []);
@@ -117,6 +121,17 @@ export function useAnalysisPage(): UseAnalysisPageReturn {
     });
   }, []);
 
+  const onPointClick = useCallback(
+    (categoryId: string, month: string, count: number) => {
+      if (count === 0) return;
+      const { startDate, endDate } = monthKeyToDateRange(month);
+      const params = new URLSearchParams({ startDate, endDate, type, categoryIds: categoryId });
+      if (accountId !== 'all') params.set('accountId', accountId);
+      navigate(`/transactions?${params.toString()}`);
+    },
+    [navigate, type, accountId]
+  );
+
   const emptyState: AnalysisEmptyState = useMemo(() => {
     if (error) return 'error';
     if (loading) return null;
@@ -143,6 +158,7 @@ export function useAnalysisPage(): UseAnalysisPageReturn {
     setType,
     setAccountId,
     toggleCategory,
+    onPointClick,
     reload,
   };
 }

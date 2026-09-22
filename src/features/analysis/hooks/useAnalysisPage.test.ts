@@ -4,6 +4,12 @@ import { useAnalysisPage } from './useAnalysisPage';
 import type { CategorySeries } from '../types';
 import type { UseCategoryMonthlySeriesReturn } from './useCategoryMonthlySeries';
 
+const { mockNavigate } = vi.hoisted(() => ({ mockNavigate: vi.fn() }));
+
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => mockNavigate,
+}));
+
 vi.mock('./useCategoryMonthlySeries', () => ({
   useCategoryMonthlySeries: vi.fn(),
 }));
@@ -165,6 +171,72 @@ describe('useAnalysisPage', () => {
       const { result } = renderHook(() => useAnalysisPage());
 
       expect(result.current.emptyState).toBeNull();
+    });
+  });
+
+  describe('onPointClick (T8: navegación a Transacciones filtrada)', () => {
+    it('construye la URL exacta para un punto de un mes de 31 días y navega', () => {
+      mockSeriesReturn();
+      const { result } = renderHook(() => useAnalysisPage());
+
+      act(() => result.current.onPointClick('cat-1', '2026-01', 3));
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/transactions?startDate=2026-01-01&endDate=2026-01-31&type=expense&categoryIds=cat-1'
+      );
+    });
+
+    it('construye la URL exacta para un punto de un mes de 30 días', () => {
+      mockSeriesReturn();
+      const { result } = renderHook(() => useAnalysisPage());
+
+      act(() => result.current.onPointClick('cat-1', '2026-04', 1));
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/transactions?startDate=2026-04-01&endDate=2026-04-30&type=expense&categoryIds=cat-1'
+      );
+    });
+
+    it('construye la URL exacta para un punto de febrero', () => {
+      mockSeriesReturn();
+      const { result } = renderHook(() => useAnalysisPage());
+
+      act(() => result.current.onPointClick('cat-1', '2026-02', 1));
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/transactions?startDate=2026-02-01&endDate=2026-02-28&type=expense&categoryIds=cat-1'
+      );
+    });
+
+    it('incluye accountId en la URL solo cuando hay una cuenta específica seleccionada', () => {
+      mockSeriesReturn();
+      const { result } = renderHook(() => useAnalysisPage());
+
+      act(() => result.current.setAccountId('acc-1'));
+      act(() => result.current.onPointClick('cat-1', '2026-01', 2));
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/transactions?startDate=2026-01-01&endDate=2026-01-31&type=expense&categoryIds=cat-1&accountId=acc-1'
+      );
+    });
+
+    it('no incluye accountId cuando el filtro está en "all"', () => {
+      mockSeriesReturn();
+      const { result } = renderHook(() => useAnalysisPage());
+
+      act(() => result.current.onPointClick('cat-1', '2026-01', 1));
+
+      const url = mockNavigate.mock.calls[0][0] as string;
+      expect(url).not.toContain('accountId');
+    });
+
+    it('un punto con count 0 no navega', () => {
+      mockSeriesReturn();
+      const { result } = renderHook(() => useAnalysisPage());
+
+      act(() => result.current.onPointClick('cat-1', '2026-01', 0));
+
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 

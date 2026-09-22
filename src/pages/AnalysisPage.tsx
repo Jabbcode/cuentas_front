@@ -35,7 +35,7 @@ export function AnalysisPage() {
           selectedCategoryIds={page.selectedCategoryIds}
           loading={page.loading}
           emptyState={page.emptyState}
-          onPointClick={() => {}}
+          onPointClick={page.onPointClick}
           onRetry={page.reload}
         />
         <CategoryMultiSelect

@@ -37,6 +37,7 @@ function baseReturn(overrides: Partial<UseAnalysisPageReturn> = {}): UseAnalysis
     setType: vi.fn(),
     setAccountId: vi.fn(),
     toggleCategory: vi.fn(),
+    onPointClick: vi.fn(),
     reload: vi.fn(),
     ...overrides,
   };
