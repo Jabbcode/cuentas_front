@@ -20,6 +20,9 @@ const AccountsPage = lazy(() =>
 const TransactionsPage = lazy(() =>
   import('./pages/TransactionsPage').then((m) => ({ default: m.TransactionsPage }))
 );
+const AnalysisPage = lazy(() =>
+  import('./pages/AnalysisPage').then((m) => ({ default: m.AnalysisPage }))
+);
 const FixedExpensesPage = lazy(() =>
   import('./pages/FixedExpensesPage').then((m) => ({ default: m.FixedExpensesPage }))
 );
@@ -63,6 +66,7 @@ function App() {
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/accounts" element={<AccountsPage />} />
                 <Route path="/transactions" element={<TransactionsPage />} />
+                <Route path="/analysis" element={<AnalysisPage />} />
                 <Route path="/fixed-expenses" element={<FixedExpensesPage />} />
                 <Route path="/credit-cards" element={<CreditCardsPage />} />
                 <Route path="/debts" element={<DebtsPage />} />

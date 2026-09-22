@@ -19,6 +19,17 @@ export interface TransactionReceiptItemInput {
   totalPrice: number;
 }
 
+/** Filtros de la pantalla de Transacciones (estado de `useTransactionFilters`). */
+export interface TransactionFilters {
+  startDate: string;
+  endDate: string;
+  categoryIds: string[];
+  accountId: string;
+  minAmount: string;
+  maxAmount: string;
+  type: 'all' | 'expense' | 'income';
+}
+
 export interface TransactionFilterState {
   startDate: string;
   endDate: string;

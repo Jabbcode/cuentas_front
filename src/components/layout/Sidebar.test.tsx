@@ -46,6 +46,7 @@ describe('Sidebar', () => {
       'href',
       '/transactions'
     );
+    expect(screen.getByRole('link', { name: /Análisis/i })).toHaveAttribute('href', '/analysis');
   });
 
   it('click en "Cerrar sesión" llama logout', async () => {
