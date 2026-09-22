@@ -10,16 +10,24 @@ export interface TransactionFilters {
   type: 'all' | 'expense' | 'income';
 }
 
-export function useTransactionFilters(onFilterChange?: () => void) {
-  const [filters, setFilters] = useState<TransactionFilters>({
-    startDate: '',
-    endDate: '',
-    categoryIds: [],
-    accountId: 'all',
-    minAmount: '',
-    maxAmount: '',
-    type: 'all',
-  });
+const DEFAULT_FILTERS: TransactionFilters = {
+  startDate: '',
+  endDate: '',
+  categoryIds: [],
+  accountId: 'all',
+  minAmount: '',
+  maxAmount: '',
+  type: 'all',
+};
+
+export function useTransactionFilters(
+  onFilterChange?: () => void,
+  initialFilters?: Partial<TransactionFilters>
+) {
+  const [filters, setFilters] = useState<TransactionFilters>(() => ({
+    ...DEFAULT_FILTERS,
+    ...initialFilters,
+  }));
 
   const setStartDate = useCallback(
     (date: string) => {
@@ -89,15 +97,7 @@ export function useTransactionFilters(onFilterChange?: () => void) {
   );
 
   const clearFilters = useCallback(() => {
-    setFilters({
-      startDate: '',
-      endDate: '',
-      categoryIds: [],
-      accountId: 'all',
-      minAmount: '',
-      maxAmount: '',
-      type: 'all',
-    });
+    setFilters(DEFAULT_FILTERS);
     onFilterChange?.();
   }, [onFilterChange]);
 

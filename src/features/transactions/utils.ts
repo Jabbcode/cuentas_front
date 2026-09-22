@@ -1,6 +1,7 @@
 import type { Transaction, Category } from '../../types';
 import type { TransactionApiFilters } from './api';
 import type { TransactionFilterState } from './types';
+import type { TransactionFilters } from './hooks/useTransactionFilters';
 
 export interface GroupedTransaction {
   category: Pick<Category, 'id' | 'name' | 'icon' | 'color'>;
@@ -177,6 +178,41 @@ export function hasActiveFilters(filters: TransactionFilterState): boolean {
     filters.type !== 'all' ||
     (filters.tag !== undefined && filters.tag !== '')
   );
+}
+
+const DATE_PARAM_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Parsea valores iniciales de filtro desde query params de la URL (habilitador
+ * del drill-down Análisis → Transacciones, criterio 6 de
+ * gastos-por-categoria-grafica). Params ausentes, desconocidos o mal formados
+ * se ignoran sin romper la página — nunca lanza.
+ */
+export function parseInitialFiltersFromSearchParams(
+  searchParams: URLSearchParams
+): Partial<TransactionFilters> {
+  const initial: Partial<TransactionFilters> = {};
+
+  const startDate = searchParams.get('startDate');
+  if (startDate && DATE_PARAM_REGEX.test(startDate)) initial.startDate = startDate;
+
+  const endDate = searchParams.get('endDate');
+  if (endDate && DATE_PARAM_REGEX.test(endDate)) initial.endDate = endDate;
+
+  const type = searchParams.get('type');
+  if (type === 'expense' || type === 'income') initial.type = type;
+
+  const accountId = searchParams.get('accountId');
+  if (accountId) initial.accountId = accountId;
+
+  const categoryIds = searchParams
+    .get('categoryIds')
+    ?.split(',')
+    .map((id) => id.trim())
+    .filter(Boolean);
+  if (categoryIds?.length) initial.categoryIds = categoryIds;
+
+  return initial;
 }
 
 export const DEFAULT_FILTER_STATE: TransactionFilterState = {
