@@ -72,7 +72,8 @@ describe('AnalysisPage', () => {
 
     render(<AnalysisPage />);
 
-    expect(screen.getByText('Comida')).toBeInTheDocument();
+    // "Comida" aparece dos veces: el chip del multiselect y la leyenda del chart.
+    expect(screen.getByRole('button', { name: 'Comida' })).toBeInTheDocument();
   });
 
   it('sin datos: muestra el estado vacío de la gráfica', () => {

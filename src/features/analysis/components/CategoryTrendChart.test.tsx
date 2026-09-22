@@ -22,7 +22,6 @@ vi.mock('recharts', () => ({
   YAxis: () => null,
   CartesianGrid: () => null,
   Tooltip: () => null,
-  Legend: () => null,
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
@@ -155,6 +154,23 @@ describe('CategoryTrendChart', () => {
 
     expect(screen.getByTestId('line-cat-a')).toBeInTheDocument();
     expect(screen.queryByTestId('line-cat-b')).not.toBeInTheDocument();
+  });
+
+  it('la leyenda propia muestra el nombre de cada categoría seleccionada, no de todas las disponibles', () => {
+    render(
+      <CategoryTrendChart
+        months={MONTHS}
+        series={SERIES}
+        selectedCategoryIds={['cat-a']}
+        loading={false}
+        emptyState={null}
+        onPointClick={vi.fn()}
+        onRetry={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Comida')).toBeInTheDocument();
+    expect(screen.queryByText('Transporte')).not.toBeInTheDocument();
   });
 
   it('un punto con count > 0 invoca onPointClick con categoryId, mes y count', () => {

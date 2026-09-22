@@ -5,7 +5,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 import { Card, CardContent } from '../../../components/ui/card';
@@ -51,6 +50,12 @@ interface ChartDotProps {
 
 function countKey(categoryId: string): string {
   return `${categoryId}__count`;
+}
+
+/** Color de la línea y de su chip en la leyenda — mismo cálculo para ambos,
+ * para que el color del chip siempre coincida con el de su línea. */
+function getSeriesColor(category: CategorySeries['category'], index: number): string {
+  return category.color ?? CATEGORY_LINE_COLORS[index % CATEGORY_LINE_COLORS.length];
 }
 
 /** Un punto con `count === 0` no es clickeable (criterio 6, caso límite). */
@@ -153,10 +158,8 @@ export function CategoryTrendChart({
               tick={{ fontSize: 11 }}
             />
             <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-            <Legend />
             {selectedSeries.map((s, index) => {
-              const color =
-                s.category.color ?? CATEGORY_LINE_COLORS[index % CATEGORY_LINE_COLORS.length];
+              const color = getSeriesColor(s.category, index);
               return (
                 <Line
                   key={s.category.id}
@@ -179,6 +182,25 @@ export function CategoryTrendChart({
             })}
           </LineChart>
         </ResponsiveContainer>
+
+        {/* Leyenda propia en vez de <Legend /> de Recharts: esta respira con
+            gap-x/gap-y y envuelve en móvil sin amontonarse (el layout por
+            defecto de Recharts apretaba los nombres de categoría). */}
+        <ul className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 px-1">
+          {selectedSeries.map((s, index) => (
+            <li
+              key={s.category.id}
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-600"
+            >
+              <span
+                aria-hidden="true"
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: getSeriesColor(s.category, index) }}
+              />
+              {s.category.name}
+            </li>
+          ))}
+        </ul>
       </CardContent>
     </Card>
   );
